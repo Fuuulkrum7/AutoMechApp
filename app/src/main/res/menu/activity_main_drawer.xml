@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_breakdowns"
+            android:icon="@drawable/ic_baseline_car_repair_24"
+            android:title="@string/breakdowns" />
+        <item
+            android:id="@+id/nav_cars"
+            android:icon="@drawable/ic_car_24"
+            android:title="@string/cars" />
+        <item
+            android:id="@+id/nav_owners"
+            android:icon="@drawable/ic_human_24"
+            android:title="@string/owners" />
+    </group>
+</menu>

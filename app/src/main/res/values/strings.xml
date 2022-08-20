@@ -1,0 +1,9 @@
+<resources>
+    <string name="app_name">AutoMechApp</string>
+    <string name="search">Поиск</string>
+    <string name="more">Прочее</string>
+    <string name="todo">TODO</string>
+    <string name="owners">Владельцы</string>
+    <string name="cars">Автомобили</string>
+    <string name="breakdowns">Поломки</string>
+</resources>

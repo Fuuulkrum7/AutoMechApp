@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="add_margin">16dp</dimen>
+    <dimen name="nav_header_height">336dp</dimen>
+    <dimen name="nav_header_dist_top">128dp</dimen>
+    <dimen name="nav_header_dist_left">96dp</dimen>
+    <dimen name="nav_header_bg_dist_top">112dp</dimen>
+    <dimen name="nav_header_bg_dist_left">80dp</dimen>
+</resources>

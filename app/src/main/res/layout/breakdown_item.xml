@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/primaryDarkColor"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:id="@+id/breakdown_image"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:contentDescription="TODO"
+            app:srcCompat="@drawable/ic_baseline_no_photography_24" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            app:layout_constraintStart_toEndOf="@+id/breakdown_image">
+
+            <TextView
+                android:id="@+id/breakdown_name"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:fontFamily="@font/lato_regular_family"
+                android:gravity="left|center_vertical"
+                android:textColor="@color/secondaryTextColor"
+                android:textSize="34sp"
+                tools:ignore="RtlHardcoded" />
+
+            <TextView
+                android:id="@+id/breakdown_manufacturer"
+                android:layout_width="match_parent"
+                android:layout_height="25dp"
+                android:fontFamily="@font/lato_regular_family"
+                android:gravity="left|center_vertical"
+                android:textSize="16sp"
+                tools:ignore="RtlHardcoded" />
+
+            <TextView
+                android:id="@+id/breakdown_model"
+                android:layout_width="match_parent"
+                android:layout_height="25dp"
+                android:fontFamily="@font/lato_regular_family" />
+
+            <TextView
+                android:id="@+id/breakdown_date"
+                android:layout_width="match_parent"
+                android:layout_height="25dp"
+                android:fontFamily="@font/lato_regular_family" />
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/primaryDarkColor"/>
+
+</LinearLayout>
