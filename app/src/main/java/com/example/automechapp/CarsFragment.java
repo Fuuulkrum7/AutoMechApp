@@ -1,8 +1,8 @@
 package com.example.automechapp;
 
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -16,7 +16,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import java.util.ArrayList;
 
 public class CarsFragment extends Fragment {
-    private final ArrayList<Car> cars = new ArrayList<Car>();
+    private ArrayList<Car> cars = new ArrayList<Car>();
     public FloatingActionButton addButton;
     public RecyclerView carsView;
 
@@ -27,13 +27,38 @@ public class CarsFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_recycler,
                 container, false);
 
-
-        setInitialData();
-
         carsView = view.findViewById(R.id.main_recycler);
 
-        CarsAdapter adapter = new CarsAdapter(getContext(), cars);
-        carsView.setAdapter(adapter);
+        Thread thread = new Thread() {
+            @Override
+            public void run() {
+                GetCars getCars = new GetCars(
+                        getContext(),
+                        new String[]{
+                            DatabaseInfo.CAR_NAME,
+                            DatabaseInfo.CAR_MANUFACTURE,
+                            DatabaseInfo.CAR_MODEL,
+                            DatabaseInfo.CAR_ID
+                        },
+                        null,
+                        null
+                        );
+                try {
+                    getCars.join();
+                    cars = getCars.getData();
+                }
+                catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+                setInitialData();
+
+                CarsAdapter adapter = new CarsAdapter(getContext(), cars);
+                carsView.setAdapter(adapter);
+            }
+        };
+
+        thread.start();
 
         addButton = getActivity().findViewById(R.id.add);
         addButton.setOnClickListener(new View.OnClickListener() {
@@ -47,13 +72,13 @@ public class CarsFragment extends Fragment {
     }
 
     private void setInitialData() {
-        cars.add(new Car("говновоз", "Toyota", "Supra", 0));
-        cars.add(new Car("говновоз", "Toyota", "Supra", 0));
-        cars.add(new Car("говновоз", "Toyota", "Supra", 0));
-        cars.add(new Car("говновоз", "Toyota", "Supra", 0));
-        cars.add(new Car("говновоз", "Toyota", "Supra", 0));
-        cars.add(new Car("говновоз", "Toyota", "Supra", 0));
-        cars.add(new Car("говновоз", "Toyota", "Supra", 0));
-        cars.add(new Car("говновоз", "Toyota", "Supra", 0));
+        cars.add(new Car("говновоз", "Toyota", "Supra", 0, null));
+        cars.add(new Car("говновоз", "Toyota", "Supra", 0, null));
+        cars.add(new Car("говновоз", "Toyota", "Supra", 0, null));
+        cars.add(new Car("говновоз", "Toyota", "Supra", 0, null));
+        cars.add(new Car("говновоз", "Toyota", "Supra", 0, null));
+        cars.add(new Car("говновоз", "Toyota", "Supra", 0, null));
+        cars.add(new Car("говновоз", "Toyota", "Supra", 0, null));
+        cars.add(new Car("говновоз", "Toyota", "Supra", 0, null));
     }
 }

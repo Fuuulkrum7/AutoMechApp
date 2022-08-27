@@ -2,20 +2,14 @@ package com.example.automechapp;
 
 import static com.example.automechapp.DatabaseInfo.*;
 
-import android.annotation.SuppressLint;
 import android.content.ContentValues;
 import android.content.Context;
-import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.os.Bundle;
-import android.util.Log;
-import android.widget.Toast;
+import android.graphics.Bitmap;
 
-import java.util.ArrayList;
+import java.io.ByteArrayOutputStream;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
 
 public class DatabaseInterface extends SQLiteOpenHelper {
     // Данные по бд
@@ -64,69 +58,11 @@ public class DatabaseInterface extends SQLiteOpenHelper {
         addData.start();
     }
 
-    public GetData GetData(String table, int id, String[] projection, String selection, String sortOrder) {
+    public GetData GetData(String table, String[] projection, String selection, String sortOrder) {
         SQLiteDatabase db = getReadableDatabase();
-        GetData getData = new GetData(db, table, id, projection, selection, sortOrder);
+        GetData getData = new GetData(db, table, projection, selection, sortOrder);
         getData.start();
 
         return getData;
-    }
-
-    class GetData extends Thread {
-        int id;
-        String table;
-        SQLiteDatabase db;
-        String[] projection;
-        String selection;
-        String sortOrder;
-        ArrayList<HashMap<String, String>> data = new ArrayList<>();
-
-        public GetData (SQLiteDatabase db, String table, int id, String[] projection, String selection, String sortOrder){
-            this.db = db;
-            this.table = table;
-            this.id = id;
-            this.projection = projection;
-            this.selection = selection;
-            this.sortOrder = sortOrder;
-        }
-
-        @SuppressLint("Recycle")
-        @Override
-        public void run() {
-            Cursor cursor;
-
-            try {
-                cursor = db.query(
-                        table,
-                        projection,
-                        selection,
-                        null,
-                        null,
-                        null,
-                        sortOrder
-                );
-            }
-            catch (Exception e) {
-                // Если что-то пошло не так
-                Log.d("TEST", e.toString());
-
-                Toast toast = Toast.makeText(MainActivity.getContext(),
-                        "Не удалось получить данные", Toast.LENGTH_SHORT);
-
-                toast.show();
-
-                return;
-            }
-
-            int[] indexes = new int[projection.length];
-
-            for (int i = 0; i < indexes.length; i++) {
-                indexes[i] = cursor.getColumnIndex(projection[i]);
-            }
-        }
-
-        public ArrayList<HashMap<String, String>> getData() {
-            return data;
-        }
     }
 }
