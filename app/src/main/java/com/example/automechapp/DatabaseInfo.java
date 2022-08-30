@@ -31,6 +31,7 @@ final public class DatabaseInfo implements BaseColumns {
     public final static String CATEGORIES = "categories";
     public final static String PASSPORT_SERIES = "passport_series";
     public final static String PASSPORT_NUMBER = "passport_number";
+    public final static String HORSEPOWER = "horsepower";
 
     public final static String CAR_NAME = "car_name";
     public final static String CAR_YEAR = "car_year";
@@ -76,7 +77,7 @@ final public class DatabaseInfo implements BaseColumns {
     public static final String CREATE_CARS_TABLE =
             "CREATE TABLE " + CARS_TABLE + " (" +
             OWNER_ID + " INTEGER," +
-            STANDARD_ID + " INTEGER PRIMARY KEY," +
+            CAR_ID + " INTEGER PRIMARY KEY," +
             CAR_NAME + " TEXT," +
             CAR_YEAR + " INTEGER," +
             CAR_MANUFACTURE + " TEXT," +
@@ -87,8 +88,10 @@ final public class DatabaseInfo implements BaseColumns {
             COLOR + " TEXT," +
             VIN + " TEXT," +
             STATE_CAR_NUMBER + " INTEGER," +
+            HORSEPOWER + " INTEGER," +
             ENGINE_NUMBER + " TEXT," +
             ENGINE_MODEL + " TEXT," +
+            STANDARD_DATE + " NUMERIC," +
             ENGINE_VOLUME + " INTEGER);";
 
     public static final String CREATE_BREAKDOWNS_TABLE =

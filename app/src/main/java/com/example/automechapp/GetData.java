@@ -1,8 +1,11 @@
 package com.example.automechapp;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -39,10 +42,19 @@ class GetData extends Thread {
             // Если что-то пошло не так
             Log.d("TEST", e.toString());
 
-            Toast toast = Toast.makeText(MainActivity.getContext(),
-                    "Не удалось получить данные", Toast.LENGTH_SHORT);
+            new Handler(Looper.getMainLooper()).post(new Runnable() {
+                @Override
+                public void run() {
+                    Context context = MainActivity.getContext();
+                    if (context == null) {
+                        context = CarActivity.getContext();
+                    }
+                    Toast toast = Toast.makeText(context,
+                            "Не удалось получить данные", Toast.LENGTH_SHORT);
+                    toast.show();
+                }
+            });
 
-            toast.show();
         }
     }
 

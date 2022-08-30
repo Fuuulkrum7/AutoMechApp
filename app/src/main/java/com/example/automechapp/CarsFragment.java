@@ -1,10 +1,15 @@
 package com.example.automechapp;
 
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -38,23 +43,38 @@ public class CarsFragment extends Fragment {
                             DatabaseInfo.CAR_NAME,
                             DatabaseInfo.CAR_MANUFACTURE,
                             DatabaseInfo.CAR_MODEL,
-                            DatabaseInfo.CAR_ID
+                            DatabaseInfo.CAR_ID,
+                            DatabaseInfo.CAR_PHOTO,
+                            DatabaseInfo.OWNER_ID
                         },
                         null,
-                        null
+                        DatabaseInfo.STANDARD_DATE + " DESC"
                         );
+                getCars.start();
                 try {
                     getCars.join();
                     cars = getCars.getData();
                 }
                 catch (Exception e) {
                     e.printStackTrace();
+                    new Handler(Looper.getMainLooper()).post(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(getContext(), "error", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                    e.printStackTrace();
+
                 }
+                CarsAdapter adapter = new CarsAdapter(MainActivity.getContext(), cars);
 
-                setInitialData();
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        carsView.setAdapter(adapter);
+                    }
+                });
 
-                CarsAdapter adapter = new CarsAdapter(getContext(), cars);
-                carsView.setAdapter(adapter);
             }
         };
 
@@ -64,7 +84,8 @@ public class CarsFragment extends Fragment {
         addButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                Intent intent = new Intent(MainActivity.getContext(), CarActivity.class);
+                MainActivity.getContext().startActivity(intent);
             }
         });
 
@@ -72,13 +93,11 @@ public class CarsFragment extends Fragment {
     }
 
     private void setInitialData() {
-        cars.add(new Car("говновоз", "Toyota", "Supra", 0, null));
-        cars.add(new Car("говновоз", "Toyota", "Supra", 0, null));
-        cars.add(new Car("говновоз", "Toyota", "Supra", 0, null));
-        cars.add(new Car("говновоз", "Toyota", "Supra", 0, null));
-        cars.add(new Car("говновоз", "Toyota", "Supra", 0, null));
-        cars.add(new Car("говновоз", "Toyota", "Supra", 0, null));
-        cars.add(new Car("говновоз", "Toyota", "Supra", 0, null));
-        cars.add(new Car("говновоз", "Toyota", "Supra", 0, null));
+        cars.add(new Car("говновоз", "Toyota", "Supra", 0, null, 0));
+        cars.add(new Car("говновоз", "Toyota", "Supra", 0, null, 0));
+        cars.add(new Car("говновоз", "Toyota", "Supra", 0, null, 0));
+        cars.add(new Car("говновоз", "Toyota", "Supra", 0, null, 0));
+        cars.add(new Car("говновоз", "Toyota", "Supra", 0, null, 0));
+        cars.add(new Car("говновоз", "Toyota", "Supra", 0, null, 0));
     }
 }

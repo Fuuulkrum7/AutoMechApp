@@ -6,4 +6,5 @@
     <string name="owners">Владельцы</string>
     <string name="cars">Автомобили</string>
     <string name="breakdowns">Поломки</string>
+    <string name="add_photo">добавить фото</string>
 </resources>

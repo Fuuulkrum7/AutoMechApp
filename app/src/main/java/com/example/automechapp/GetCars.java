@@ -3,6 +3,8 @@ package com.example.automechapp;
 import android.content.Context;
 import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.os.Handler;
+import android.os.Looper;
 import android.widget.Toast;
 
 import static com.example.automechapp.DatabaseInfo.*;
@@ -15,9 +17,10 @@ public class GetCars extends Thread {
     String selection;
     String sortOrder;
     ArrayList<Car> cars = new ArrayList<Car>();
+    Context context;
     int car_id = -1;
 
-    public GetCars(DatabaseInterface database, String[] projection, String selection, String sortOrder){
+    private GetCars(DatabaseInterface database, String[] projection, String selection, String sortOrder){
         this.database = database;
         this.projection = projection;
         this.selection = selection;
@@ -26,6 +29,7 @@ public class GetCars extends Thread {
 
     public GetCars(Context context, String[] projection, String selection, String sortOrder) {
         this(new DatabaseInterface(context), projection, selection, sortOrder);
+        this.context = context;
     }
 
     public GetCars(Context context, String[] projection, String selection, String sortOrder, int car_id) {
@@ -39,12 +43,18 @@ public class GetCars extends Thread {
         try {
             getData.join();
             Cursor cursor = getData.getCursor();
+
+
             if (cursor == null) {
-                Toast.makeText(MainActivity.getContext(), "Ошибка", Toast.LENGTH_SHORT).show();
+                new Handler(Looper.getMainLooper()).post(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(context, "ошибка", Toast.LENGTH_SHORT).show();
+                    }
+                });
                 return;
             }
 
-            // TODO добавить получение фото
             int[] indexes = new int[] {
                     cursor.getColumnIndex(CAR_NAME),
                     cursor.getColumnIndex(CAR_MANUFACTURE),
@@ -60,7 +70,8 @@ public class GetCars extends Thread {
                     cursor.getColumnIndex(STATE_CAR_NUMBER),
                     cursor.getColumnIndex(ENGINE_VOLUME),
                     cursor.getColumnIndex(ENGINE_NUMBER),
-                    cursor.getColumnIndex(ENGINE_VOLUME)
+                    cursor.getColumnIndex(ENGINE_VOLUME),
+                    cursor.getColumnIndex(HORSEPOWER)
 
             };
 
@@ -75,7 +86,6 @@ public class GetCars extends Thread {
                         STANDARD_DATE + " ASC"
                 );
 
-                getData1.start();
                 Cursor photos_cursor;
                 ArrayList<Bitmap> photos = new ArrayList<Bitmap>();
 
@@ -84,14 +94,20 @@ public class GetCars extends Thread {
                     photos_cursor = getData1.getCursor();
                     int photoIndex = photos_cursor.getColumnIndex(STANDARD_PHOTO);
 
-                    while (cursor.moveToNext()) {
+                    while (photos_cursor.moveToNext()) {
                         photos.add(ImageUtil.getByteArrayAsBitmap(
                                 photos_cursor.getBlob(photoIndex)
                         ));
                     }
                 }
                 catch (Exception e) {
-                    Toast.makeText(MainActivity.getContext(), "Не удалось загрузить фото", Toast.LENGTH_SHORT).show();
+                    new Handler(Looper.getMainLooper()).post(new Runnable() {
+                        @Override
+                        public void run() {
+                            e.printStackTrace();
+                            Toast.makeText(context, "Не удалось загрузить фото", Toast.LENGTH_SHORT).show();
+                        }
+                    });
                     return;
                 }
 
@@ -113,6 +129,7 @@ public class GetCars extends Thread {
                         cursor.getInt(indexes[12]),
                         cursor.getString(indexes[13]),
                         cursor.getString(indexes[14]),
+                        cursor.getInt(indexes[15]),
                         photos));
             }
             else {
@@ -122,7 +139,8 @@ public class GetCars extends Thread {
                             cursor.getString(indexes[1]),
                             cursor.getString(indexes[2]),
                             cursor.getInt(indexes[3]),
-                            ImageUtil.getByteArrayAsBitmap(cursor.getBlob(indexes[4]))
+                            ImageUtil.getByteArrayAsBitmap(cursor.getBlob(indexes[4])),
+                            cursor.getInt(indexes[5])
                     ));
                 }
             }

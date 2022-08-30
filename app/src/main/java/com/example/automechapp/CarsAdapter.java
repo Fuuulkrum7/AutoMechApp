@@ -41,6 +41,7 @@ public class CarsAdapter extends RecyclerView.Adapter<CarsAdapter.CarViewHolder>
         holder.manufactureView.setText(car.getManufacture());
         holder.modelView.setText(car.getModel());
         holder.setId(car.getId());
+        holder.carImage.setImageBitmap(car.getIcon());
     }
 
     @Override
@@ -65,8 +66,6 @@ public class CarsAdapter extends RecyclerView.Adapter<CarsAdapter.CarViewHolder>
 
         @Override
         public void onClick(View v) {
-            Toast.makeText(v.getContext(), "В процессе разработки", Toast.LENGTH_SHORT).show();
-
             Bundle bundle = new Bundle();
             bundle.putInt("id", id);
 

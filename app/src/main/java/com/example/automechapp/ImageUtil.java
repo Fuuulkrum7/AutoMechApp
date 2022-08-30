@@ -2,6 +2,8 @@ package com.example.automechapp;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.util.Log;
+import android.widget.Toast;
 
 import java.io.ByteArrayOutputStream;
 
@@ -16,5 +18,31 @@ public final class ImageUtil {
 
     public static Bitmap getByteArrayAsBitmap(byte[] image) {
         return BitmapFactory.decodeByteArray(image, 0, image.length);
+    }
+
+    public static Bitmap getScaledBitmap (Bitmap bitmap, int width, int height) {
+        Bitmap result = Bitmap.createScaledBitmap(bitmap, width, height, true);
+        bitmap.recycle();
+
+        return result;
+    }
+
+    public static Bitmap getSquaredBitmap(Bitmap bitmap) {
+        int width = bitmap.getWidth();
+        int height = bitmap.getHeight();
+
+        Bitmap result = null;
+
+        if (height > width) {
+            result = Bitmap.createBitmap(bitmap, 0, height / 2 - width / 2,
+                    width, width);
+        } else {
+            result = Bitmap.createBitmap(bitmap, width / 2 - height / 2, 0,
+                    height, height);
+        }
+
+        bitmap.recycle();
+
+        return result;
     }
 }

@@ -13,7 +13,7 @@ import java.util.Arrays;
 
 public class DatabaseInterface extends SQLiteOpenHelper {
     // Данные по бд
-    public static final int DATABASE_VERSION = 1;
+    public static final int DATABASE_VERSION = 4;
 
     // Инициализация, ничего интересного
     public DatabaseInterface(Context context){
@@ -52,10 +52,12 @@ public class DatabaseInterface extends SQLiteOpenHelper {
         db.execSQL(DELETE_DOCUMENTS_TABLE);
     }
 
-    public void AddData(ContentValues values, String table){
+    public AddData addData(ContentValues values, String table){
         SQLiteDatabase database = getWritableDatabase();
-        AddData addData = new AddData(values, database, table);
-        addData.start();
+        AddData add_data = new AddData(values, database, table);
+        add_data.start();
+
+        return add_data;
     }
 
     public GetData GetData(String table, String[] projection, String selection, String sortOrder) {

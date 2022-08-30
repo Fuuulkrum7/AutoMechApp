@@ -10,8 +10,8 @@ public class Car {
     private String model;
     private int id;
     private Bitmap icon;
-    
     private int user_id;
+
     private int car_year;
     private int car_price;
     private int tax;
@@ -22,18 +22,20 @@ public class Car {
     private String engine_number;
     private String engine_model;
     private ArrayList<Bitmap> car_photos;
+    private int horsepower;
 
-    public static int defaultCar = 4;
+    public static int defaultCar = 6;
 
-    public Car(String carName, String manufacture, String model, int id, Bitmap icon) {
+    public Car(String carName, String manufacture, String model, int id, Bitmap icon, int user_id) {
         this.carName = carName;
         this.manufacture = manufacture;
         this.model = model;
         this.id = id;
         this.icon = icon;
+        this.user_id = user_id;
     }
 
-    public Car(String carName, String manufacture, String model, int id, Bitmap icon, int user_id, int car_year, int car_price, int tax, String car_color, String vin, String car_state_number, int engine_volume, String engine_number, String engine_model, ArrayList<Bitmap> car_photos) {
+    public Car(String carName, String manufacture, String model, int id, Bitmap icon, int user_id, int car_year, int car_price, int tax, String car_color, String vin, String car_state_number, int engine_volume, String engine_number, String engine_model, int horsepower, ArrayList<Bitmap> car_photos) {
         this.carName = carName;
         this.manufacture = manufacture;
         this.model = model;
@@ -50,6 +52,7 @@ public class Car {
         this.engine_number = engine_number;
         this.engine_model = engine_model;
         this.car_photos = car_photos;
+        this.horsepower = horsepower;
     }
 
     public String getModel() {
@@ -178,5 +181,13 @@ public class Car {
 
     public void setIcon(Bitmap icon) {
         this.icon = icon;
+    }
+
+    public int getHorsepower() {
+        return horsepower;
+    }
+
+    public void setHorsepower(int horsepower) {
+        this.horsepower = horsepower;
     }
 }

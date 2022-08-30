@@ -9,6 +9,7 @@ class AddData extends Thread {
     ContentValues values;
     SQLiteDatabase db;
     String tableName;
+    private long index;
 
     AddData(ContentValues values, SQLiteDatabase db, String tableName) {
         this.db = db;
@@ -20,7 +21,7 @@ class AddData extends Thread {
     public void run() {
 // Добавляем в бд
         try {
-            db.insert(tableName, null, values);
+            index = db.insert(tableName, null, values);
         }
         // Если что-то пошло не так, то вот
         catch (Exception e) {
@@ -30,5 +31,9 @@ class AddData extends Thread {
 
             toast.show();
         }
+    }
+
+    public long getIndex () {
+        return index;
     }
 }
