@@ -70,7 +70,7 @@ public class GetCars extends Thread {
                     cursor.getColumnIndex(STATE_CAR_NUMBER),
                     cursor.getColumnIndex(ENGINE_VOLUME),
                     cursor.getColumnIndex(ENGINE_NUMBER),
-                    cursor.getColumnIndex(ENGINE_VOLUME),
+                    cursor.getColumnIndex(ENGINE_MODEL),
                     cursor.getColumnIndex(HORSEPOWER)
 
             };
@@ -126,7 +126,7 @@ public class GetCars extends Thread {
                         cursor.getString(indexes[9]),
                         cursor.getString(indexes[10]),
                         cursor.getString(indexes[11]),
-                        cursor.getInt(indexes[12]),
+                        cursor.getFloat(indexes[12]),
                         cursor.getString(indexes[13]),
                         cursor.getString(indexes[14]),
                         cursor.getInt(indexes[15]),
@@ -144,6 +144,7 @@ public class GetCars extends Thread {
                     ));
                 }
             }
+            cursor.close();
 
         } catch (InterruptedException e) {
             e.printStackTrace();

@@ -1,6 +1,9 @@
 package com.example.automechapp;
 
 import android.content.Context;
+import android.os.Handler;
+import android.os.Looper;
+import android.widget.Toast;
 
 class GetCurrentCar extends Thread {
     private final CarActivity carActivity;
@@ -46,7 +49,12 @@ class GetCurrentCar extends Thread {
             getCars.join();
             if (getCars.getData() != null) {
                 Car car = getCars.getData().get(0);
-                carActivity.setData(car);
+                new Handler(Looper.getMainLooper()).post(new Runnable() {
+                    @Override
+                    public void run() {
+                        carActivity.setData(car);
+                    }
+                });
             }
         } catch (Exception e) {
             e.printStackTrace();

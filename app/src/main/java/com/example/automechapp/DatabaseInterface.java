@@ -13,7 +13,7 @@ import java.util.Arrays;
 
 public class DatabaseInterface extends SQLiteOpenHelper {
     // Данные по бд
-    public static final int DATABASE_VERSION = 4;
+    public static final int DATABASE_VERSION = 5;
 
     // Инициализация, ничего интересного
     public DatabaseInterface(Context context){

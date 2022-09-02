@@ -18,7 +18,7 @@ public class Car {
     private String car_color;
     private String VIN;
     private String car_state_number;
-    private int engine_volume;
+    private float engine_volume;
     private String engine_number;
     private String engine_model;
     private ArrayList<Bitmap> car_photos;
@@ -35,7 +35,7 @@ public class Car {
         this.user_id = user_id;
     }
 
-    public Car(String carName, String manufacture, String model, int id, Bitmap icon, int user_id, int car_year, int car_price, int tax, String car_color, String vin, String car_state_number, int engine_volume, String engine_number, String engine_model, int horsepower, ArrayList<Bitmap> car_photos) {
+    public Car(String carName, String manufacture, String model, int id, Bitmap icon, int user_id, int car_year, int car_price, int tax, String car_color, String vin, String car_state_number, float engine_volume, String engine_number, String engine_model, int horsepower, ArrayList<Bitmap> car_photos) {
         this.carName = carName;
         this.manufacture = manufacture;
         this.model = model;
@@ -143,11 +143,11 @@ public class Car {
         this.VIN = VIN;
     }
 
-    public int getEngine_volume() {
+    public float getEngine_volume() {
         return engine_volume;
     }
 
-    public void setEngine_volume(int engine_volume) {
+    public void setEngine_volume(float engine_volume) {
         this.engine_volume = engine_volume;
     }
 

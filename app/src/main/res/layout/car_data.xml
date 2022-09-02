@@ -96,6 +96,7 @@
                 android:layout_weight="1"
                 android:ems="10"
                 android:hint="Стоимость авто"
+                android:maxLength="11"
                 android:inputType="number" />
         </LinearLayout>
 
@@ -137,7 +138,8 @@
                 android:layout_weight="1"
                 android:ems="10"
                 android:hint="Объем двигателя"
-                android:inputType="number" />
+                android:inputType="number|numberDecimal"
+                android:maxLength="5" />
 
             <EditText
                 android:id="@+id/engine_model"
@@ -172,7 +174,8 @@
                 android:ems="10"
                 android:hint="Мощность двигателя"
                 android:inputType="number"
-                android:minHeight="48dp" />
+                android:minHeight="48dp"
+                android:maxLength="5" />
 
         </LinearLayout>
 
@@ -212,7 +215,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="48dp"
                 android:layout_weight="1"
-                android:text="Рассчитать налог" />
+                android:text="Рассчитать налог"
+                android:maxLength="8" />
 
         </LinearLayout>
 

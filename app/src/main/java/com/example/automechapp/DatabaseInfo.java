@@ -92,7 +92,7 @@ final public class DatabaseInfo implements BaseColumns {
             ENGINE_NUMBER + " TEXT," +
             ENGINE_MODEL + " TEXT," +
             STANDARD_DATE + " NUMERIC," +
-            ENGINE_VOLUME + " INTEGER);";
+            ENGINE_VOLUME + " REALs);";
 
     public static final String CREATE_BREAKDOWNS_TABLE =
             "CREATE TABLE " + BREAKDOWNS_TABLE + " (" +

@@ -3,6 +3,7 @@ package com.example.automechapp;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.content.FileProvider;
 import androidx.viewpager2.widget.ViewPager2;
 
 import android.annotation.SuppressLint;
@@ -13,6 +14,8 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
+import android.provider.MediaStore;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.Menu;
@@ -23,11 +26,15 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import java.io.File;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.Objects;
+
+import id.zelory.compressor.Compressor;
 
 public class CarActivity extends AppCompatActivity {
     private static final int ICON_CODE = 0;
@@ -58,11 +65,12 @@ public class CarActivity extends AppCompatActivity {
     private static Context context;
 
     ViewPager2 imageSwitcher;
-    int current_index = 0;
+    int length_of_year = 0;
 
     int car_year = 0;
     ViewPagerAdapter viewPagerAdapter;
     ArrayList<Bitmap> bitmaps = new ArrayList<>();
+    String currentPhotoPath;
 
     @SuppressLint("ClickableViewAccessibility")
     @Override
@@ -114,12 +122,13 @@ public class CarActivity extends AppCompatActivity {
             @Override
             public void afterTextChanged(Editable editable) {
                 try {
+                    length_of_year = year.length();
                     car_year = Integer.parseInt(year.getText().toString());
                 }
                 catch (NumberFormatException e) {
                     e.printStackTrace();
                 }
-                if (car_year > 1000 && car_year < 1886) {
+                if (length_of_year == 4 && car_year < 1886) {
                     Toast.makeText(CarActivity.this, "Некорректный год", Toast.LENGTH_SHORT).show();
                 }
             }
@@ -162,7 +171,7 @@ public class CarActivity extends AppCompatActivity {
     }
 
     private void startDataSave() {
-        SaveData save = new SaveData(getContext());
+        SaveData save = new SaveData(this, getContext());
         save.start();
         saveData.setVisibility(View.INVISIBLE);
         disableText();
@@ -184,9 +193,25 @@ public class CarActivity extends AppCompatActivity {
         horsepower.setEnabled(false);
     }
 
+    @SuppressLint("QueryPermissionsNeeded")
     private void startCamera(int code) {
-        Intent intent = new Intent("android.media.action.IMAGE_CAPTURE");
-        startActivityForResult(intent, code);
+        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        // Create the File where the photo should go
+        File photoFile = null;
+        try {
+            photoFile = createImageFile();
+        } catch (IOException e) {
+            e.printStackTrace();
+            Toast.makeText(this, "Error hapened", Toast.LENGTH_SHORT).show();
+        }
+        // Continue only if the File was successfully created
+        if (photoFile != null) {
+            Uri photoURI = FileProvider.getUriForFile(this,
+                    "com.example.android.fileprovider",
+                    photoFile);
+            takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
+            startActivityForResult(takePictureIntent, code);
+        }
     }
 
     @Override
@@ -200,22 +225,12 @@ public class CarActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == RESULT_OK) {
-            Bundle extras = data.getExtras();
-            Bitmap bitmap = (Bitmap) extras.get("data");
-            if (requestCode == ICON_CODE) {
-                bitmap = ImageUtil.getScaledBitmap(
-                        ImageUtil.getSquaredBitmap(bitmap),
-                        128,
-                        128
-                );
-
-                icon.setImageBitmap(bitmap);
+            try {
+                galleryAddPic(requestCode);
             }
-            else if (requestCode == PHOTO_CODE) {
-                // TODO убрать костыль
-                bitmaps.add(bitmap);
-                viewPagerAdapter = new ViewPagerAdapter(CarActivity.this, bitmaps);
-                imageSwitcher.setAdapter(viewPagerAdapter);
+            catch (Exception e) {
+                e.printStackTrace();
+                Toast.makeText(this, "Произошла ошибка", Toast.LENGTH_SHORT).show();
             }
         }
     }
@@ -229,7 +244,7 @@ public class CarActivity extends AppCompatActivity {
         price.setText(Integer.toString(car.getCar_price()));
         color.setText(car.getCar_color());
         vin.setText(car.getVIN());
-        engine_volume.setText(Integer.toString(car.getEngine_volume()));
+        engine_volume.setText(Float.toString(car.getEngine_volume()));
         engine_model.setText(car.getEngine_model());
         engine_number.setText(car.getEngine_number());
         car_state_number.setText(car.getCar_state_number());
@@ -241,8 +256,6 @@ public class CarActivity extends AppCompatActivity {
         bitmaps = car.getCar_photos();
         viewPagerAdapter = new ViewPagerAdapter(CarActivity.this, bitmaps);
         imageSwitcher.setAdapter(viewPagerAdapter);
-
-        Toast.makeText(context, "4444", Toast.LENGTH_SHORT).show();
     }
 
     public ContentValues getValues() {
@@ -252,10 +265,10 @@ public class CarActivity extends AppCompatActivity {
         contentValues.put(DatabaseInfo.CAR_MANUFACTURE, manufacture.getText().toString());
         contentValues.put(DatabaseInfo.CAR_MODEL, model.getText().toString());
         contentValues.put(DatabaseInfo.CAR_YEAR, Integer.parseInt(year.getText().toString()));
-        contentValues.put(DatabaseInfo.CAR_PRICE, Integer.parseInt(price.getText().toString()));
+        contentValues.put(DatabaseInfo.CAR_PRICE, Long.parseLong(price.getText().toString()));
         contentValues.put(DatabaseInfo.COLOR, color.getText().toString());
         contentValues.put(DatabaseInfo.VIN, vin.getText().toString());
-        contentValues.put(DatabaseInfo.ENGINE_VOLUME, Integer.parseInt(engine_volume.getText().toString()));
+        contentValues.put(DatabaseInfo.ENGINE_VOLUME, Float.parseFloat(engine_volume.getText().toString()));
         contentValues.put(DatabaseInfo.ENGINE_MODEL, engine_model.getText().toString());
         contentValues.put(DatabaseInfo.ENGINE_NUMBER, engine_number.getText().toString());
         contentValues.put(DatabaseInfo.STATE_CAR_NUMBER, car_state_number.getText().toString());
@@ -288,41 +301,60 @@ public class CarActivity extends AppCompatActivity {
         return context;
     }
 
-    class SaveData extends Thread {
-        DatabaseInterface databaseInterface;
+    public int getId() {
+        return id;
+    }
 
-        public SaveData(Context context) {
-            databaseInterface = new DatabaseInterface(context);
-        }
+    public void setId(int id) {
+        this.id = id;
+    }
 
-        @Override
-        public void run() {
-            AddData addData = databaseInterface.addData(getValues(), DatabaseInfo.CARS_TABLE);
-            try {
-                addData.join();
-                id = (int) addData.getIndex();
+    private File createImageFile() throws IOException {
+        // Create an image file name
+        @SuppressLint("SimpleDateFormat") String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        String imageFileName = "JPEG_" + timeStamp + "_";
+        File storageDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
+        File image = File.createTempFile(
+                imageFileName,  /* prefix */
+                ".jpg",         /* suffix */
+                storageDir      /* directory */
+        );
 
+        // Save a file: path for use with ACTION_VIEW intents
+        currentPhotoPath = image.getAbsolutePath();
+        return image;
+    }
 
-                for (Bitmap b: bitmaps) {
-                    byte[] photo = ImageUtil.getBitmapAsByteArray(b);
+    private void galleryAddPic(int code) throws IOException {
+        Bitmap bitmap = null;
+        try {
+            File f = new File(currentPhotoPath);
+            f = new Compressor(this)
+                    .setMaxWidth(code == ICON_CODE ? 128 : 640)
+                    .setMaxHeight(code == ICON_CODE ? 128 : 480)
+                    .setQuality(50)
+                    .compressToFile(f);
+            Uri contentUri = Uri.fromFile(f);
+            bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), contentUri);
+            if (code == ICON_CODE) {
+                bitmap = ImageUtil.getScaledBitmap(
+                        ImageUtil.getSquaredBitmap(bitmap),
+                        128,
+                        128
+                );
 
-                    ContentValues contentValues = new ContentValues();
-
-                    @SuppressLint("SimpleDateFormat") SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-                    Calendar c = Calendar.getInstance();
-                    String date = sdf.format(c.getTime());
-
-                    contentValues.put(DatabaseInfo.STANDARD_DATE, date);
-                    contentValues.put(DatabaseInfo.CAR_ID, id);
-                    contentValues.put(DatabaseInfo.STANDARD_PHOTO, photo);
-
-                    databaseInterface.addData(contentValues, DatabaseInfo.CAR_PHOTOS_TABLE);
-                }
-
+                icon.setImageBitmap(bitmap);
             }
-            catch (Exception e){
-                e.printStackTrace();
+            else if (code == PHOTO_CODE) {
+                // TODO убрать костыль
+                bitmaps.add(bitmap);
+                viewPagerAdapter = new ViewPagerAdapter(CarActivity.this, bitmaps);
+                imageSwitcher.setAdapter(viewPagerAdapter);
             }
+            f.delete();
+        } catch (IOException e) {
+            e.printStackTrace();
+            Toast.makeText(this, "error", Toast.LENGTH_SHORT).show();
         }
     }
 }
