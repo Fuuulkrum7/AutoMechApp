@@ -4,13 +4,16 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.content.FileProvider;
+import androidx.fragment.app.FragmentManager;
 import androidx.viewpager2.widget.ViewPager2;
 
 import android.annotation.SuppressLint;
+import android.content.ClipData;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Bundle;
@@ -26,8 +29,11 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -37,10 +43,14 @@ import java.util.Objects;
 import id.zelory.compressor.Compressor;
 
 public class CarActivity extends AppCompatActivity {
-    private static final int ICON_CODE = 0;
-    private static final int PHOTO_CODE = 1;
+    // Коды для получения изображения. Для определения, куда потом изображение пихать
+    protected static final int ICON_CODE = 1;
+    protected static final int PHOTO_CODE = 2;
+    private static final int COEFFICIENT = 10;
+    // уникальный id машины для обращения к бд
     private int id = -1;
 
+    // Тут просто один коммент, это перменные для хранения всех полей текстовых
     EditText year;
     ImageView icon;
     Button getTextData;
@@ -59,15 +69,19 @@ public class CarActivity extends AppCompatActivity {
     EditText tax;
     EditText horsepower;
 
+    // А это тоже id. Но пользователя, получаем его при добавлении, так тупо легче это все оформить.
     int user_id = 0;
 
     @SuppressLint("StaticFieldLeak")
     private static Context context;
 
+    // Тут храним изображение и длину введенного года, это защита от дурака
     ViewPager2 imageSwitcher;
     int length_of_year = 0;
 
+    // Сам год числом
     int car_year = 0;
+    // Адаптер, массив фоток и путь до сделанной фотки
     ViewPagerAdapter viewPagerAdapter;
     ArrayList<Bitmap> bitmaps = new ArrayList<>();
     String currentPhotoPath;
@@ -78,6 +92,7 @@ public class CarActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_car);
 
+        //
         Toolbar toolbar = findViewById(R.id.car_toolbar);
         toolbar.setTitle("Автомобиль");
         setSupportActionBar(toolbar);
@@ -139,7 +154,7 @@ public class CarActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 if (id < 0)
-                    startCamera(ICON_CODE);
+                    getUserImage(ICON_CODE);
             }
         });
 
@@ -157,6 +172,13 @@ public class CarActivity extends AppCompatActivity {
         viewPagerAdapter = new ViewPagerAdapter(CarActivity.this, bitmaps);
         imageSwitcher.setAdapter(viewPagerAdapter);
 
+        imageSwitcher.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+
+            }
+        });
+
         Bundle bundle = getIntent().getExtras();
 
         if (bundle != null) {
@@ -164,7 +186,7 @@ public class CarActivity extends AppCompatActivity {
             user_id = bundle.getInt("user_id");
 
             saveData.setVisibility(View.INVISIBLE);
-            GetCurrentCar getCurrentCar = new GetCurrentCar(this, this, id);
+            GetCurrentCar getCurrentCar = new GetCurrentCar(this, id);
             getCurrentCar.start();
             disableText();
         }
@@ -178,6 +200,8 @@ public class CarActivity extends AppCompatActivity {
     }
 
     private void disableText() {
+        getSupportActionBar().setTitle(name.getText().toString());
+
         manufacture.setEnabled(false);
         model.setEnabled(false);
         year.setEnabled(false);
@@ -193,31 +217,30 @@ public class CarActivity extends AppCompatActivity {
         horsepower.setEnabled(false);
     }
 
+    private void getUserImage(int code) {
+        CameraOrGallery choose = new CameraOrGallery(this, code);
+        FragmentManager manager = getSupportFragmentManager();
+        choose.show(manager, "  dialog");
+    }
+
     @SuppressLint("QueryPermissionsNeeded")
-    private void startCamera(int code) {
-        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        // Create the File where the photo should go
-        File photoFile = null;
-        try {
-            photoFile = createImageFile();
-        } catch (IOException e) {
-            e.printStackTrace();
-            Toast.makeText(this, "Error hapened", Toast.LENGTH_SHORT).show();
-        }
-        // Continue only if the File was successfully created
-        if (photoFile != null) {
-            Uri photoURI = FileProvider.getUriForFile(this,
-                    "com.example.android.fileprovider",
-                    photoFile);
-            takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
-            startActivityForResult(takePictureIntent, code);
-        }
+    protected void startCamera(int code) {
+        CameraUtil cameraUtil = new CameraUtil(this);
+        Intent intent = cameraUtil.createCameraIntent();
+        startActivityForResult(intent, code);
+    }
+
+    @SuppressLint("QueryPermissionsNeeded")
+    protected void openGallery(int code) {
+        CameraUtil cameraUtil = new CameraUtil(this);
+        Intent intent = cameraUtil.createGalleryIntent(code);
+        startActivityForResult(intent, code * COEFFICIENT);
     }
 
     @Override
     public boolean onCreateOptionsMenu(@NonNull Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.car_activity_menu, menu);
+        getMenuInflater().inflate(R.menu.add_photo_menu, menu);
         return true;
     }
 
@@ -226,7 +249,28 @@ public class CarActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == RESULT_OK) {
             try {
-                galleryAddPic(requestCode);
+                if (requestCode < 10) {
+                    removeImageFile(requestCode);
+                }
+                else {
+                    if (data.getClipData() != null && requestCode != ICON_CODE * COEFFICIENT) {
+                        int count = data.getClipData().getItemCount();
+
+                        for (int i = 0; i < count; i++) {
+                            Uri uri = data.getClipData().getItemAt(i).getUri();
+                            bitmaps.add(ImageUtil.getUriAsBitmap(uri, this));
+                        }
+
+                        setImages();
+                    }
+                    else {
+                        Uri photo = data.getData();
+                        // Меняем значение, так как здесь надо только добавить иображение (одно)
+                        requestCode /= COEFFICIENT;
+
+                        setImage(photo, requestCode);
+                    }
+                }
             }
             catch (Exception e) {
                 e.printStackTrace();
@@ -252,6 +296,8 @@ public class CarActivity extends AppCompatActivity {
         horsepower.setText(Integer.toString(car.getHorsepower()));
 
         icon.setImageBitmap(car.getIcon());
+
+        getSupportActionBar().setTitle(car.getCarName());
 
         bitmaps = car.getCar_photos();
         viewPagerAdapter = new ViewPagerAdapter(CarActivity.this, bitmaps);
@@ -291,7 +337,7 @@ public class CarActivity extends AppCompatActivity {
         switch (item.getItemId()) {
             case R.id.add_photo:
                 if (id < 0)
-                    startCamera(PHOTO_CODE);
+                    getUserImage(PHOTO_CODE);
                 return true;
         }
         return super.onOptionsItemSelected(item);
@@ -309,52 +355,47 @@ public class CarActivity extends AppCompatActivity {
         this.id = id;
     }
 
-    private File createImageFile() throws IOException {
-        // Create an image file name
-        @SuppressLint("SimpleDateFormat") String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        String imageFileName = "JPEG_" + timeStamp + "_";
-        File storageDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
-        File image = File.createTempFile(
-                imageFileName,  /* prefix */
-                ".jpg",         /* suffix */
-                storageDir      /* directory */
-        );
-
-        // Save a file: path for use with ACTION_VIEW intents
-        currentPhotoPath = image.getAbsolutePath();
-        return image;
-    }
-
-    private void galleryAddPic(int code) throws IOException {
-        Bitmap bitmap = null;
+    private void removeImageFile(int code) throws IOException {
         try {
-            File f = new File(currentPhotoPath);
-            f = new Compressor(this)
+            File f = new Compressor(this)
                     .setMaxWidth(code == ICON_CODE ? 128 : 640)
                     .setMaxHeight(code == ICON_CODE ? 128 : 480)
                     .setQuality(50)
-                    .compressToFile(f);
-            Uri contentUri = Uri.fromFile(f);
-            bitmap = MediaStore.Images.Media.getBitmap(this.getContentResolver(), contentUri);
-            if (code == ICON_CODE) {
-                bitmap = ImageUtil.getScaledBitmap(
-                        ImageUtil.getSquaredBitmap(bitmap),
-                        128,
-                        128
-                );
+                    .compressToFile(new File(currentPhotoPath));
 
-                icon.setImageBitmap(bitmap);
-            }
-            else if (code == PHOTO_CODE) {
-                // TODO убрать костыль
-                bitmaps.add(bitmap);
-                viewPagerAdapter = new ViewPagerAdapter(CarActivity.this, bitmaps);
-                imageSwitcher.setAdapter(viewPagerAdapter);
-            }
+            Uri contentUri = Uri.fromFile(f);
             f.delete();
+
+            setImage(contentUri, code);
         } catch (IOException e) {
             e.printStackTrace();
             Toast.makeText(this, "error", Toast.LENGTH_SHORT).show();
         }
+    }
+
+    private void setImage(Uri contentUri, int code) throws IOException {
+        Bitmap bitmap = ImageUtil.getUriAsBitmap(contentUri, this);
+        if (code == ICON_CODE || code == ICON_CODE * COEFFICIENT) {
+            bitmap = ImageUtil.getScaledBitmap(
+                    ImageUtil.getSquaredBitmap(bitmap),
+                    128,
+                    128
+            );
+
+            icon.setImageBitmap(bitmap);
+        }
+        else if (code == PHOTO_CODE) {
+            // TODO убрать костыль
+            bitmaps.add(bitmap);
+            setImages();
+        }
+        else if (code == PHOTO_CODE * COEFFICIENT) {
+            setImages();
+        }
+    }
+
+    private void setImages() {
+        viewPagerAdapter = new ViewPagerAdapter(this, bitmaps);
+        imageSwitcher.setAdapter(viewPagerAdapter);
     }
 }

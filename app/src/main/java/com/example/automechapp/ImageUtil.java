@@ -1,11 +1,15 @@
 package com.example.automechapp;
 
+import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.Uri;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.widget.Toast;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 
 public final class ImageUtil {
     ImageUtil() {}
@@ -44,5 +48,9 @@ public final class ImageUtil {
         bitmap.recycle();
 
         return result;
+    }
+
+    public static Bitmap getUriAsBitmap(Uri uri, Context context) throws IOException {
+        return MediaStore.Images.Media.getBitmap(context.getContentResolver(), uri);
     }
 }

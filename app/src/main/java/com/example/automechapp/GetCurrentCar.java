@@ -10,9 +10,9 @@ class GetCurrentCar extends Thread {
     Context context;
     int id;
 
-    GetCurrentCar(CarActivity carActivity, Context context, int id) {
+    GetCurrentCar(CarActivity carActivity, int id) {
         this.carActivity = carActivity;
-        this.context = context;
+        this.context = carActivity;
         this.id = id;
     }
 
