@@ -37,6 +37,7 @@
         <entry key="app/src/main/res/drawable/ic_arrow_right.xml" value="0.3355" />
         <entry key="app/src/main/res/layout/activity_car.xml" value="0.33" />
         <entry key="app/src/main/res/layout/activity_main.xml" value="0.4041666666666667" />
+        <entry key="app/src/main/res/layout/breakdown_item.xml" value="0.38179347826086957" />
         <entry key="app/src/main/res/layout/car_data.xml" value="0.3854166666666667" />
         <entry key="app/src/main/res/layout/car_item.xml" value="0.40217391304347827" />
         <entry key="app/src/main/res/layout/car_photo.xml" value="0.38179347826086957" />

@@ -42,11 +42,7 @@ import java.util.Objects;
 
 import id.zelory.compressor.Compressor;
 
-public class CarActivity extends AppCompatActivity {
-    // Коды для получения изображения. Для определения, куда потом изображение пихать
-    protected static final int ICON_CODE = 1;
-    protected static final int PHOTO_CODE = 2;
-    private static final int COEFFICIENT = 10;
+public class CarActivity extends AppCompatActivity implements PhotosAdder{
     // уникальный id машины для обращения к бд
     private int id = -1;
 
@@ -92,13 +88,16 @@ public class CarActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_car);
 
-        //
+        // тулбар, без него никуда
         Toolbar toolbar = findViewById(R.id.car_toolbar);
         toolbar.setTitle("Автомобиль");
         setSupportActionBar(toolbar);
+        Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
 
+        // сохраняем на всякий контекст
         context = this;
 
+        // Кнопка сохранения данных
         saveData = (Button) findViewById(R.id.save_button);
         saveData.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -107,6 +106,7 @@ public class CarActivity extends AppCompatActivity {
             }
         });
 
+        // Все поля ввода данных
         name = (EditText) findViewById(R.id.name);
         manufacture = (EditText) findViewById(R.id.manufacture);
         model = (EditText) findViewById(R.id.model);
@@ -120,8 +120,6 @@ public class CarActivity extends AppCompatActivity {
         tax = (EditText) findViewById(R.id.tax);
         horsepower = (EditText) findViewById(R.id.horsepower);
 
-        Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
-
         year = findViewById(R.id.year);
         year.addTextChangedListener(new TextWatcher() {
             @Override
@@ -134,6 +132,7 @@ public class CarActivity extends AppCompatActivity {
 
             }
 
+            // Проверка корректности введенного года
             @Override
             public void afterTextChanged(Editable editable) {
                 try {
@@ -143,21 +142,25 @@ public class CarActivity extends AppCompatActivity {
                 catch (NumberFormatException e) {
                     e.printStackTrace();
                 }
+                // первое авто было в 1886, значит, до него ничего быть не может
                 if (length_of_year == 4 && car_year < 1886) {
                     Toast.makeText(CarActivity.this, "Некорректный год", Toast.LENGTH_SHORT).show();
                 }
             }
         });
 
+        // Иконка
         icon = findViewById(R.id.icon);
         icon.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                // id меньше 0 тогда, когда авто только создается, т.е. фото делать надо
                 if (id < 0)
                     getUserImage(ICON_CODE);
             }
         });
 
+        // Переход на сайт для рассчета налога
         getTextData = findViewById(R.id.count_tax);
         getTextData.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -168,6 +171,7 @@ public class CarActivity extends AppCompatActivity {
             }
         });
 
+        // viewpager2 для перелистывания картинок в шапке
         imageSwitcher = findViewById(R.id.image_switcher);
         viewPagerAdapter = new ViewPagerAdapter(CarActivity.this, bitmaps);
         imageSwitcher.setAdapter(viewPagerAdapter);
@@ -181,6 +185,7 @@ public class CarActivity extends AppCompatActivity {
 
         Bundle bundle = getIntent().getExtras();
 
+        // получаеа данные, если есть id, то загружаем по нему авто
         if (bundle != null) {
             id = bundle.getInt("id");
             user_id = bundle.getInt("user_id");
@@ -224,14 +229,15 @@ public class CarActivity extends AppCompatActivity {
     }
 
     @SuppressLint("QueryPermissionsNeeded")
-    protected void startCamera(int code) {
+    public void startCamera(int code) {
         CameraUtil cameraUtil = new CameraUtil(this);
         Intent intent = cameraUtil.createCameraIntent();
+        currentPhotoPath = cameraUtil.getCurrentPhotoPath();
         startActivityForResult(intent, code);
     }
 
     @SuppressLint("QueryPermissionsNeeded")
-    protected void openGallery(int code) {
+    public void openGallery(int code) {
         CameraUtil cameraUtil = new CameraUtil(this);
         Intent intent = cameraUtil.createGalleryIntent(code);
         startActivityForResult(intent, code * COEFFICIENT);
@@ -364,9 +370,9 @@ public class CarActivity extends AppCompatActivity {
                     .compressToFile(new File(currentPhotoPath));
 
             Uri contentUri = Uri.fromFile(f);
-            f.delete();
 
             setImage(contentUri, code);
+            f.delete();
         } catch (IOException e) {
             e.printStackTrace();
             Toast.makeText(this, "error", Toast.LENGTH_SHORT).show();

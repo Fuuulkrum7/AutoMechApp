@@ -1,5 +1,6 @@
 package com.example.automechapp;
 
+import android.app.Activity;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -50,7 +51,7 @@ public final class ImageUtil {
         return result;
     }
 
-    public static Bitmap getUriAsBitmap(Uri uri, Context context) throws IOException {
-        return MediaStore.Images.Media.getBitmap(context.getContentResolver(), uri);
+    public static Bitmap getUriAsBitmap(Uri uri, Activity activity) throws IOException {
+        return MediaStore.Images.Media.getBitmap(activity.getContentResolver(), uri);
     }
 }

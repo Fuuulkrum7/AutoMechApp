@@ -6,11 +6,16 @@ import android.util.Log;
 import android.widget.Toast;
 
 class AddData extends Thread {
+    // Данные, которые мы добавим в бд
     ContentValues values;
+    // База данных
     SQLiteDatabase db;
+    // Имя таблицы
     String tableName;
+    // Индекс полученного элемента
     private long index;
 
+    // Сохраняем данные
     AddData(ContentValues values, SQLiteDatabase db, String tableName) {
         this.db = db;
         this.values = values;
@@ -19,7 +24,7 @@ class AddData extends Thread {
 
     @Override
     public void run() {
-// Добавляем в бд
+        // Добавляем в бд
         try {
             index = db.insert(tableName, null, values);
         }
@@ -33,6 +38,7 @@ class AddData extends Thread {
         }
     }
 
+    // Получаем индекс
     public long getIndex () {
         return index;
     }

@@ -13,8 +13,10 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.List;
 
+// Адаптер для поломок
 public class BreakdownsAdapter extends RecyclerView.Adapter<BreakdownsAdapter.BreakdownHolder> {
     private final LayoutInflater inflater;
+    // список поломок
     private final List<Breakdown> breakdowns;
 
     public BreakdownsAdapter(Context context, List<Breakdown> breakdowns) {
@@ -22,14 +24,15 @@ public class BreakdownsAdapter extends RecyclerView.Adapter<BreakdownsAdapter.Br
         this.inflater = LayoutInflater.from(context);
     }
 
+    // создаем холдер для поломки
     @NonNull
     @Override
     public BreakdownHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = inflater.inflate(R.layout.breakdown_item, parent, false);
-
         return new BreakdownHolder(view);
     }
 
+    // Добавляем данные из класса поломки
     @Override
     public void onBindViewHolder(@NonNull BreakdownHolder holder, int position) {
         Breakdown breakdown = breakdowns.get(position);
@@ -39,11 +42,13 @@ public class BreakdownsAdapter extends RecyclerView.Adapter<BreakdownsAdapter.Br
         holder.dateView.setText(breakdown.getDate());
     }
 
+    // Число "поломок"
     @Override
     public int getItemCount() {
         return breakdowns.size();
     }
 
+    // Сам холдер для пломки, в нем хранится инфа о поломке
     public static class BreakdownHolder extends RecyclerView.ViewHolder implements View.OnClickListener{
         final ImageView breakdownImage;
         final TextView breakdownView, manufactureView, modelView, dateView;

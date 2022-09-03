@@ -17,21 +17,29 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+// Утилита для работы с камерой/галереей
 public class CameraUtil {
+    // Путь до созданного фото в файловой системе
     private String currentPhotoPath;
+    // Соответственно, контекст
     private final Context context;
 
     CameraUtil(Context context){
         this.context = context;
     }
 
+    // Создаем интент для запуска камеры
     public Intent createCameraIntent() {
+        // Создаем интент
         Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        // Create the File where the photo should go
+        // Файл под фото
         File photoFile = null;
+        // Создаем его
         try {
             photoFile = createImageFile();
-        } catch (IOException e) {
+        }
+        // В слчае ошибки
+        catch (IOException e) {
             e.printStackTrace();
             new Handler(Looper.getMainLooper()).post(new Runnable() {
                 @Override
@@ -41,49 +49,57 @@ public class CameraUtil {
                 }
             });
         }
-        // Continue only if the File was successfully created
+        // Если все хорошо
         if (photoFile != null) {
+            // Куда класть фото по окончании работы
             Uri photoURI = FileProvider.getUriForFile(context,
                     "com.example.android.fileprovider",
                     photoFile);
             takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
+            // Возвращаем интент
             return takePictureIntent;
         }
 
         return null;
     }
 
+    // создание файла
     private File createImageFile() throws IOException {
-        // Create an image file name
+        // Само создание. Получаем уникальное имя с помощью времени
         @SuppressLint("SimpleDateFormat") String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
         String imageFileName = "JPEG_" + timeStamp + "_";
         File storageDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES);
         File image = File.createTempFile(
-                imageFileName,  /* prefix */
-                ".jpg",         /* suffix */
-                storageDir      /* directory */
+                imageFileName,  /* префикс */
+                ".jpg",         /* суффикс */
+                storageDir      /* директория */
         );
 
-        // Save a file: path for use with ACTION_VIEW intents
+        // Получаем абсолютный путь
         currentPhotoPath = image.getAbsolutePath();
         return image;
     }
 
+    // Получаем путь
     public String getCurrentPhotoPath() {
         return currentPhotoPath;
     }
 
+    // задаем путь
     public void setCurrentPhotoPath(String currentPhotoPath) {
         this.currentPhotoPath = currentPhotoPath;
     }
 
+    // Создание интента для галереи
     public Intent createGalleryIntent(int code) {
         Intent intent = new Intent();
         intent.setType("image/*");
-        if (code == CarActivity.ICON_CODE) {
+        if (code == PhotosAdder.ICON_CODE) {
+            // Если нужна одна фотка для иконки
             intent.setAction(Intent.ACTION_PICK);
             return intent;
         }
+        // Если много
         intent.putExtra(Intent.EXTRA_ALLOW_MULTIPLE, true);
         intent.setAction(Intent.ACTION_GET_CONTENT);
         return Intent.createChooser(intent,"Select Picture");

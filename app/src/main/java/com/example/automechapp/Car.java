@@ -4,28 +4,38 @@ import android.graphics.Bitmap;
 
 import java.util.ArrayList;
 
+// Клас авто, для адаптера и удобной переачи данных из бд
 public class Car {
+    // До разделения данные, что обязательно нудны адаптеру
+    // Название авто, фирма, модель
     private String carName;
     private String manufacture;
     private String model;
+    // id машины, пользователя, иконка
     private int id;
     private Bitmap icon;
     private int user_id;
 
+    // А эти для получения полной инфы из бд
+    // Год создания, цена, налог, цвет, вин, номер машины
     private int car_year;
     private int car_price;
     private int tax;
     private String car_color;
     private String VIN;
     private String car_state_number;
+    // Объем, номер, модель двигателя
     private float engine_volume;
     private String engine_number;
     private String engine_model;
+    // Фотки машины и мощность двигателя
     private ArrayList<Bitmap> car_photos;
     private int horsepower;
 
+    // Сколько надо переменных для создания авто в адаптере
     public static int defaultCar = 6;
 
+    // Инициализация, геттеры, сеттеры
     public Car(String carName, String manufacture, String model, int id, Bitmap icon, int user_id) {
         this.carName = carName;
         this.manufacture = manufacture;
