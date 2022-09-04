@@ -20,11 +20,14 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
 
+// Фрагмент авто
 public class CarsFragment extends Fragment {
+    // Список авто и тд
     private ArrayList<Car> cars = new ArrayList<Car>();
     public FloatingActionButton addButton;
     public RecyclerView carsView;
 
+    // Инициализация фрагмента
     @Nullable
     @Override
     public View onCreateView
@@ -32,11 +35,14 @@ public class CarsFragment extends Fragment {
         View view = inflater.inflate(R.layout.fragment_recycler,
                 container, false);
 
+        // поучаем контейнер для хранения в нем авто и тп
         carsView = view.findViewById(R.id.main_recycler);
 
+        // запуск потока для получения данных и добавления фрагментов авто
         Thread thread = new Thread() {
             @Override
             public void run() {
+                // Создаем класс для получения авто из бд
                 GetCars getCars = new GetCars(
                         getContext(),
                         new String[]{
@@ -50,6 +56,7 @@ public class CarsFragment extends Fragment {
                         null,
                         DatabaseInfo.STANDARD_DATE + " DESC"
                         );
+                // запуск потока и присоединение к нему
                 getCars.start();
                 try {
                     getCars.join();
@@ -66,8 +73,10 @@ public class CarsFragment extends Fragment {
                     e.printStackTrace();
 
                 }
+                // Создаем адаптер
                 CarsAdapter adapter = new CarsAdapter(MainActivity.getContext(), cars);
 
+                // и добавляем его
                 getActivity().runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
@@ -80,6 +89,7 @@ public class CarsFragment extends Fragment {
 
         thread.start();
 
+        // Добавляем прослушку на кнопку
         addButton = getActivity().findViewById(R.id.add);
         addButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -90,14 +100,5 @@ public class CarsFragment extends Fragment {
         });
 
         return view;
-    }
-
-    private void setInitialData() {
-        cars.add(new Car("говновоз", "Toyota", "Supra", 0, null, 0));
-        cars.add(new Car("говновоз", "Toyota", "Supra", 0, null, 0));
-        cars.add(new Car("говновоз", "Toyota", "Supra", 0, null, 0));
-        cars.add(new Car("говновоз", "Toyota", "Supra", 0, null, 0));
-        cars.add(new Car("говновоз", "Toyota", "Supra", 0, null, 0));
-        cars.add(new Car("говновоз", "Toyota", "Supra", 0, null, 0));
     }
 }

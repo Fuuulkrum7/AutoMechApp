@@ -17,8 +17,10 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.List;
 
+// Адаптер для авто
 public class CarsAdapter extends RecyclerView.Adapter<CarsAdapter.CarViewHolder> {
     private final LayoutInflater inflater;
+    // список авто
     private final List<Car> cars;
 
     public CarsAdapter(Context context, List<Car> cars) {
@@ -26,6 +28,7 @@ public class CarsAdapter extends RecyclerView.Adapter<CarsAdapter.CarViewHolder>
         this.cars = cars;
     }
 
+    // В принципе, тут принцип тот же, что и в адаптере поломок
     @NonNull
     @Override
     public CarViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
@@ -66,6 +69,8 @@ public class CarsAdapter extends RecyclerView.Adapter<CarsAdapter.CarViewHolder>
 
         @Override
         public void onClick(View v) {
+            // Отличие от того адаптера лишь тут
+            // Запускаем активность авто
             Bundle bundle = new Bundle();
             bundle.putInt("id", id);
 

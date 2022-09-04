@@ -20,6 +20,7 @@ public class DatabaseInterface extends SQLiteOpenHelper {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
 
+    // Инициализируем бд
     @Override
     public void onCreate(SQLiteDatabase db) {
         for (String s : Arrays.asList(
@@ -35,12 +36,14 @@ public class DatabaseInterface extends SQLiteOpenHelper {
         }
     }
 
+    // Обновление бд
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         clearAllTables(db);
         onCreate(db);
     }
 
+    // Удвление таблиц
     private void clearAllTables(SQLiteDatabase db) {
         db.execSQL(DELETE_OWNERS_TABLE);
         db.execSQL(DELETE_CARS_TABLE);
@@ -52,6 +55,7 @@ public class DatabaseInterface extends SQLiteOpenHelper {
         db.execSQL(DELETE_DOCUMENTS_TABLE);
     }
 
+    // Метод добавления данных в бд
     public AddData addData(ContentValues values, String table){
         SQLiteDatabase database = getWritableDatabase();
         AddData add_data = new AddData(values, database, table);
@@ -60,6 +64,7 @@ public class DatabaseInterface extends SQLiteOpenHelper {
         return add_data;
     }
 
+    // Получение данных из бд
     public GetData GetData(String table, String[] projection, String selection, String sortOrder) {
         SQLiteDatabase db = getReadableDatabase();
         GetData getData = new GetData(db, table, projection, selection, sortOrder);

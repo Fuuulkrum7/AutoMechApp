@@ -173,9 +173,11 @@ public class CarActivity extends AppCompatActivity implements PhotosAdder{
 
         // viewpager2 для перелистывания картинок в шапке
         imageSwitcher = findViewById(R.id.image_switcher);
+        // Ставим адаптер
         viewPagerAdapter = new ViewPagerAdapter(CarActivity.this, bitmaps);
         imageSwitcher.setAdapter(viewPagerAdapter);
 
+        // И прослушку
         imageSwitcher.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -197,16 +199,22 @@ public class CarActivity extends AppCompatActivity implements PhotosAdder{
         }
     }
 
+    // Запуск сохранени данных
     private void startDataSave() {
+        // Создаем и запускаем поток для сохранения данных
         SaveData save = new SaveData(this, getContext());
         save.start();
+        // Прячем кнопку
         saveData.setVisibility(View.INVISIBLE);
+        // Убираем возможность для пользователя редактировать текст
         disableText();
     }
 
     private void disableText() {
+        // Ставим имя как заголовок
         getSupportActionBar().setTitle(name.getText().toString());
 
+        // Вырубаем текст
         manufacture.setEnabled(false);
         model.setEnabled(false);
         year.setEnabled(false);
@@ -222,22 +230,28 @@ public class CarActivity extends AppCompatActivity implements PhotosAdder{
         horsepower.setEnabled(false);
     }
 
+    // Показываем диалоговое окно для выбора, откуда брать изображение - камера или галерея
     private void getUserImage(int code) {
         CameraOrGallery choose = new CameraOrGallery(this, code);
         FragmentManager manager = getSupportFragmentManager();
-        choose.show(manager, "  dialog");
+        choose.show(manager, "dialog");
     }
 
+    // Запуск камеры
     @SuppressLint("QueryPermissionsNeeded")
     public void startCamera(int code) {
+        // Получаем утилиту для получения интента камеры и пути для фото
         CameraUtil cameraUtil = new CameraUtil(this);
         Intent intent = cameraUtil.createCameraIntent();
         currentPhotoPath = cameraUtil.getCurrentPhotoPath();
+        // Запускаем интент
         startActivityForResult(intent, code);
     }
 
+    // Открываем галерею
     @SuppressLint("QueryPermissionsNeeded")
     public void openGallery(int code) {
+        // Получаем интент и тд, умножаем код на коэффициент
         CameraUtil cameraUtil = new CameraUtil(this);
         Intent intent = cameraUtil.createGalleryIntent(code);
         startActivityForResult(intent, code * COEFFICIENT);
@@ -245,35 +259,46 @@ public class CarActivity extends AppCompatActivity implements PhotosAdder{
 
     @Override
     public boolean onCreateOptionsMenu(@NonNull Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
+        // Меняем меню
         getMenuInflater().inflate(R.menu.add_photo_menu, menu);
         return true;
     }
 
+    // Метод обработки получения фото
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
+        // Если все хорошо
         if (resultCode == RESULT_OK) {
             try {
+                // Если код меньше 10, т.е. меньше коэффициента и фотка получено с камеры
                 if (requestCode < 10) {
+                    // Добавляем фотку и удаляем файл
                     removeImageFile(requestCode);
                 }
+                // Если же нет, то бишь фотка из галереи
                 else {
+                    // Если фоток больше, чем одна, и коэффициент - не код иконки
+                    // то бишь фотка нужна не одна
                     if (data.getClipData() != null && requestCode != ICON_CODE * COEFFICIENT) {
+                        // Получаем число фото
                         int count = data.getClipData().getItemCount();
 
+                        // Перебираем фотографии и добавляем их в список фотографий
                         for (int i = 0; i < count; i++) {
                             Uri uri = data.getClipData().getItemAt(i).getUri();
                             bitmaps.add(ImageUtil.getUriAsBitmap(uri, this));
                         }
 
+                        // Обновляем фото в pageViewer2
                         setImages();
                     }
                     else {
+                        // Добавлем одно (нужное) фото
                         Uri photo = data.getData();
                         // Меняем значение, так как здесь надо только добавить иображение (одно)
                         requestCode /= COEFFICIENT;
-
+                        // Добавляем изображение
                         setImage(photo, requestCode);
                     }
                 }
@@ -285,6 +310,7 @@ public class CarActivity extends AppCompatActivity implements PhotosAdder{
         }
     }
 
+    // Парсим данные из экземпляра машины
     @SuppressLint("SetTextI18n")
     public void setData(Car car) {
         name.setText(car.getCarName());
@@ -306,10 +332,10 @@ public class CarActivity extends AppCompatActivity implements PhotosAdder{
         getSupportActionBar().setTitle(car.getCarName());
 
         bitmaps = car.getCar_photos();
-        viewPagerAdapter = new ViewPagerAdapter(CarActivity.this, bitmaps);
-        imageSwitcher.setAdapter(viewPagerAdapter);
+        setImages();
     }
 
+    // Парсим данные из текстовых перменных
     public ContentValues getValues() {
         ContentValues contentValues = new ContentValues();
 
@@ -337,6 +363,7 @@ public class CarActivity extends AppCompatActivity implements PhotosAdder{
         return contentValues;
     }
 
+    // Обработка нажатия на кнопку в меню
     @SuppressLint("NonConstantResourceId")
     @Override
     public boolean onOptionsItemSelected (MenuItem item) {
@@ -349,29 +376,37 @@ public class CarActivity extends AppCompatActivity implements PhotosAdder{
         return super.onOptionsItemSelected(item);
     }
 
+    // Получаем контекст
     static Context getContext() {
         return context;
     }
 
+    // Получаем id
     public int getId() {
         return id;
     }
 
+    // Ставим id
     public void setId(int id) {
         this.id = id;
     }
 
+    // Удаляем файл и пересохраняем фото
     private void removeImageFile(int code) throws IOException {
         try {
+            // Сжимаем фото
             File f = new Compressor(this)
                     .setMaxWidth(code == ICON_CODE ? 128 : 640)
                     .setMaxHeight(code == ICON_CODE ? 128 : 480)
                     .setQuality(50)
                     .compressToFile(new File(currentPhotoPath));
 
+            // Получаем из него данные
             Uri contentUri = Uri.fromFile(f);
 
+            // Ставим изображение, куда нужно
             setImage(contentUri, code);
+            // Удаляем фото в памяти
             f.delete();
         } catch (IOException e) {
             e.printStackTrace();
@@ -379,8 +414,10 @@ public class CarActivity extends AppCompatActivity implements PhotosAdder{
         }
     }
 
+    // Ставим изображение
     private void setImage(Uri contentUri, int code) throws IOException {
         Bitmap bitmap = ImageUtil.getUriAsBitmap(contentUri, this);
+        // Если надо поставить изображение в imageview для иконки
         if (code == ICON_CODE || code == ICON_CODE * COEFFICIENT) {
             bitmap = ImageUtil.getScaledBitmap(
                     ImageUtil.getSquaredBitmap(bitmap),
@@ -390,16 +427,19 @@ public class CarActivity extends AppCompatActivity implements PhotosAdder{
 
             icon.setImageBitmap(bitmap);
         }
+        // Если фото нужно для viewpager (одно фото)
         else if (code == PHOTO_CODE) {
             // TODO убрать костыль
             bitmaps.add(bitmap);
             setImages();
         }
+        // Если много фото
         else if (code == PHOTO_CODE * COEFFICIENT) {
             setImages();
         }
     }
 
+    // Обновляем фото в viewpager
     private void setImages() {
         viewPagerAdapter = new ViewPagerAdapter(this, bitmaps);
         imageSwitcher.setAdapter(viewPagerAdapter);
