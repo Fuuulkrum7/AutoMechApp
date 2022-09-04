@@ -1,9 +1,14 @@
 package com.example.automechapp;
 
+import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -15,7 +20,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import java.util.ArrayList;
 
 public class OwnersFragment extends Fragment {
-    private final ArrayList<Owner> owners = new ArrayList<Owner>();
+    private ArrayList<Owner> owners = new ArrayList<Owner>();
     public FloatingActionButton addButton;
     public RecyclerView ownersView;
 
@@ -30,14 +35,12 @@ public class OwnersFragment extends Fragment {
 
         setInitialData();
 
-        OwnersAdapter adapter = new OwnersAdapter(getContext(), owners);
-        ownersView.setAdapter(adapter);
-
         addButton = getActivity().findViewById(R.id.add);
         addButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
+                Intent intent = new Intent(getContext(), OwnerActivity.class);
+                getContext().startActivity(intent);
             }
         });
 
@@ -45,11 +48,31 @@ public class OwnersFragment extends Fragment {
     }
 
     private void setInitialData() {
-        owners.add(new Owner(0,"Михаил", "Алексеевич", "Гершкович", "04.10.2004", "01000000", "Челябинск", "Челябинск", "b1", 1010, 101010));
-        owners.add(new Owner(0,"Михаил", "Алексеевич", "Гершкович", "04.10.2004", "01000000", "Челябинск", "Челябинск", "b1", 1010, 101010));
-        owners.add(new Owner(0,"Михаил", "Алексеевич", "Гершкович", "04.10.2004", "01000000", "Челябинск", "Челябинск", "b1", 1010, 101010));
-        owners.add(new Owner(0,"Михаил", "Алексеевич", "Гершкович", "04.10.2004", "01000000", "Челябинск", "Челябинск", "b1", 1010, 101010));
-        owners.add(new Owner(0,"Михаил", "Алексеевич", "Гершкович", "04.10.2004", "01000000", "Челябинск", "Челябинск", "b1", 1010, 101010));
-        owners.add(new Owner(0,"Михаил", "Алексеевич", "Гершкович", "04.10.2004", "01000000", "Челябинск", "Челябинск", "b1", 1010, 101010));
+        Thread thread = new Thread() {
+            @Override
+            public void run() {
+                GetOwners getOwners = new GetOwners(getContext(), null);
+                getOwners.start();
+
+                try {
+                    getOwners.join();
+                    owners = getOwners.getOwnersList();
+
+                    OwnersAdapter adapter = new OwnersAdapter(getContext(), owners);
+
+                    new Handler(Looper.getMainLooper()).post(new Runnable() {
+                        @Override
+                        public void run() {
+                            ownersView.setAdapter(adapter);
+                        }
+                    });
+                }
+                catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        };
+
+        thread.start();
     }
 }

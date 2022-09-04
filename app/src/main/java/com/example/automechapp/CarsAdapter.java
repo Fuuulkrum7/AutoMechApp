@@ -44,6 +44,7 @@ public class CarsAdapter extends RecyclerView.Adapter<CarsAdapter.CarViewHolder>
         holder.manufactureView.setText(car.getManufacture());
         holder.modelView.setText(car.getModel());
         holder.setId(car.getId());
+        holder.setUser_id(car.getUser_id());
         holder.carImage.setImageBitmap(car.getIcon());
     }
 
@@ -56,6 +57,7 @@ public class CarsAdapter extends RecyclerView.Adapter<CarsAdapter.CarViewHolder>
         final ImageView carImage;
         final TextView carNameView, manufactureView, modelView;
         private int id = -1;
+        private int user_id = -1;
 
         CarViewHolder (View view) {
             super(view);
@@ -73,6 +75,7 @@ public class CarsAdapter extends RecyclerView.Adapter<CarsAdapter.CarViewHolder>
             // Запускаем активность авто
             Bundle bundle = new Bundle();
             bundle.putInt("id", id);
+            bundle.putInt("user_id", user_id);
 
             Intent intent = new Intent(MainActivity.getContext(), CarActivity.class);
 
@@ -91,6 +94,14 @@ public class CarsAdapter extends RecyclerView.Adapter<CarsAdapter.CarViewHolder>
 
         public int getId() {
             return id;
+        }
+
+        public int getUser_id() {
+            return user_id;
+        }
+
+        public void setUser_id(int user_id) {
+            this.user_id = user_id;
         }
     }
 }

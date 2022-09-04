@@ -94,8 +94,8 @@ public class CarsFragment extends Fragment {
         addButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(MainActivity.getContext(), CarActivity.class);
-                MainActivity.getContext().startActivity(intent);
+                Intent intent = new Intent(getContext(), CarActivity.class);
+                getContext().startActivity(intent);
             }
         });
 

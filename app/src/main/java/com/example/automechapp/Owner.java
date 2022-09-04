@@ -6,14 +6,14 @@ public class Owner {
     private String patronymic;
     private String surname;
     private String dob;
-    private String driver_license;
+    private int driver_license;
     private String region;
     private String issuing_region;
     private String categories;
     private int passport_series;
     private int passport_number;
 
-    public Owner(int id, String username, String patronymic, String surname, String dob, String driver_license, String region, String issuing_region, String categories, int passport_series, int passport_number) {
+    public Owner(int id, String username, String surname, int driver_license, String patronymic, String dob, String region, String issuing_region, String categories, int passport_series, int passport_number) {
         this.id = id;
         this.username = username;
         this.patronymic = patronymic;
@@ -25,6 +25,17 @@ public class Owner {
         this.categories = categories;
         this.passport_series = passport_series;
         this.passport_number = passport_number;
+    }
+
+    public Owner(int id, String username, String surname, int driver_license) {
+        this.id = id;
+        this.username = username;
+        this.surname = surname;
+        this.driver_license = driver_license;
+    }
+
+    public String getOwnerText() {
+        return surname + " " + username + "\n" + Integer.toString(driver_license);
     }
 
     public int getId() {
@@ -59,11 +70,11 @@ public class Owner {
         this.surname = surname;
     }
 
-    public String getDriver_license() {
+    public int getDriver_license() {
         return driver_license;
     }
 
-    public void setDriver_license(String driver_license) {
+    public void setDriver_license(int driver_license) {
         this.driver_license = driver_license;
     }
 

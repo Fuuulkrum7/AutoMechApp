@@ -6,6 +6,7 @@
     android:layout_height="wrap_content">
 
     <View
+        android:id="@+id/view"
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:background="@color/primaryDarkColor"
@@ -13,45 +14,70 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
+        android:id="@+id/head_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:text="ФИО, дата рождения"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <EditText
         android:id="@+id/surname"
         android:layout_width="201dp"
-        android:layout_height="32dp"
+        android:layout_height="48dp"
         android:gravity="center"
+        android:hint="Фамилия"
+        android:inputType="textPersonName|textCapWords"
+        android:textColor="@drawable/disabled_color"
         android:textSize="20sp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:ignore="RtlHardcoded" />
+        app:layout_constraintTop_toBottomOf="@+id/head_view"
+        tools:ignore="RtlHardcoded,SpeakableTextPresentCheck" />
 
-    <TextView
+    <EditText
         android:id="@+id/username"
-        android:layout_width="192dp"
-        android:layout_height="32dp"
+        android:layout_width="209dp"
+        android:layout_height="48dp"
         android:gravity="center"
+        android:hint="Имя"
+        android:textColor="@drawable/disabled_color"
         android:textSize="20sp"
+        android:inputType="textPersonName|textCapWords"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toEndOf="@+id/surname"
-        app:layout_constraintTop_toTopOf="parent"
-        tools:ignore="RtlHardcoded" />
+        app:layout_constraintTop_toBottomOf="@+id/head_view"
+        tools:ignore="RtlHardcoded,SpeakableTextPresentCheck" />
 
-    <TextView
+    <EditText
         android:id="@+id/patronymic"
-        android:layout_width="260dp"
-        android:layout_height="32dp"
+        android:layout_width="238dp"
+        android:layout_height="48dp"
         android:gravity="center"
+        android:hint="Отчество"
+        android:textColor="@drawable/disabled_color"
         android:textSize="20sp"
+        android:inputType="textPersonName|textCapWords"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/username"
-        tools:ignore="RtlHardcoded" />
+        app:layout_constraintTop_toBottomOf="@+id/surname"
+        tools:ignore="RtlHardcoded,SpeakableTextPresentCheck" />
 
-    <TextView
+    <EditText
         android:id="@+id/date_of_birth"
-        android:layout_width="133dp"
-        android:layout_height="32dp"
+        android:layout_width="173dp"
+        android:layout_height="48dp"
         android:gravity="center"
-        android:inputType="date|datetime"
+        android:hint="Дата рождения"
+        android:inputType="date"
+        android:textColor="@drawable/disabled_color"
         android:textSize="20sp"
+        android:clickable="false"
+        android:cursorVisible="false"
+        android:focusable="false"
+        android:focusableInTouchMode="false"
         app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/patronymic"
         app:layout_constraintTop_toBottomOf="@+id/username"
         tools:ignore="RtlHardcoded,SpeakableTextPresentCheck" />
 
@@ -72,14 +98,17 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/patronymic" />
 
-    <TextView
+    <EditText
         android:id="@+id/region"
         android:layout_width="match_parent"
-        android:layout_height="32dp"
+        android:layout_height="48dp"
         android:gravity="center"
         android:textSize="20sp"
+        android:textColor="@drawable/disabled_color"
+        android:inputType="textPersonName|textCapWords"
+        app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/sep2"
-        tools:layout_editor_absoluteX="151dp" />
+        tools:ignore="SpeakableTextPresentCheck" />
 
     <View
         android:id="@+id/view3"
@@ -100,15 +129,18 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/region" />
 
-    <TextView
+    <EditText
         android:id="@+id/driver_license"
         android:layout_width="match_parent"
-        android:layout_height="32dp"
+        android:layout_height="48dp"
         android:gravity="center"
+        android:inputType="number"
+        android:textColor="@drawable/disabled_color"
         android:textSize="20sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/sep1" />
+        app:layout_constraintTop_toBottomOf="@+id/sep1"
+        tools:ignore="SpeakableTextPresentCheck" />
 
     <View
         android:id="@+id/view5"
@@ -127,14 +159,17 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/driver_license" />
 
-    <TextView
+    <EditText
         android:id="@+id/issung_region"
         android:layout_width="match_parent"
-        android:layout_height="32dp"
+        android:layout_height="48dp"
         android:gravity="center"
         android:textSize="20sp"
+        android:textColor="@drawable/disabled_color"
+        android:inputType="textPersonName|textCapWords"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/sep3" />
+        app:layout_constraintTop_toBottomOf="@+id/sep3"
+        tools:ignore="SpeakableTextPresentCheck" />
 
     <View
         android:id="@+id/view7"
@@ -153,14 +188,17 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/view7" />
 
-    <TextView
+    <EditText
         android:id="@+id/categories"
         android:layout_width="match_parent"
-        android:layout_height="32dp"
+        android:layout_height="48dp"
         android:gravity="center"
         android:textSize="20sp"
+        android:textColor="@drawable/disabled_color"
+        android:inputType="textPersonName|textCapWords"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/sep4" />
+        app:layout_constraintTop_toBottomOf="@+id/sep4"
+        tools:ignore="SpeakableTextPresentCheck" />
 
     <View
         android:id="@+id/view9"
@@ -179,31 +217,41 @@
         app:layout_constraintTop_toBottomOf="@+id/categories"
         tools:layout_editor_absoluteX="165dp" />
 
-    <TextView
+    <EditText
         android:id="@+id/passport_series"
-        android:layout_width="165dp"
-        android:layout_height="32dp"
+        android:layout_width="175dp"
+        android:layout_height="48dp"
         android:gravity="center"
+        android:hint="Серия"
+        android:inputType="number"
+        android:maxLength="4"
+        android:textColor="@drawable/disabled_color"
         android:textSize="20sp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView" />
+        app:layout_constraintTop_toBottomOf="@+id/textView"
+        tools:ignore="SpeakableTextPresentCheck" />
 
-    <TextView
+    <EditText
         android:id="@+id/passport_number"
-        android:layout_width="228dp"
-        android:layout_height="32dp"
+        android:layout_width="236dp"
+        android:layout_height="48dp"
+        android:layout_marginStart="1dp"
         android:gravity="center"
+        android:hint="Номер"
+        android:inputType="number"
+        android:maxLength="6"
+        android:textColor="@drawable/disabled_color"
         android:textSize="20sp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toEndOf="@+id/passport_series"
-        app:layout_constraintTop_toBottomOf="@+id/textView" />
+        app:layout_constraintTop_toBottomOf="@+id/textView"
+        tools:ignore="SpeakableTextPresentCheck" />
 
     <View
         android:id="@+id/view10"
         android:layout_width="match_parent"
-        android:layout_height="10dp"
-        android:background="@color/primaryDarkColor"
+        android:layout_height="5dp"
+        android:background="@color/primaryColor"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/passport_number" />
 

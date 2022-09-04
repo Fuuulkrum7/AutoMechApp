@@ -1,10 +1,12 @@
 package com.example.automechapp;
 
 import android.annotation.SuppressLint;
+import android.app.AutomaticZenRule;
 import android.content.Context;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -27,7 +29,7 @@ public class OwnersAdapter extends RecyclerView.Adapter<OwnersAdapter.OwnerViewH
     public OwnerViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = inflater.inflate(R.layout.owner_item, parent, false);
 
-        return new OwnersAdapter.OwnerViewHolder(view);
+        return new OwnerViewHolder(view);
     }
 
     @SuppressLint("SetTextI18n")
@@ -39,11 +41,13 @@ public class OwnersAdapter extends RecyclerView.Adapter<OwnersAdapter.OwnerViewH
         holder.surnameView.setText(owner.getSurname());
         holder.dobView.setText(owner.getDob());
         holder.regionView.setText(owner.getRegion());
-        holder.driverLicenseView.setText(owner.getDriver_license());
+        holder.driverLicenseView.setText(Integer.toString(owner.getDriver_license()));
         holder.issuingRegionView.setText(owner.getIssuing_region());
         holder.categoriesView.setText(owner.getCategories());
         holder.passportSeriesView.setText(Integer.toString(owner.getPassport_series()));
         holder.passportNumberView.setText(Integer.toString(owner.getPassport_number()));
+
+        holder.disableTexts();
     }
 
     @Override
@@ -51,8 +55,8 @@ public class OwnersAdapter extends RecyclerView.Adapter<OwnersAdapter.OwnerViewH
         return owners.size();
     }
 
-    public class OwnerViewHolder extends RecyclerView.ViewHolder {
-        final TextView usernameView, patronymicView, surnameView, dobView, regionView, driverLicenseView, issuingRegionView, categoriesView, passportSeriesView, passportNumberView;
+    public static class OwnerViewHolder extends RecyclerView.ViewHolder {
+        EditText usernameView, patronymicView, surnameView, dobView, regionView, driverLicenseView, issuingRegionView, categoriesView, passportSeriesView, passportNumberView;
         public OwnerViewHolder(View view) {
             super(view);
             usernameView = view.findViewById(R.id.username);
@@ -65,6 +69,19 @@ public class OwnersAdapter extends RecyclerView.Adapter<OwnersAdapter.OwnerViewH
             categoriesView = view.findViewById(R.id.categories);
             passportSeriesView = view.findViewById(R.id.passport_series);
             passportNumberView = view.findViewById(R.id.passport_number);
+        }
+
+        public void disableTexts() {
+            usernameView.setEnabled(false);
+            patronymicView.setEnabled(false);
+            surnameView.setEnabled(false);
+            dobView.setEnabled(false);
+            regionView.setEnabled(false);
+            driverLicenseView.setEnabled(false);
+            issuingRegionView.setEnabled(false);
+            categoriesView.setEnabled(false);
+            passportSeriesView.setEnabled(false);
+            passportNumberView.setEnabled(false);
         }
     }
 }

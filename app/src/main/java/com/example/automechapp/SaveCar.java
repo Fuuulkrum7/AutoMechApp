@@ -8,18 +8,20 @@ import android.graphics.Bitmap;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
-class SaveData extends Thread {
+class SaveCar extends Thread {
     private final CarActivity carActivity;
     DatabaseInterface databaseInterface;
+    ContentValues contentValues;
 
-    public SaveData(CarActivity carActivity, Context context) {
+    public SaveCar(CarActivity carActivity, Context context, ContentValues contentValues) {
         this.carActivity = carActivity;
         databaseInterface = new DatabaseInterface(context);
+        this.contentValues = contentValues;
     }
 
     @Override
     public void run() {
-        AddData addData = databaseInterface.addData(carActivity.getValues(), DatabaseInfo.CARS_TABLE);
+        AddData addData = databaseInterface.addData(contentValues, DatabaseInfo.CARS_TABLE);
         try {
             addData.join();
             carActivity.setId((int) addData.getIndex());

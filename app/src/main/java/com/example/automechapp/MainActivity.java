@@ -10,6 +10,7 @@ import androidx.fragment.app.FragmentTransaction;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -17,11 +18,17 @@ import android.view.MenuItem;
 
 import com.google.android.material.navigation.NavigationView;
 
+import java.util.Objects;
+
 public class MainActivity extends AppCompatActivity {
     private DrawerLayout drawerLayout;
     public static final String TAG = "Mechanic";
     @SuppressLint("StaticFieldLeak")
     private static Context context;
+
+    int code;
+    public static String APP_PREFERENCES_CODE = "code";
+    public static final String APP_PREFERENCES = "automechapp";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,7 +40,7 @@ public class MainActivity extends AppCompatActivity {
         Toolbar toolbar = findViewById(R.id.car_toolbar);
         setSupportActionBar(toolbar);
 
-        getSupportActionBar().setHomeAsUpIndicator(R.drawable.ic_baseline_menu_24);
+        Objects.requireNonNull(getSupportActionBar()).setHomeAsUpIndicator(R.drawable.ic_baseline_menu_24);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -41,8 +48,10 @@ public class MainActivity extends AppCompatActivity {
         NavigationView navigationView = findViewById(R.id.navigation);
         setupDrawerContent(navigationView);
 
-        loadFragment(new BreakdownsFragment());
-        navigationView.setCheckedItem(R.id.nav_breakdowns);
+        SharedPreferences settings = getSharedPreferences(APP_PREFERENCES, Context.MODE_PRIVATE);
+
+        checkItem(settings.getInt(APP_PREFERENCES_CODE, R.id.nav_breakdowns));
+        navigationView.setCheckedItem(code);
     }
 
     @Override
@@ -64,6 +73,20 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        SharedPreferences settings = getSharedPreferences(APP_PREFERENCES, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = settings.edit();
+
+        editor.putInt(
+                APP_PREFERENCES_CODE,
+                R.id.nav_breakdowns
+        );
+        editor.apply();
+    }
+
     private void loadFragment(Fragment fragment) {
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
         ft.replace(R.id.fragment_layout, fragment);
@@ -72,8 +95,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @SuppressLint("NonConstantResourceId")
-    public void selectDrawerItem(MenuItem item) {
-        switch (item.getItemId()){
+    public void checkItem(int code) {
+        this.code = code;
+        switch (code){
             case R.id.nav_breakdowns:
                 loadFragment(new BreakdownsFragment());
                 break;
@@ -83,7 +107,12 @@ public class MainActivity extends AppCompatActivity {
             case R.id.nav_owners:
                 loadFragment(new OwnersFragment());
                 break;
-            }
+        }
+    }
+
+    @SuppressLint("NonConstantResourceId")
+    public void selectDrawerItem(MenuItem item) {
+        checkItem(item.getItemId());
 
         // Highlight the selected item has been done by NavigationView
         item.setChecked(true);

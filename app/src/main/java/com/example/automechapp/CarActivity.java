@@ -3,41 +3,38 @@ package com.example.automechapp;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.core.content.FileProvider;
 import androidx.fragment.app.FragmentManager;
 import androidx.viewpager2.widget.ViewPager2;
 
 import android.annotation.SuppressLint;
-import android.content.ClipData;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Bundle;
-import android.os.Environment;
-import android.provider.MediaStore;
+import android.os.Handler;
+import android.os.Looper;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.Spinner;
 import android.widget.Toast;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.Objects;
 
 import id.zelory.compressor.Compressor;
@@ -65,6 +62,8 @@ public class CarActivity extends AppCompatActivity implements PhotosAdder{
     EditText tax;
     EditText horsepower;
 
+    Spinner ownersSpinner;
+
     // А это тоже id. Но пользователя, получаем его при добавлении, так тупо легче это все оформить.
     int user_id = 0;
 
@@ -81,6 +80,8 @@ public class CarActivity extends AppCompatActivity implements PhotosAdder{
     ViewPagerAdapter viewPagerAdapter;
     ArrayList<Bitmap> bitmaps = new ArrayList<>();
     String currentPhotoPath;
+
+    ArrayList<Owner> owners;
 
     @SuppressLint("ClickableViewAccessibility")
     @Override
@@ -197,12 +198,72 @@ public class CarActivity extends AppCompatActivity implements PhotosAdder{
             getCurrentCar.start();
             disableText();
         }
+
+        ownersSpinner = findViewById(R.id.spinner);
+        ownersSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
+                user_id = owners.get(i).getId();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> adapterView) {
+
+            }
+        });
+        getOwnersList();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        SharedPreferences settings = getSharedPreferences(MainActivity.APP_PREFERENCES, Context.MODE_PRIVATE);
+        SharedPreferences.Editor editor = settings.edit();
+
+        editor.putInt(
+                MainActivity.APP_PREFERENCES_CODE,
+                R.id.nav_cars
+        );
+        editor.apply();
+    }
+
+    public void getOwnersList() {
+        Thread thread = new Thread() {
+            @Override
+            public void run() {
+                GetOwners getOwners = new GetOwners(getContext(), "");
+                getOwners.start();
+
+                try {
+                    getOwners.join();
+                    owners = getOwners.getOwnersList();
+
+                    new Handler(Looper.getMainLooper()).post(new Runnable() {
+                        @Override
+                        public void run() {
+                            ownersSpinner.setAdapter(new OwnerSpinnerAdapter(getContext(), R.layout.spinner_dropdown_item, owners));
+                        }
+                    });
+                }
+                catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        };
+
+        thread.start();
     }
 
     // Запуск сохранени данных
     private void startDataSave() {
+        ContentValues contentValues = getValues();
+        if (contentValues == null) {
+            Toast.makeText(this, "Введите данные", Toast.LENGTH_SHORT).show();
+            return;
+        }
         // Создаем и запускаем поток для сохранения данных
-        SaveData save = new SaveData(this, getContext());
+        SaveCar save = new SaveCar(this, getContext(), contentValues);
         save.start();
         // Прячем кнопку
         saveData.setVisibility(View.INVISIBLE);
@@ -326,39 +387,82 @@ public class CarActivity extends AppCompatActivity implements PhotosAdder{
         car_state_number.setText(car.getCar_state_number());
         tax.setText(Integer.toString(car.getTax()));
         horsepower.setText(Integer.toString(car.getHorsepower()));
-
         icon.setImageBitmap(car.getIcon());
+
+        user_id = car.getUser_id();
 
         getSupportActionBar().setTitle(car.getCarName());
 
         bitmaps = car.getCar_photos();
         setImages();
+
+        Thread thread = new Thread() {
+            @Override
+            public void run() {
+                GetOwners getOwners = new GetOwners(getContext(), DatabaseInfo.OWNER_ID + " = " + user_id);
+                getOwners.start();
+
+                try {
+                    getOwners.join();
+                    owners = getOwners.getOwnersList();
+
+                    new Handler(Looper.getMainLooper()).post(new Runnable() {
+                        @Override
+                        public void run() {
+                            ownersSpinner.setAdapter(new OwnerSpinnerAdapter(getContext(), R.layout.spinner_dropdown_item, owners));
+                        }
+                    });
+                }
+                catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        };
+
+        thread.start();
     }
 
     // Парсим данные из текстовых перменных
     public ContentValues getValues() {
         ContentValues contentValues = new ContentValues();
 
-        contentValues.put(DatabaseInfo.CAR_NAME, name.getText().toString());
-        contentValues.put(DatabaseInfo.CAR_MANUFACTURE, manufacture.getText().toString());
-        contentValues.put(DatabaseInfo.CAR_MODEL, model.getText().toString());
-        contentValues.put(DatabaseInfo.CAR_YEAR, Integer.parseInt(year.getText().toString()));
-        contentValues.put(DatabaseInfo.CAR_PRICE, Long.parseLong(price.getText().toString()));
-        contentValues.put(DatabaseInfo.COLOR, color.getText().toString());
-        contentValues.put(DatabaseInfo.VIN, vin.getText().toString());
-        contentValues.put(DatabaseInfo.ENGINE_VOLUME, Float.parseFloat(engine_volume.getText().toString()));
-        contentValues.put(DatabaseInfo.ENGINE_MODEL, engine_model.getText().toString());
-        contentValues.put(DatabaseInfo.ENGINE_NUMBER, engine_number.getText().toString());
-        contentValues.put(DatabaseInfo.STATE_CAR_NUMBER, car_state_number.getText().toString());
-        contentValues.put(DatabaseInfo.TAX, Integer.parseInt(tax.getText().toString()));
-        contentValues.put(DatabaseInfo.CAR_PHOTO, ImageUtil.getBitmapAsByteArray((((BitmapDrawable) icon.getDrawable()).getBitmap())));
-        contentValues.put(DatabaseInfo.HORSEPOWER, Integer.parseInt(horsepower.getText().toString()));
+        try {
+            contentValues.put(DatabaseInfo.CAR_NAME, name.getText().toString());
+            contentValues.put(DatabaseInfo.CAR_MANUFACTURE, manufacture.getText().toString());
+            contentValues.put(DatabaseInfo.CAR_MODEL, model.getText().toString());
+            contentValues.put(DatabaseInfo.CAR_YEAR, Integer.parseInt(year.getText().toString()));
+            contentValues.put(DatabaseInfo.CAR_PRICE, Long.parseLong(price.getText().toString()));
+            contentValues.put(DatabaseInfo.COLOR, color.getText().toString());
+            contentValues.put(DatabaseInfo.VIN, vin.getText().toString());
+            contentValues.put(DatabaseInfo.ENGINE_VOLUME, Float.parseFloat(engine_volume.getText().toString()));
+            contentValues.put(DatabaseInfo.ENGINE_MODEL, engine_model.getText().toString());
+            contentValues.put(DatabaseInfo.ENGINE_NUMBER, engine_number.getText().toString());
+            contentValues.put(DatabaseInfo.STATE_CAR_NUMBER, car_state_number.getText().toString());
+            contentValues.put(DatabaseInfo.TAX, Integer.parseInt(tax.getText().toString()));
+            contentValues.put(DatabaseInfo.CAR_PHOTO, ImageUtil.getBitmapAsByteArray((((BitmapDrawable) icon.getDrawable()).getBitmap())));
+            contentValues.put(DatabaseInfo.HORSEPOWER, Integer.parseInt(horsepower.getText().toString()));
+            contentValues.put(DatabaseInfo.OWNER_ID, user_id);
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
 
         @SuppressLint("SimpleDateFormat") SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         Calendar c = Calendar.getInstance();
         String date = sdf.format(c.getTime());
 
         contentValues.put(DatabaseInfo.STANDARD_DATE, date);
+
+        for (String s: contentValues.keySet()) {
+            if (contentValues.get(s) == null) {
+                return null;
+            }
+        }
+
+        if (bitmaps.size() == 0) {
+            return null;
+        }
 
         return contentValues;
     }
