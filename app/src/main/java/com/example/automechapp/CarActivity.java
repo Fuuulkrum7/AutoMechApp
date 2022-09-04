@@ -245,6 +245,8 @@ public class CarActivity extends AppCompatActivity implements PhotosAdder{
                             ownersSpinner.setAdapter(new OwnerSpinnerAdapter(getContext(), R.layout.spinner_dropdown_item, owners));
                         }
                     });
+
+                    user_id = owners.get(0).getId();
                 }
                 catch (Exception e) {
                     e.printStackTrace();

@@ -27,6 +27,8 @@ public class CarsFragment extends Fragment {
     public FloatingActionButton addButton;
     public RecyclerView carsView;
 
+    int count = 0;
+
     // Инициализация фрагмента
     @Nullable
     @Override
@@ -83,22 +85,48 @@ public class CarsFragment extends Fragment {
                         carsView.setAdapter(adapter);
                     }
                 });
-
             }
         };
 
         thread.start();
+
+        checkOwners();
 
         // Добавляем прослушку на кнопку
         addButton = getActivity().findViewById(R.id.add);
         addButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(getContext(), CarActivity.class);
-                getContext().startActivity(intent);
+                if (count > 0) {
+                    Intent intent = new Intent(getContext(), CarActivity.class);
+                    getContext().startActivity(intent);
+                }
+                else {
+                    Toast.makeText(getContext(), "Сначала добавьте хотя бы одного автовладельца", Toast.LENGTH_SHORT).show();
+                }
             }
         });
 
         return view;
+    }
+
+    private void checkOwners() {
+        Thread thread = new Thread() {
+            @Override
+            public void run() {
+                GetOwners getOwners = new GetOwners(getContext(), null);
+                getOwners.start();
+
+                try {
+                    getOwners.join();
+                    count = getOwners.getOwnersList().size();
+                }
+                catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        };
+
+        thread.start();
     }
 }
