@@ -85,6 +85,7 @@
                 android:layout_weight="1"
                 android:ems="10"
                 android:hint="Год выпуска"
+                android:digits="0123456789"
                 android:inputType="number"
                 android:maxLength="4" />
 
@@ -191,7 +192,8 @@
                 android:layout_weight="1"
                 android:ems="10"
                 android:hint="Номер авто"
-                android:inputType="textPersonName" />
+                android:inputType="textPersonName"
+                android:maxLength="9" />
 
             <Spinner
                 android:id="@+id/spinner"

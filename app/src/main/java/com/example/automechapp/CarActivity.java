@@ -18,6 +18,8 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.Editable;
+import android.text.InputFilter;
+import android.text.Spanned;
 import android.text.TextWatcher;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -63,6 +65,7 @@ public class CarActivity extends AppCompatActivity implements PhotosAdder{
     EditText horsepower;
 
     Spinner ownersSpinner;
+    boolean allowed = false;
 
     // А это тоже id. Но пользователя, получаем его при добавлении, так тупо легче это все оформить.
     int user_id = 0;
@@ -111,7 +114,7 @@ public class CarActivity extends AppCompatActivity implements PhotosAdder{
         name = (EditText) findViewById(R.id.name);
         manufacture = (EditText) findViewById(R.id.manufacture);
         model = (EditText) findViewById(R.id.model);
-        price =(EditText) findViewById(R.id.price);
+        price = (EditText) findViewById(R.id.price);
         color = (EditText) findViewById(R.id.color);
         vin = (EditText) findViewById(R.id.vin);
         engine_volume = (EditText) findViewById(R.id.engine_volume);
@@ -120,6 +123,10 @@ public class CarActivity extends AppCompatActivity implements PhotosAdder{
         car_state_number = (EditText) findViewById(R.id.car_state_number);
         tax = (EditText) findViewById(R.id.tax);
         horsepower = (EditText) findViewById(R.id.horsepower);
+
+        CarStateNumberListener listener = new CarStateNumberListener(car_state_number);
+        car_state_number.addTextChangedListener(listener);
+        car_state_number.setFilters(new InputFilter[] { listener.getFilter() });
 
         year = findViewById(R.id.year);
         year.addTextChangedListener(new TextWatcher() {
@@ -146,6 +153,13 @@ public class CarActivity extends AppCompatActivity implements PhotosAdder{
                 // первое авто было в 1886, значит, до него ничего быть не может
                 if (length_of_year == 4 && car_year < 1886) {
                     Toast.makeText(CarActivity.this, "Некорректный год", Toast.LENGTH_SHORT).show();
+                }
+                else if (length_of_year == 4) {
+                    allowed = true;
+                }
+
+                if (length_of_year < 4) {
+                    allowed = false;
                 }
             }
         });
@@ -426,6 +440,9 @@ public class CarActivity extends AppCompatActivity implements PhotosAdder{
 
     // Парсим данные из текстовых перменных
     public ContentValues getValues() {
+        if (!allowed)
+            return null;
+
         ContentValues contentValues = new ContentValues();
 
         try {
