@@ -1,6 +1,9 @@
 package com.example.automechapp;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,6 +22,8 @@ public class BreakdownsFragment extends Fragment {
     public FloatingActionButton addButton;
     public RecyclerView breakdownsView;
 
+    int count;
+
     // Инициализация фрагмента
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -36,12 +41,20 @@ public class BreakdownsFragment extends Fragment {
         BreakdownsAdapter adapter = new BreakdownsAdapter(getContext(), breakdowns);
         breakdownsView.setAdapter(adapter);
 
+        checkCars();
+
         // Ставим прослушку на кнопку
         addButton = getActivity().findViewById(R.id.add);
         addButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Toast.makeText(v.getContext(), "В процессе разработки", Toast.LENGTH_SHORT).show();
+                if (count > 0) {
+                    Intent intent = new Intent(getContext(), BreakdownActivity.class);
+                    getContext().startActivity(intent);
+                }
+                else {
+                    Toast.makeText(v.getContext(), "Сначала добавьте автомобиль", Toast.LENGTH_SHORT).show();
+                }
             }
         });
 
@@ -50,13 +63,53 @@ public class BreakdownsFragment extends Fragment {
 
     // Задаем стартовые данные
     private void setInitialData() {
-        breakdowns.add(new Breakdown("колесо пробил", "Toyota", "Supra", "12.12.12", "00:00", 0, 0));
-        breakdowns.add(new Breakdown("колесо пробил", "Toyota", "Supra", "12.12.12", "00:00", 0, 0));
-        breakdowns.add(new Breakdown("колесо пробил", "Toyota", "Supra", "12.12.12", "00:00", 0, 0));
-        breakdowns.add(new Breakdown("колесо пробил", "Toyota", "Supra", "12.12.12", "00:00", 0, 0));
-        breakdowns.add(new Breakdown("колесо пробил", "Toyota", "Supra", "12.12.12", "00:00", 0, 0));
-        breakdowns.add(new Breakdown("колесо пробил", "Toyota", "Supra", "12.12.12", "00:00", 0, 0));
-        breakdowns.add(new Breakdown("колесо пробил", "Toyota", "Supra", "12.12.12", "00:00", 0, 0));
-        breakdowns.add(new Breakdown("колесо пробил", "Toyota", "Supra", "12.12.12", "00:00", 0, 0));
+        breakdowns.add(new Breakdown("колесо пробил", "Toyota", "Supra", null, "12.12.12", "00:00", 0, 0));
+        breakdowns.add(new Breakdown("колесо пробил", "Toyota", "Supra", null, "12.12.12", "00:00", 0, 0));
+        breakdowns.add(new Breakdown("колесо пробил", "Toyota", "Supra", null, "12.12.12", "00:00", 0, 0));
+        breakdowns.add(new Breakdown("колесо пробил", "Toyota", "Supra", null, "12.12.12", "00:00", 0, 0));
+        breakdowns.add(new Breakdown("колесо пробил", "Toyota", "Supra", null, "12.12.12", "00:00", 0, 0));
+        breakdowns.add(new Breakdown("колесо пробил", "Toyota", "Supra", null, "12.12.12", "00:00", 0, 0));
+        breakdowns.add(new Breakdown("колесо пробил", "Toyota", "Supra", null, "12.12.12", "00:00", 0, 0));
+        breakdowns.add(new Breakdown("колесо пробил", "Toyota", "Supra", null, "12.12.12", "00:00", 0, 0));
+    }
+
+    private void checkCars() {
+        Thread thread = new Thread() {
+            @Override
+            public void run() {
+                // Создаем класс для получения авто из бд
+                GetCars getCars = new GetCars(
+                        getContext(),
+                        new String[]{
+                                DatabaseInfo.CAR_NAME,
+                                DatabaseInfo.CAR_MANUFACTURE,
+                                DatabaseInfo.CAR_MODEL,
+                                DatabaseInfo.CAR_ID,
+                                DatabaseInfo.CAR_PHOTO,
+                                DatabaseInfo.OWNER_ID
+                        },
+                        null,
+                        DatabaseInfo.STANDARD_DATE + " DESC"
+                );
+                // запуск потока и присоединение к нему
+                getCars.start();
+                try {
+                    getCars.join();
+                    count = getCars.getData().size();
+                }
+                catch (Exception e) {
+                    e.printStackTrace();
+                    new Handler(Looper.getMainLooper()).post(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(getContext(), "error", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                    e.printStackTrace();
+                }
+            }
+        };
+
+        thread.start();
     }
 }

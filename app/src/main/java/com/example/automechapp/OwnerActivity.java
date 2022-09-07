@@ -16,7 +16,6 @@ import android.widget.Toast;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.Locale;
 import java.util.Objects;
 
@@ -41,7 +40,7 @@ public class OwnerActivity extends AppCompatActivity {
         setContentView(R.layout.activity_owner);
 
         // тулбар, без него никуда
-        Toolbar toolbar = findViewById(R.id.car_toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         toolbar.setTitle("Новый автовладелец");
         setSupportActionBar(toolbar);
         Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);

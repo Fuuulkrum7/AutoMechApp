@@ -10,15 +10,22 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
+// Сие есть небольшой класс для красивого ввода номера авто. Ну просто некрасиво выглядит,
+// Когда в и так раздутом классе CarActivity будет такая жирная хрень
 public class CarStateNumberListener implements TextWatcher {
+    // Тут и так понятно
     private static final String SEPARATOR = " ";
     EditText self;
 
+    // Разрешенные для ввода буквы (ну, те, которые в номерах могут быть))
     String characterSet = "авекмнорстух";
 
+    // Фиииильтр
     private InputFilter filter = new InputFilter() {
         @Override
         public CharSequence filter(CharSequence source, int start, int end, Spanned dest, int dstart, int dend) {
+            // Если текст есть и он не содержит допустимые символы => содержит недопустимые
+            // Меняем их на пустую строку
             if (source != null && !characterSet.contains(("" + source))) {
                 return "";
             }
@@ -37,15 +44,20 @@ public class CarStateNumberListener implements TextWatcher {
 
     @Override
     public void onTextChanged(CharSequence charSequence, int start, int count, int after) {
-        if (((start + 1 == 2 || start + 1 == 6) && count == 0) || (start == 6 && count == 1)) {
+        // Если мы тут: "аа" или тут "аа111а", и текст вводится
+        // или же мы тут "аа11" и символы убирают
+        // то ставим тип вводимого текста - число
+        if (((start + 1 == 2 || start + 1 == 6) && count == 0) || (start == 4 && count == 1)) {
             self.setFilters(new InputFilter[] {new InputFilter.LengthFilter(9)} );
             self.setInputType(InputType.TYPE_CLASS_NUMBER);
         }
+        // Если тут "аа111" и текст пишут
+        // Или тут "а" или тут "аа111" и текст удаляют
+        // Меняем тип вводимого текста на буковы и ставим наш фильтр
         else if ((start + 1 == 5 && count == 0) || ((start == 1 || start == 5) && count == 1)) {
             self.setInputType(InputType.TYPE_CLASS_TEXT);
             self.setFilters(new InputFilter[] {filter} );
         }
-        Toast.makeText(self.getContext(), start + " " + count, Toast.LENGTH_SHORT).show();
     }
 
     @Override

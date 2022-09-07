@@ -37,7 +37,7 @@ public class MainActivity extends AppCompatActivity {
 
         context = this;
 
-        Toolbar toolbar = findViewById(R.id.car_toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
         Objects.requireNonNull(getSupportActionBar()).setHomeAsUpIndicator(R.drawable.ic_baseline_menu_24);

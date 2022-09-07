@@ -19,13 +19,11 @@ import android.os.Handler;
 import android.os.Looper;
 import android.text.Editable;
 import android.text.InputFilter;
-import android.text.Spanned;
 import android.text.TextWatcher;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -93,7 +91,7 @@ public class CarActivity extends AppCompatActivity implements PhotosAdder{
         setContentView(R.layout.activity_car);
 
         // тулбар, без него никуда
-        Toolbar toolbar = findViewById(R.id.car_toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         toolbar.setTitle("Автомобиль");
         setSupportActionBar(toolbar);
         Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
@@ -165,7 +163,7 @@ public class CarActivity extends AppCompatActivity implements PhotosAdder{
         });
 
         // Иконка
-        icon = findViewById(R.id.icon);
+        icon = findViewById(R.id.breakdown_icon);
         icon.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

@@ -75,7 +75,7 @@ public class GetCars extends Thread {
 
             };
 
-            if (projection.length > Car.defaultCar) {
+            if (car_id > -1) {
                 GetData getData1 = database.GetData(
                         CAR_PHOTOS_TABLE,
                         new String[] {
@@ -111,26 +111,26 @@ public class GetCars extends Thread {
                     return;
                 }
 
-                cursor.moveToFirst();
-
-                cars.add(new Car(
-                        cursor.getString(indexes[0]),
-                        cursor.getString(indexes[1]),
-                        cursor.getString(indexes[2]),
-                        cursor.getInt(indexes[3]),
-                        ImageUtil.getByteArrayAsBitmap(cursor.getBlob(indexes[4])),
-                        cursor.getInt(indexes[5]),
-                        cursor.getInt(indexes[6]),
-                        cursor.getInt(indexes[7]),
-                        cursor.getInt(indexes[8]),
-                        cursor.getString(indexes[9]),
-                        cursor.getString(indexes[10]),
-                        cursor.getString(indexes[11]),
-                        cursor.getFloat(indexes[12]),
-                        cursor.getString(indexes[13]),
-                        cursor.getString(indexes[14]),
-                        cursor.getInt(indexes[15]),
-                        photos));
+                while (cursor.moveToNext()) {
+                    cars.add(new Car(
+                            cursor.getString(indexes[0]),
+                            cursor.getString(indexes[1]),
+                            cursor.getString(indexes[2]),
+                            cursor.getInt(indexes[3]),
+                            ImageUtil.getByteArrayAsBitmap(cursor.getBlob(indexes[4])),
+                            cursor.getInt(indexes[5]),
+                            cursor.getInt(indexes[6]),
+                            cursor.getInt(indexes[7]),
+                            cursor.getInt(indexes[8]),
+                            cursor.getString(indexes[9]),
+                            cursor.getString(indexes[10]),
+                            cursor.getString(indexes[11]),
+                            cursor.getFloat(indexes[12]),
+                            cursor.getString(indexes[13]),
+                            cursor.getString(indexes[14]),
+                            cursor.getInt(indexes[15]),
+                            photos));
+                }
             }
             else {
                 while (cursor.moveToNext()) {

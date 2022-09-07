@@ -55,10 +55,10 @@ public class BreakdownsAdapter extends RecyclerView.Adapter<BreakdownsAdapter.Br
         BreakdownHolder (View view){
             super(view);
             breakdownImage = view.findViewById(R.id.breakdown_image);
-            breakdownView = view.findViewById(R.id.breakdown_name);
-            manufactureView = view.findViewById(R.id.breakdown_manufacturer);
-            modelView = view.findViewById(R.id.breakdown_model);
-            dateView = view.findViewById(R.id.breakdown_date);
+            breakdownView = view.findViewById(R.id.name_of_breakdown);
+            manufactureView = view.findViewById(R.id.manufacturer_breakdown);
+            modelView = view.findViewById(R.id.model_breakdown);
+            dateView = view.findViewById(R.id.date_of_breakdown);
             view.setOnClickListener(this);
         }
 

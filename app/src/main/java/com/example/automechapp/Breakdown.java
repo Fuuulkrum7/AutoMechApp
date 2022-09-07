@@ -1,5 +1,9 @@
 package com.example.automechapp;
 
+import android.graphics.Bitmap;
+
+import java.util.ArrayList;
+
 // Класс для полломки (в т.ч. как для адаптера, так и для активности с поломкой
 public class Breakdown {
     // Имя поломки, фирма и модель машины, дата поломки, время добавления
@@ -11,17 +15,40 @@ public class Breakdown {
     // id поломки в бд и id авто
     private int id;
     private int car_id;
+    //
+    private int work_price;
+    private String comment;
+    private String description;
+    private int type;
+    private Bitmap icon;
+    private ArrayList<Bitmap> photos;
 
     // Конструктор. Далее - сеттеры и геттеры
     public Breakdown
-            (String breakdown_name, String manufacture, String model, String date, String time, int id, int car_id) {
+            (String breakdown_name, String manufacture, String model, Bitmap icon, String date, String time, int id, int car_id) {
         this.breakdown_name = breakdown_name;
         this.manufacture = manufacture;
         this.model = model;
+        this.icon = icon;
         this.date = date;
         this.time = time;
         this.id = id;
         this.car_id = car_id;
+    }
+
+    //
+    public Breakdown(String breakdown_name, Bitmap icon, String date, String time, int id, int car_id, int work_price, String comment, String description, int type, ArrayList<Bitmap> photos) {
+        this.breakdown_name = breakdown_name;
+        this.icon = icon;
+        this.date = date;
+        this.time = time;
+        this.id = id;
+        this.car_id = car_id;
+        this.work_price = work_price;
+        this.comment = comment;
+        this.description = description;
+        this.type = type;
+        this.photos = photos;
     }
 
     public String getBreakdown_name() {
@@ -78,5 +105,53 @@ public class Breakdown {
 
     public void setCar_id(int car_id) {
         this.car_id = car_id;
+    }
+
+    public int getWork_price() {
+        return work_price;
+    }
+
+    public void setWork_price(int work_price) {
+        this.work_price = work_price;
+    }
+
+    public String getComment() {
+        return comment;
+    }
+
+    public void setComment(String comment) {
+        this.comment = comment;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
+    }
+
+    public int getType() {
+        return type;
+    }
+
+    public void setType(int type) {
+        this.type = type;
+    }
+
+    public Bitmap getIcon() {
+        return icon;
+    }
+
+    public void setIcon(Bitmap icon) {
+        this.icon = icon;
+    }
+
+    public ArrayList<Bitmap> getPhotos() {
+        return photos;
+    }
+
+    public void setPhotos(ArrayList<Bitmap> photos) {
+        this.photos = photos;
     }
 }

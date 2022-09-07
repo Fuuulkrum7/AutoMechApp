@@ -30,7 +30,7 @@
             app:layout_constraintStart_toEndOf="@+id/breakdown_image">
 
             <TextView
-                android:id="@+id/breakdown_name"
+                android:id="@+id/name_of_breakdown"
                 android:layout_width="match_parent"
                 android:layout_height="48dp"
                 android:fontFamily="@font/lato_regular_family"
@@ -40,7 +40,7 @@
                 tools:ignore="RtlHardcoded" />
 
             <TextView
-                android:id="@+id/breakdown_manufacturer"
+                android:id="@+id/manufacturer_breakdown"
                 android:layout_width="match_parent"
                 android:layout_height="25dp"
                 android:fontFamily="@font/lato_regular_family"
@@ -49,13 +49,13 @@
                 tools:ignore="RtlHardcoded" />
 
             <TextView
-                android:id="@+id/breakdown_model"
+                android:id="@+id/model_breakdown"
                 android:layout_width="match_parent"
                 android:layout_height="25dp"
                 android:fontFamily="@font/lato_regular_family" />
 
             <TextView
-                android:id="@+id/breakdown_date"
+                android:id="@+id/date_of_breakdown"
                 android:layout_width="match_parent"
                 android:layout_height="25dp"
                 android:fontFamily="@font/lato_regular_family" />

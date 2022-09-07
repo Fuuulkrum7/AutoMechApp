@@ -7,6 +7,8 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+
 import java.util.ArrayList;
 
 public class OwnerSpinnerAdapter extends ArrayAdapter<Owner> {
@@ -20,7 +22,7 @@ public class OwnerSpinnerAdapter extends ArrayAdapter<Owner> {
 
     @Override
     public View getDropDownView(int position, View convertView,
-                                ViewGroup parent) {
+                                @NonNull ViewGroup parent) {
 
         return getCustomView(position, convertView, parent);
     }
