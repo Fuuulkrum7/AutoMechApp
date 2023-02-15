@@ -1,4 +1,4 @@
-package com.example.automechapp;
+package com.example.automechapp.camera_utils;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -24,7 +24,7 @@ public class CameraUtil {
     // Соответственно, контекст
     private final Context context;
 
-    CameraUtil(Context context){
+    public CameraUtil(Context context){
         this.context = context;
     }
 

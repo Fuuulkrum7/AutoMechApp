@@ -1,4 +1,4 @@
-package com.example.automechapp;
+package com.example.automechapp.car;
 
 import android.text.Editable;
 import android.text.InputFilter;
@@ -10,11 +10,12 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
+
 // Сие есть небольшой класс для красивого ввода номера авто. Ну просто некрасиво выглядит,
 // Когда в и так раздутом классе CarActivity будет такая жирная хрень
 public class CarStateNumberListener implements TextWatcher {
     // Тут и так понятно
-    private static final String SEPARATOR = " ";
     EditText self;
 
     // Разрешенные для ввода буквы (ну, те, которые в номерах могут быть))
@@ -33,7 +34,7 @@ public class CarStateNumberListener implements TextWatcher {
         }
     };
 
-    CarStateNumberListener(EditText self) {
+    public CarStateNumberListener(EditText self) {
         this.self = self;
     }
 
@@ -48,14 +49,14 @@ public class CarStateNumberListener implements TextWatcher {
         // или же мы тут "аа11" и символы убирают
         // то ставим тип вводимого текста - число
         if (((start + 1 == 2 || start + 1 == 6) && count == 0) || (start == 4 && count == 1)) {
-            self.setFilters(new InputFilter[] {new InputFilter.LengthFilter(9)} );
             self.setInputType(InputType.TYPE_CLASS_NUMBER);
+            self.setFilters(new InputFilter[] {new InputFilter.LengthFilter(9)} );
         }
         // Если тут "аа111" и текст пишут
         // Или тут "а" или тут "аа111" и текст удаляют
         // Меняем тип вводимого текста на буковы и ставим наш фильтр
         else if ((start + 1 == 5 && count == 0) || ((start == 1 || start == 5) && count == 1)) {
-            self.setInputType(InputType.TYPE_CLASS_TEXT);
+            self.setInputType(InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
             self.setFilters(new InputFilter[] {filter} );
         }
     }

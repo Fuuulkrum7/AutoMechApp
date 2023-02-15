@@ -1,4 +1,4 @@
-package com.example.automechapp;
+package com.example.automechapp.camera_utils;
 
 import android.app.Activity;
 import android.content.Context;

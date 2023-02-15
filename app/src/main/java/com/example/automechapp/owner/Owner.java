@@ -1,4 +1,4 @@
-package com.example.automechapp;
+package com.example.automechapp.owner;
 
 public class Owner {
     private int id;

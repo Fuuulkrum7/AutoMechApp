@@ -32,7 +32,7 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".BreakdownActivity"
+            android:name=".breakdown.BreakdownActivity"
             android:exported="false"
             android:parentActivityName=".MainActivity">
             <meta-data
@@ -40,7 +40,7 @@
                 android:value=".MainActivity" />
         </activity>
         <activity
-            android:name=".CarActivity"
+            android:name=".car.CarActivity"
             android:exported="false"
             android:parentActivityName=".MainActivity">
             <meta-data
@@ -48,7 +48,7 @@
                 android:value=".MainActivity" />
         </activity>
         <activity
-            android:name=".OwnerActivity"
+            android:name=".owner.OwnerActivity"
             android:exported="false"
             android:parentActivityName=".MainActivity">
             <meta-data

@@ -1,12 +1,11 @@
-package com.example.automechapp;
+package com.example.automechapp.database;
 
-import static com.example.automechapp.DatabaseInfo.*;
+import static com.example.automechapp.database.DatabaseInfo.*;
 
 import android.content.Context;
 import android.database.Cursor;
-import android.os.Handler;
-import android.os.Looper;
-import android.widget.Toast;
+
+import com.example.automechapp.owner.Owner;
 
 import java.util.ArrayList;
 

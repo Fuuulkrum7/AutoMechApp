@@ -1,4 +1,4 @@
-package com.example.automechapp;
+package com.example.automechapp.camera_utils;
 
 // Интерфейс для запуска камеры/галереи. Нужен для работы диалога с выбором камеры или галереи
 public interface PhotosAdder {

@@ -1,4 +1,4 @@
-package com.example.automechapp;
+package com.example.automechapp.car;
 
 import android.graphics.Bitmap;
 

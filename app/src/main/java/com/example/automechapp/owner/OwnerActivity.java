@@ -1,4 +1,4 @@
-package com.example.automechapp;
+package com.example.automechapp.owner;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -13,6 +13,11 @@ import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.Toast;
+
+import com.example.automechapp.database.DatabaseInfo;
+import com.example.automechapp.database.DatabaseInterface;
+import com.example.automechapp.MainActivity;
+import com.example.automechapp.R;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;

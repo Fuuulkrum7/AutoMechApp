@@ -1,11 +1,13 @@
-package com.example.automechapp;
+package com.example.automechapp.database;
 
 import android.content.ContentValues;
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 import android.widget.Toast;
 
-class AddData extends Thread {
+import com.example.automechapp.MainActivity;
+
+public class AddData extends Thread {
     // Данные, которые мы добавим в бд
     ContentValues values;
     // База данных

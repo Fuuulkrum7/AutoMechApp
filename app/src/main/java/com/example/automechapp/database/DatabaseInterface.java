@@ -1,14 +1,15 @@
-package com.example.automechapp;
+package com.example.automechapp.database;
 
-import static com.example.automechapp.DatabaseInfo.*;
+import static com.example.automechapp.database.DatabaseInfo.*;
 
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
-import android.graphics.Bitmap;
 
-import java.io.ByteArrayOutputStream;
+import com.example.automechapp.database.AddData;
+import com.example.automechapp.database.GetData;
+
 import java.util.Arrays;
 
 public class DatabaseInterface extends SQLiteOpenHelper {

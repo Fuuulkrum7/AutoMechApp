@@ -1,14 +1,17 @@
-package com.example.automechapp;
+package com.example.automechapp.database;
 
 import android.annotation.SuppressLint;
 import android.content.ContentValues;
 import android.content.Context;
 import android.graphics.Bitmap;
 
+import com.example.automechapp.camera_utils.ImageUtil;
+import com.example.automechapp.car.CarActivity;
+
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
-class SaveCar extends Thread {
+public class SaveCar extends Thread {
     private final CarActivity carActivity;
     DatabaseInterface databaseInterface;
     ContentValues contentValues;

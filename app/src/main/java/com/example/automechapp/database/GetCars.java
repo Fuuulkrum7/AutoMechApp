@@ -1,4 +1,4 @@
-package com.example.automechapp;
+package com.example.automechapp.database;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -7,7 +7,10 @@ import android.os.Handler;
 import android.os.Looper;
 import android.widget.Toast;
 
-import static com.example.automechapp.DatabaseInfo.*;
+import static com.example.automechapp.database.DatabaseInfo.*;
+
+import com.example.automechapp.camera_utils.ImageUtil;
+import com.example.automechapp.car.Car;
 
 import java.util.ArrayList;
 

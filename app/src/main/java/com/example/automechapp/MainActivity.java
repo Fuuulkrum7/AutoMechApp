@@ -16,6 +16,9 @@ import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 
+import com.example.automechapp.breakdown.BreakdownsFragment;
+import com.example.automechapp.car.CarsFragment;
+import com.example.automechapp.owner.OwnersFragment;
 import com.google.android.material.navigation.NavigationView;
 
 import java.util.Objects;
@@ -131,7 +134,7 @@ public class MainActivity extends AppCompatActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    static Context getContext() {
+    public static Context getContext() {
         return context;
     }
 }

@@ -1,4 +1,4 @@
-package com.example.automechapp;
+package com.example.automechapp.car;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -30,6 +30,20 @@ import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import com.example.automechapp.camera_utils.CameraOrGallery;
+import com.example.automechapp.camera_utils.CameraUtil;
+import com.example.automechapp.database.DatabaseInfo;
+import com.example.automechapp.database.GetCurrentCar;
+import com.example.automechapp.database.GetOwners;
+import com.example.automechapp.camera_utils.ImageUtil;
+import com.example.automechapp.MainActivity;
+import com.example.automechapp.owner.Owner;
+import com.example.automechapp.owner.OwnerSpinnerAdapter;
+import com.example.automechapp.camera_utils.PhotosAdder;
+import com.example.automechapp.R;
+import com.example.automechapp.database.SaveCar;
+import com.example.automechapp.ViewPagerAdapter;
+
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -39,7 +53,7 @@ import java.util.Objects;
 
 import id.zelory.compressor.Compressor;
 
-public class CarActivity extends AppCompatActivity implements PhotosAdder{
+public class CarActivity extends AppCompatActivity implements PhotosAdder {
     // уникальный id машины для обращения к бд
     private int id = -1;
 
@@ -79,7 +93,7 @@ public class CarActivity extends AppCompatActivity implements PhotosAdder{
     int car_year = 0;
     // Адаптер, массив фоток и путь до сделанной фотки
     ViewPagerAdapter viewPagerAdapter;
-    ArrayList<Bitmap> bitmaps = new ArrayList<>();
+    public ArrayList<Bitmap> bitmaps = new ArrayList<>();
     String currentPhotoPath;
 
     ArrayList<Owner> owners;
@@ -498,7 +512,7 @@ public class CarActivity extends AppCompatActivity implements PhotosAdder{
     }
 
     // Получаем контекст
-    static Context getContext() {
+    public static Context getContext() {
         return context;
     }
 

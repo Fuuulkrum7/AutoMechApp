@@ -1,4 +1,4 @@
-package com.example.automechapp;
+package com.example.automechapp.owner;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -8,6 +8,9 @@ import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+
+import com.example.automechapp.R;
+import com.example.automechapp.owner.Owner;
 
 import java.util.ArrayList;
 

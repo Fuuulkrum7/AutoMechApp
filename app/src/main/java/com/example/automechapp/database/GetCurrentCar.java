@@ -1,16 +1,20 @@
-package com.example.automechapp;
+package com.example.automechapp.database;
 
 import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
-import android.widget.Toast;
 
-class GetCurrentCar extends Thread {
+import com.example.automechapp.car.Car;
+import com.example.automechapp.car.CarActivity;
+import com.example.automechapp.database.DatabaseInfo;
+import com.example.automechapp.database.GetCars;
+
+public class GetCurrentCar extends Thread {
     private final CarActivity carActivity;
     Context context;
     int id;
 
-    GetCurrentCar(CarActivity carActivity, int id) {
+    public GetCurrentCar(CarActivity carActivity, int id) {
         this.carActivity = carActivity;
         this.context = carActivity;
         this.id = id;

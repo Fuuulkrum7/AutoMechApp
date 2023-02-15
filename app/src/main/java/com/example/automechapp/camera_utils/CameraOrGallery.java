@@ -1,4 +1,4 @@
-package com.example.automechapp;
+package com.example.automechapp.camera_utils;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -15,7 +15,7 @@ public class CameraOrGallery extends DialogFragment {
     int code;
 
     // Инициализация
-    CameraOrGallery(PhotosAdder photosAdder, int code) {
+    public CameraOrGallery(PhotosAdder photosAdder, int code) {
         this.photosAdder = photosAdder;
         this.code = code;
     }

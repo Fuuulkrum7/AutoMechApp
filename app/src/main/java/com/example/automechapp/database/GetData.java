@@ -1,4 +1,4 @@
-package com.example.automechapp;
+package com.example.automechapp.database;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -9,7 +9,10 @@ import android.os.Looper;
 import android.util.Log;
 import android.widget.Toast;
 
-class GetData extends Thread {
+import com.example.automechapp.MainActivity;
+import com.example.automechapp.car.CarActivity;
+
+public class GetData extends Thread {
     String table;
     SQLiteDatabase db;
     String[] projection;

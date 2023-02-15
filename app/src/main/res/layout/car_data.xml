@@ -193,8 +193,9 @@
                 android:layout_weight="1"
                 android:ems="10"
                 android:hint="Номер авто"
-                android:inputType="textPersonName"
-                android:maxLength="9" />
+                android:inputType="textVisiblePassword"
+                android:maxLength="9"
+                tools:ignore="TextFields" />
 
             <Spinner
                 android:id="@+id/spinner"

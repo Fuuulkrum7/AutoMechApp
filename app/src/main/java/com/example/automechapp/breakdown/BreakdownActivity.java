@@ -1,4 +1,4 @@
-package com.example.automechapp;
+package com.example.automechapp.breakdown;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
@@ -12,6 +12,11 @@ import android.view.View;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.Toast;
+
+import com.example.automechapp.car.Car;
+import com.example.automechapp.database.DatabaseInfo;
+import com.example.automechapp.database.GetCars;
+import com.example.automechapp.R;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
@@ -52,7 +57,7 @@ public class BreakdownActivity extends AppCompatActivity {
             }
         };
 
-        checkCars();
+        checkDetails();
 
         breakdown_date = findViewById(R.id.breakdown_date);
         breakdown_date.setOnClickListener(new View.OnClickListener() {
@@ -80,7 +85,7 @@ public class BreakdownActivity extends AppCompatActivity {
         breakdown_date.setText(dateFormat.format(calendar.getTime()));
     }
 
-    private void checkCars() {
+    private void checkDetails() {
         Thread thread = new Thread() {
             @Override
             public void run() {
