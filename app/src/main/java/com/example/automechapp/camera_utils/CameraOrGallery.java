@@ -1,12 +1,16 @@
 package com.example.automechapp.camera_utils;
 
+import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.DialogInterface;
+import android.content.res.Configuration;
 import android.os.Bundle;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.DialogFragment;
+
+import com.example.automechapp.R;
 
 // Диалог для выбора, откуда загружать изображение
 public class CameraOrGallery extends DialogFragment {
@@ -20,6 +24,7 @@ public class CameraOrGallery extends DialogFragment {
         this.code = code;
     }
 
+    @SuppressLint("ResourceAsColor")
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
@@ -46,7 +51,6 @@ public class CameraOrGallery extends DialogFragment {
                 photosAdder.startCamera(code);
             }
         });
-
         builder.setCancelable(true);
 
         return builder.create();

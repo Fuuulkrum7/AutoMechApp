@@ -9,7 +9,7 @@
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:background="@color/primaryDarkColor"/>
+        android:background="@color/black"/>
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -49,7 +49,6 @@
                 android:layout_height="64dp"
                 android:fontFamily="@font/lato_regular_family"
                 android:gravity="left|center_vertical"
-                android:textColor="@color/secondaryTextColor"
                 android:textSize="34sp"
                 tools:ignore="RtlHardcoded" />
 
@@ -58,7 +57,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="32dp"
                 android:fontFamily="@font/lato_light_family"
-                android:textColor="@color/secondaryTextColor"
                 android:textSize="16sp" />
 
             <TextView
@@ -66,7 +64,6 @@
                 android:layout_width="match_parent"
                 android:layout_height="32dp"
                 android:fontFamily="@font/lato_light_family"
-                android:textColor="@color/secondaryTextColor"
                 android:textSize="16sp" />
         </LinearLayout>
     </LinearLayout>
@@ -74,6 +71,6 @@
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:background="@color/primaryDarkColor"/>
+        android:background="@color/black"/>
 
 </LinearLayout>

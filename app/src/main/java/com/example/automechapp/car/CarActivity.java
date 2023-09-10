@@ -78,6 +78,7 @@ public class CarActivity extends AppCompatActivity implements PhotosAdder {
 
     Spinner ownersSpinner;
     boolean allowed = false;
+    boolean normal_volume = false;
 
     // А это тоже id. Но пользователя, получаем его при добавлении, так тупо легче это все оформить.
     int user_id = 0;
@@ -114,27 +115,22 @@ public class CarActivity extends AppCompatActivity implements PhotosAdder {
         context = this;
 
         // Кнопка сохранения данных
-        saveData = (Button) findViewById(R.id.save_button);
-        saveData.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                startDataSave();
-            }
-        });
+        saveData = findViewById(R.id.save_button);
+        saveData.setOnClickListener(view -> startDataSave());
 
         // Все поля ввода данных
-        name = (EditText) findViewById(R.id.name);
-        manufacture = (EditText) findViewById(R.id.manufacture);
-        model = (EditText) findViewById(R.id.model);
-        price = (EditText) findViewById(R.id.price);
-        color = (EditText) findViewById(R.id.color);
-        vin = (EditText) findViewById(R.id.vin);
-        engine_volume = (EditText) findViewById(R.id.engine_volume);
-        engine_model = (EditText) findViewById(R.id.engine_model);
-        engine_number = (EditText) findViewById(R.id.engine_number);
-        car_state_number = (EditText) findViewById(R.id.car_state_number);
-        tax = (EditText) findViewById(R.id.tax);
-        horsepower = (EditText) findViewById(R.id.horsepower);
+        name = findViewById(R.id.name);
+        manufacture = findViewById(R.id.manufacture);
+        model = findViewById(R.id.model);
+        price = findViewById(R.id.price);
+        color = findViewById(R.id.color);
+        vin = findViewById(R.id.vin);
+        engine_volume = findViewById(R.id.engine_volume);
+        engine_model = findViewById(R.id.engine_model);
+        engine_number = findViewById(R.id.engine_number);
+        car_state_number = findViewById(R.id.car_state_number);
+        tax = findViewById(R.id.tax);
+        horsepower = findViewById(R.id.horsepower);
 
         CarStateNumberListener listener = new CarStateNumberListener(car_state_number);
         car_state_number.addTextChangedListener(listener);
@@ -163,39 +159,52 @@ public class CarActivity extends AppCompatActivity implements PhotosAdder {
                     e.printStackTrace();
                 }
                 // первое авто было в 1886, значит, до него ничего быть не может
-                if (length_of_year == 4 && car_year < 1886) {
+                if (length_of_year == 4 && (car_year < 1886 || car_year > Calendar.getInstance().get(Calendar.YEAR))) {
                     Toast.makeText(CarActivity.this, "Некорректный год", Toast.LENGTH_SHORT).show();
                 }
-                else if (length_of_year == 4) {
-                    allowed = true;
-                }
 
-                if (length_of_year < 4) {
-                    allowed = false;
+
+                allowed = length_of_year == 4 && car_year >= 1886 && car_year <= Calendar.getInstance().get(Calendar.YEAR);
+            }
+        });
+
+        engine_volume.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if (s.length() > 0) {
+                    float a = Float.parseFloat(s.toString());
+
+                    normal_volume = a > 0 && a <= 16.1;
+                    if (!normal_volume)
+                        Toast.makeText(CarActivity.this, "Недопустимый объем двигателя", Toast.LENGTH_SHORT).show();
                 }
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
             }
         });
 
         // Иконка
         icon = findViewById(R.id.breakdown_icon);
-        icon.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // id меньше 0 тогда, когда авто только создается, т.е. фото делать надо
-                if (id < 0)
-                    getUserImage(ICON_CODE);
-            }
+        icon.setOnClickListener(view -> {
+            // id меньше 0 тогда, когда авто только создается, т.е. фото делать надо
+            if (id < 0)
+                getUserImage(ICON_CODE);
         });
 
         // Переход на сайт для рассчета налога
         getTextData = findViewById(R.id.count_tax);
-        getTextData.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // TODO изменить на ручной рассчет
-                Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.nalog.gov.ru/rn74/service/calc_transport/"));
-                startActivity(browserIntent);
-            }
+        getTextData.setOnClickListener(view -> {
+            // TODO изменить на ручной рассчет
+            Intent browserIntent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.nalog.gov.ru/rn74/service/calc_transport/"));
+            startActivity(browserIntent);
         });
 
         // viewpager2 для перелистывания картинок в шапке
@@ -255,30 +264,26 @@ public class CarActivity extends AppCompatActivity implements PhotosAdder {
     }
 
     public void getOwnersList() {
-        Thread thread = new Thread() {
-            @Override
-            public void run() {
-                GetOwners getOwners = new GetOwners(getContext(), "");
-                getOwners.start();
+        Thread thread = new Thread(() -> {
+            GetOwners getOwners = new GetOwners(getContext(), "");
+            getOwners.start();
 
-                try {
-                    getOwners.join();
-                    owners = getOwners.getOwnersList();
+            try {
+                getOwners.join();
+                owners = getOwners.getOwnersList();
 
-                    new Handler(Looper.getMainLooper()).post(new Runnable() {
-                        @Override
-                        public void run() {
-                            ownersSpinner.setAdapter(new OwnerSpinnerAdapter(getContext(), R.layout.spinner_dropdown_item, owners));
-                        }
-                    });
+                new Handler(Looper.getMainLooper()).post(() -> ownersSpinner.setAdapter(
+                        new OwnerSpinnerAdapter(getContext(),
+                                R.layout.spinner_dropdown_item, owners
+                        )
+                ));
 
-                    user_id = owners.get(0).getId();
-                }
-                catch (Exception e) {
-                    e.printStackTrace();
-                }
+                user_id = owners.get(0).getId();
             }
-        };
+            catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
 
         thread.start();
     }
@@ -301,7 +306,7 @@ public class CarActivity extends AppCompatActivity implements PhotosAdder {
 
     private void disableText() {
         // Ставим имя как заголовок
-        getSupportActionBar().setTitle(name.getText().toString());
+        Objects.requireNonNull(getSupportActionBar()).setTitle(name.getText().toString());
 
         // Вырубаем текст
         manufacture.setEnabled(false);
@@ -434,12 +439,14 @@ public class CarActivity extends AppCompatActivity implements PhotosAdder {
                     getOwners.join();
                     owners = getOwners.getOwnersList();
 
-                    new Handler(Looper.getMainLooper()).post(new Runnable() {
-                        @Override
-                        public void run() {
-                            ownersSpinner.setAdapter(new OwnerSpinnerAdapter(getContext(), R.layout.spinner_dropdown_item, owners));
-                        }
-                    });
+                    new Handler(Looper.getMainLooper()).post(() ->
+                            ownersSpinner.setAdapter(
+                                    new OwnerSpinnerAdapter(
+                                            getContext(),
+                                            R.layout.spinner_dropdown_item, owners
+                                    )
+                            )
+                    );
                 }
                 catch (Exception e) {
                     e.printStackTrace();
@@ -452,7 +459,7 @@ public class CarActivity extends AppCompatActivity implements PhotosAdder {
 
     // Парсим данные из текстовых перменных
     public ContentValues getValues() {
-        if (!allowed)
+        if (!allowed || !normal_volume)
             return null;
 
         ContentValues contentValues = new ContentValues();

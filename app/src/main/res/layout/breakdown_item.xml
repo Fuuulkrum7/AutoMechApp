@@ -9,7 +9,7 @@
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:background="@color/primaryDarkColor"/>
+        android:background="@color/material_on_background_disabled"/>
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -35,7 +35,6 @@
                 android:layout_height="48dp"
                 android:fontFamily="@font/lato_regular_family"
                 android:gravity="left|center_vertical"
-                android:textColor="@color/secondaryTextColor"
                 android:textSize="34sp"
                 tools:ignore="RtlHardcoded" />
 
@@ -66,6 +65,6 @@
     <View
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:background="@color/primaryDarkColor"/>
+        android:background="@color/material_on_background_disabled"/>
 
 </LinearLayout>

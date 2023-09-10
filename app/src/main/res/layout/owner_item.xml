@@ -9,7 +9,7 @@
         android:id="@+id/view"
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:background="@color/primaryDarkColor"
+        android:background="@color/black"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
@@ -29,7 +29,6 @@
         android:gravity="center"
         android:hint="Фамилия"
         android:inputType="textPersonName|textCapWords"
-        android:textColor="@drawable/disabled_color"
         android:textSize="20sp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/head_view"
@@ -41,7 +40,6 @@
         android:layout_height="48dp"
         android:gravity="center"
         android:hint="Имя"
-        android:textColor="@drawable/disabled_color"
         android:textSize="20sp"
         android:inputType="textPersonName|textCapWords"
         app:layout_constraintEnd_toEndOf="parent"
@@ -56,7 +54,6 @@
         android:layout_height="48dp"
         android:gravity="center"
         android:hint="Отчество"
-        android:textColor="@drawable/disabled_color"
         android:textSize="20sp"
         android:inputType="textPersonName|textCapWords"
         app:layout_constraintStart_toStartOf="parent"
@@ -70,7 +67,6 @@
         android:gravity="center"
         android:hint="Дата рождения"
         android:inputType="date"
-        android:textColor="@drawable/disabled_color"
         android:textSize="20sp"
         android:clickable="false"
         android:cursorVisible="false"
@@ -85,7 +81,7 @@
         android:id="@+id/view4"
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:background="@color/primaryDarkColor"
+        android:background="@color/black"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/sep2" />
 
@@ -104,7 +100,6 @@
         android:layout_height="48dp"
         android:gravity="center"
         android:textSize="20sp"
-        android:textColor="@drawable/disabled_color"
         android:inputType="textPersonName|textCapWords"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/sep2"
@@ -114,7 +109,7 @@
         android:id="@+id/view3"
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:background="@color/primaryDarkColor"
+        android:background="@color/black"
         app:layout_constraintBottom_toTopOf="@+id/sep1"
         app:layout_constraintStart_toStartOf="parent" />
 
@@ -136,7 +131,6 @@
         android:gravity="center"
         android:inputType="number"
         android:maxLength="10"
-        android:textColor="@drawable/disabled_color"
         android:textSize="20sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -147,7 +141,7 @@
         android:id="@+id/view5"
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:background="@color/primaryDarkColor"
+        android:background="@color/black"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/driver_license" />
 
@@ -166,7 +160,6 @@
         android:layout_height="48dp"
         android:gravity="center"
         android:textSize="20sp"
-        android:textColor="@drawable/disabled_color"
         android:inputType="textPersonName|textCapWords"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/sep3"
@@ -176,7 +169,7 @@
         android:id="@+id/view7"
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:background="@color/primaryDarkColor"
+        android:background="@color/black"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/issung_region" />
 
@@ -195,7 +188,6 @@
         android:layout_height="48dp"
         android:gravity="center"
         android:textSize="20sp"
-        android:textColor="@drawable/disabled_color"
         android:inputType="textPersonName|textCapWords"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/sep4"
@@ -205,7 +197,7 @@
         android:id="@+id/view9"
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:background="@color/primaryDarkColor"
+        android:background="@color/black"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/categories" />
 
@@ -226,7 +218,6 @@
         android:hint="Серия"
         android:inputType="number"
         android:maxLength="4"
-        android:textColor="@drawable/disabled_color"
         android:textSize="20sp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView"
@@ -241,7 +232,6 @@
         android:hint="Номер"
         android:inputType="number"
         android:maxLength="6"
-        android:textColor="@drawable/disabled_color"
         android:textSize="20sp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/passport_series"

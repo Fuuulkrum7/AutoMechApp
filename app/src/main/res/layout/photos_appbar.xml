@@ -12,7 +12,7 @@
     <com.google.android.material.appbar.CollapsingToolbarLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@color/primaryLightColor"
+        android:background="@color/md_theme_dark_onSurfaceVariant"
         android:fitsSystemWindows="true"
         app:contentScrim="?attr/colorPrimary"
         app:layout_scrollFlags="scroll|exitUntilCollapsed"

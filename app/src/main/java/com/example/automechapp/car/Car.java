@@ -45,7 +45,9 @@ public class Car {
         this.user_id = user_id;
     }
 
-    public Car(String carName, String manufacture, String model, int id, Bitmap icon, int user_id, int car_year, int car_price, int tax, String car_color, String vin, String car_state_number, float engine_volume, String engine_number, String engine_model, int horsepower, ArrayList<Bitmap> car_photos) {
+    public Car(String carName, String manufacture, String model, int id, Bitmap icon, int user_id, int car_year,
+               int car_price, int tax, String car_color, String vin, String car_state_number, float engine_volume,
+               String engine_number, String engine_model, int horsepower, ArrayList<Bitmap> car_photos) {
         this.carName = carName;
         this.manufacture = manufacture;
         this.model = model;
