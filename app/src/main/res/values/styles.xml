@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="AutoMechApp" parent="Theme.Material3.DayNight.NoActionBar">
+    <style name="AutoMechApp" parent="Theme.Material3.DynamicColors.DayNight">
         <item name="android:fontFamily">@font/lato_regular_family</item>
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
