@@ -67,39 +67,36 @@ public class BreakdownsFragment extends Fragment {
     // Задаем стартовые данные
     private void setInitialData() {
         // запуск потока для получения данных и добавления фрагментов авто
-        Thread thread = new Thread() {
-            @Override
-            public void run() {
-                // Создаем класс для получения авто из бд
-                GetBreakdowns getBreakdowns = new GetBreakdowns(
-                        getContext(),
-                        null,
-                        DatabaseInfo.STANDARD_DATE + " DESC"
-                );
-                // запуск потока и присоединение к нему
-                getBreakdowns.start();
-                try {
-                    getBreakdowns.join();
-                    breakdowns = getBreakdowns.getData();
-                }
-                catch (Exception e) {
-                    e.printStackTrace();
-                    new Handler(Looper.getMainLooper()).post(new Runnable() {
-                        @Override
-                        public void run() {
-                            Toast.makeText(getContext(), "error", Toast.LENGTH_SHORT).show();
-                        }
-                    });
-                    e.printStackTrace();
-
-                }
-                // Создаем адаптер
-                BreakdownsAdapter adapter = new BreakdownsAdapter(MainActivity.getContext(), breakdowns);
-
-                // и добавляем его
-                getActivity().runOnUiThread(() -> breakdownsView.setAdapter(adapter));
+        Thread thread = new Thread(() -> {
+            // Создаем класс для получения авто из бд
+            GetBreakdowns getBreakdowns = new GetBreakdowns(
+                    getContext(),
+                    null,
+                    DatabaseInfo.STANDARD_DATE + " DESC"
+            );
+            // запуск потока и присоединение к нему
+            getBreakdowns.start();
+            try {
+                getBreakdowns.join();
+                breakdowns = getBreakdowns.getData();
             }
-        };
+            catch (Exception e) {
+                e.printStackTrace();
+                new Handler(Looper.getMainLooper()).post(new Runnable() {
+                    @Override
+                    public void run() {
+                        Toast.makeText(getContext(), "error", Toast.LENGTH_SHORT).show();
+                    }
+                });
+                e.printStackTrace();
+
+            }
+            // Создаем адаптер
+            BreakdownsAdapter adapter = new BreakdownsAdapter(MainActivity.getContext(), breakdowns);
+
+            // и добавляем его
+            getActivity().runOnUiThread(() -> breakdownsView.setAdapter(adapter));
+        });
 
         thread.start();
     }

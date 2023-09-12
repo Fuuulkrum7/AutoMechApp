@@ -6,7 +6,6 @@ import java.util.ArrayList;
 
 // Класс для полломки (в т.ч. как для адаптера, так и для активности с поломкой
 public class Breakdown {
-    private String work_time;
     // Имя поломки, фирма и модель машины, дата поломки, время добавления
     private String breakdown_name;
     private String manufacture;
@@ -20,7 +19,7 @@ public class Breakdown {
     private int work_price;
     private String comment;
     private String description;
-    private int type;
+    private BreakdownType type;
     private BreakdownStates breakdown_state;
     private Bitmap icon;
     private ArrayList<Bitmap> photos;
@@ -39,7 +38,7 @@ public class Breakdown {
     }
 
     //
-    public Breakdown(int id, int car_id, String breakdown_name, Bitmap icon, String date, String edit_time, String work_time, int work_price, String comment, String description, int type, int state, ArrayList<Bitmap> photos) {
+    public Breakdown(int id, int car_id, String breakdown_name, Bitmap icon, String date, String edit_time, int work_price, String comment, String description, int type, int state, ArrayList<Bitmap> photos) {
         this.breakdown_name = breakdown_name;
         this.icon = icon;
         this.date = date;
@@ -49,9 +48,8 @@ public class Breakdown {
         this.work_price = work_price;
         this.comment = comment;
         this.description = description;
-        this.type = type;
-        this.work_time = work_time;
         this.breakdown_state = BreakdownStates.values()[state];
+        this.type = BreakdownType.values()[type];
 
         this.photos = photos;
     }
@@ -136,11 +134,14 @@ public class Breakdown {
         this.description = description;
     }
 
-    public int getType() {
+    public BreakdownType getType() {
         return type;
     }
 
     public void setType(int type) {
+        this.type = BreakdownType.values()[type];
+    }
+    public void setType(BreakdownType type) {
         this.type = type;
     }
 
@@ -160,7 +161,11 @@ public class Breakdown {
         this.photos = photos;
     }
 
-    public String getWork_time() {
-        return work_time;
+    public BreakdownStates getBreakdown_state() {
+        return breakdown_state;
+    }
+
+    public void setBreakdown_state(BreakdownStates breakdown_state) {
+        this.breakdown_state = breakdown_state;
     }
 }

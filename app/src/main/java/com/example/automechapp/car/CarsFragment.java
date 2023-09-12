@@ -26,7 +26,7 @@ import java.util.ArrayList;
 // Фрагмент авто
 public class CarsFragment extends Fragment {
     // Список авто и тд
-    private ArrayList<Car> cars = new ArrayList<Car>();
+    private ArrayList<Car> cars = new ArrayList<>();
     public FloatingActionButton addButton;
     public RecyclerView carsView;
 
@@ -74,12 +74,7 @@ public class CarsFragment extends Fragment {
                 CarsAdapter adapter = new CarsAdapter(MainActivity.getContext(), cars);
 
                 // и добавляем его
-                getActivity().runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        carsView.setAdapter(adapter);
-                    }
-                });
+                getActivity().runOnUiThread(() -> carsView.setAdapter(adapter));
             }
         };
 

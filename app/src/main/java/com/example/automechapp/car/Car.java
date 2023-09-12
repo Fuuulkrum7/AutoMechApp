@@ -67,6 +67,10 @@ public class Car {
         this.horsepower = horsepower;
     }
 
+    public String getCarText() {
+        return model + " " + manufacture + "\n" + carName;
+    }
+
     public String getModel() {
         return model;
     }

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array
+        name="breakdown_states">
+        <item>Создано</item>
+        <item>Идут работы</item>
+        <item>Завершено</item>
+    </string-array>
+
+    <string-array
+        name="breakdown_types">
+        <item>Ремонт</item>
+        <item>Техобслуживание</item>
+        <item>Замена расходников</item>
+        <item>Заправка</item>
+    </string-array>
+</resources>

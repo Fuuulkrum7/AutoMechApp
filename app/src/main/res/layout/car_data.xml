@@ -29,7 +29,7 @@
                 app:cardCornerRadius="250dp">
 
                 <ImageView
-                    android:id="@+id/breakdown_icon"
+                    android:id="@+id/car_icon"
                     android:layout_width="100dp"
                     android:layout_height="100dp"
                     app:layout_constraintStart_toStartOf="parent"

@@ -1,17 +1,12 @@
 package com.example.automechapp.car;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
-import androidx.fragment.app.FragmentManager;
-import androidx.viewpager2.widget.ViewPager2;
 
 import android.annotation.SuppressLint;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Bundle;
@@ -20,18 +15,14 @@ import android.os.Looper;
 import android.text.Editable;
 import android.text.InputFilter;
 import android.text.TextWatcher;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.Toast;
 
-import com.example.automechapp.camera_utils.CameraOrGallery;
-import com.example.automechapp.camera_utils.CameraUtil;
+import com.example.automechapp.camera_utils.PhotoWorker;
 import com.example.automechapp.database.DatabaseInfo;
 import com.example.automechapp.database.GetCurrentCar;
 import com.example.automechapp.database.GetOwners;
@@ -39,27 +30,20 @@ import com.example.automechapp.camera_utils.ImageUtil;
 import com.example.automechapp.MainActivity;
 import com.example.automechapp.owner.Owner;
 import com.example.automechapp.owner.OwnerSpinnerAdapter;
-import com.example.automechapp.camera_utils.PhotosAdder;
 import com.example.automechapp.R;
 import com.example.automechapp.database.SaveCar;
 import com.example.automechapp.ViewPagerAdapter;
 
-import java.io.File;
-import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Objects;
 
-import id.zelory.compressor.Compressor;
 
-public class CarActivity extends AppCompatActivity implements PhotosAdder {
-    // уникальный id машины для обращения к бд
-    private int id = -1;
+public class CarActivity extends PhotoWorker {
 
     // Тут просто один коммент, это перменные для хранения всех полей текстовых
     EditText year;
-    ImageView icon;
     Button getTextData;
     Button saveData;
 
@@ -83,19 +67,10 @@ public class CarActivity extends AppCompatActivity implements PhotosAdder {
     // А это тоже id. Но пользователя, получаем его при добавлении, так тупо легче это все оформить.
     int user_id = 0;
 
-    @SuppressLint("StaticFieldLeak")
-    private static Context context;
-
-    // Тут храним изображение и длину введенного года, это защита от дурака
-    ViewPager2 imageSwitcher;
     int length_of_year = 0;
 
     // Сам год числом
     int car_year = 0;
-    // Адаптер, массив фоток и путь до сделанной фотки
-    ViewPagerAdapter viewPagerAdapter;
-    public ArrayList<Bitmap> bitmaps = new ArrayList<>();
-    String currentPhotoPath;
 
     ArrayList<Owner> owners;
 
@@ -131,6 +106,7 @@ public class CarActivity extends AppCompatActivity implements PhotosAdder {
         car_state_number = findViewById(R.id.car_state_number);
         tax = findViewById(R.id.tax);
         horsepower = findViewById(R.id.horsepower);
+        ownersSpinner = findViewById(R.id.spinner);
 
         CarStateNumberListener listener = new CarStateNumberListener(car_state_number);
         car_state_number.addTextChangedListener(listener);
@@ -192,7 +168,7 @@ public class CarActivity extends AppCompatActivity implements PhotosAdder {
         });
 
         // Иконка
-        icon = findViewById(R.id.breakdown_icon);
+        icon = findViewById(R.id.car_icon);
         icon.setOnClickListener(view -> {
             // id меньше 0 тогда, когда авто только создается, т.е. фото делать надо
             if (id < 0)
@@ -233,8 +209,9 @@ public class CarActivity extends AppCompatActivity implements PhotosAdder {
             getCurrentCar.start();
             disableText();
         }
+        else
+            getOwnersList();
 
-        ownersSpinner = findViewById(R.id.spinner);
         ownersSpinner.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
             @Override
             public void onItemSelected(AdapterView<?> adapterView, View view, int i, long l) {
@@ -246,7 +223,6 @@ public class CarActivity extends AppCompatActivity implements PhotosAdder {
 
             }
         });
-        getOwnersList();
     }
 
     @Override
@@ -322,86 +298,7 @@ public class CarActivity extends AppCompatActivity implements PhotosAdder {
         price.setEnabled(false);
         color.setEnabled(false);
         horsepower.setEnabled(false);
-    }
-
-    // Показываем диалоговое окно для выбора, откуда брать изображение - камера или галерея
-    private void getUserImage(int code) {
-        CameraOrGallery choose = new CameraOrGallery(this, code);
-        FragmentManager manager = getSupportFragmentManager();
-        choose.show(manager, "dialog");
-    }
-
-    // Запуск камеры
-    @SuppressLint("QueryPermissionsNeeded")
-    public void startCamera(int code) {
-        // Получаем утилиту для получения интента камеры и пути для фото
-        CameraUtil cameraUtil = new CameraUtil(this);
-        Intent intent = cameraUtil.createCameraIntent();
-        currentPhotoPath = cameraUtil.getCurrentPhotoPath();
-        // Запускаем интент
-        startActivityForResult(intent, code);
-    }
-
-    // Открываем галерею
-    @SuppressLint("QueryPermissionsNeeded")
-    public void openGallery(int code) {
-        // Получаем интент и тд, умножаем код на коэффициент
-        CameraUtil cameraUtil = new CameraUtil(this);
-        Intent intent = cameraUtil.createGalleryIntent(code);
-        startActivityForResult(intent, code * COEFFICIENT);
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(@NonNull Menu menu) {
-        // Меняем меню
-        getMenuInflater().inflate(R.menu.add_photo_menu, menu);
-        return true;
-    }
-
-    // Метод обработки получения фото
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        // Если все хорошо
-        if (resultCode == RESULT_OK) {
-            try {
-                // Если код меньше 10, т.е. меньше коэффициента и фотка получено с камеры
-                if (requestCode < 10) {
-                    // Добавляем фотку и удаляем файл
-                    removeImageFile(requestCode);
-                }
-                // Если же нет, то бишь фотка из галереи
-                else {
-                    // Если фоток больше, чем одна, и коэффициент - не код иконки
-                    // то бишь фотка нужна не одна
-                    if (data.getClipData() != null && requestCode != ICON_CODE * COEFFICIENT) {
-                        // Получаем число фото
-                        int count = data.getClipData().getItemCount();
-
-                        // Перебираем фотографии и добавляем их в список фотографий
-                        for (int i = 0; i < count; i++) {
-                            Uri uri = data.getClipData().getItemAt(i).getUri();
-                            bitmaps.add(ImageUtil.getUriAsBitmap(uri, this));
-                        }
-
-                        // Обновляем фото в pageViewer2
-                        setImages();
-                    }
-                    else {
-                        // Добавлем одно (нужное) фото
-                        Uri photo = data.getData();
-                        // Меняем значение, так как здесь надо только добавить иображение (одно)
-                        requestCode /= COEFFICIENT;
-                        // Добавляем изображение
-                        setImage(photo, requestCode);
-                    }
-                }
-            }
-            catch (Exception e) {
-                e.printStackTrace();
-                Toast.makeText(this, "Произошла ошибка", Toast.LENGTH_SHORT).show();
-            }
-        }
+        ownersSpinner.setEnabled(false);
     }
 
     // Парсим данные из экземпляра машины
@@ -429,30 +326,27 @@ public class CarActivity extends AppCompatActivity implements PhotosAdder {
         bitmaps = car.getCar_photos();
         setImages();
 
-        Thread thread = new Thread() {
-            @Override
-            public void run() {
-                GetOwners getOwners = new GetOwners(getContext(), DatabaseInfo.OWNER_ID + " = " + user_id);
-                getOwners.start();
+        Thread thread = new Thread(() -> {
+            GetOwners getOwners = new GetOwners(getContext(), DatabaseInfo.OWNER_ID + " = " + user_id);
+            getOwners.start();
 
-                try {
-                    getOwners.join();
-                    owners = getOwners.getOwnersList();
+            try {
+                getOwners.join();
+                owners = getOwners.getOwnersList();
 
-                    new Handler(Looper.getMainLooper()).post(() ->
-                            ownersSpinner.setAdapter(
-                                    new OwnerSpinnerAdapter(
-                                            getContext(),
-                                            R.layout.spinner_dropdown_item, owners
-                                    )
-                            )
-                    );
-                }
-                catch (Exception e) {
-                    e.printStackTrace();
-                }
+                new Handler(Looper.getMainLooper()).post(() ->
+                        ownersSpinner.setAdapter(
+                                new OwnerSpinnerAdapter(
+                                        getContext(),
+                                        R.layout.spinner_dropdown_item, owners
+                                )
+                        )
+                );
             }
-        };
+            catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
 
         thread.start();
     }
@@ -503,87 +397,5 @@ public class CarActivity extends AppCompatActivity implements PhotosAdder {
         }
 
         return contentValues;
-    }
-
-    // Обработка нажатия на кнопку в меню
-    @SuppressLint("NonConstantResourceId")
-    @Override
-    public boolean onOptionsItemSelected (MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.add_photo:
-                if (id < 0)
-                    getUserImage(PHOTO_CODE);
-                return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
-
-    // Получаем контекст
-    public static Context getContext() {
-        return context;
-    }
-
-    // Получаем id
-    public int getId() {
-        return id;
-    }
-
-    // Ставим id
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    // Удаляем файл и пересохраняем фото
-    private void removeImageFile(int code) throws IOException {
-        try {
-            // Сжимаем фото
-            File f = new Compressor(this)
-                    .setMaxWidth(code == ICON_CODE ? 128 : 640)
-                    .setMaxHeight(code == ICON_CODE ? 128 : 480)
-                    .setQuality(50)
-                    .compressToFile(new File(currentPhotoPath));
-
-            // Получаем из него данные
-            Uri contentUri = Uri.fromFile(f);
-
-            // Ставим изображение, куда нужно
-            setImage(contentUri, code);
-            // Удаляем фото в памяти
-            f.delete();
-        } catch (IOException e) {
-            e.printStackTrace();
-            Toast.makeText(this, "error", Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    // Ставим изображение
-    private void setImage(Uri contentUri, int code) throws IOException {
-        Bitmap bitmap = ImageUtil.getUriAsBitmap(contentUri, this);
-        // Если надо поставить изображение в imageview для иконки
-        if (code == ICON_CODE || code == ICON_CODE * COEFFICIENT) {
-            bitmap = ImageUtil.getScaledBitmap(
-                    ImageUtil.getSquaredBitmap(bitmap),
-                    128,
-                    128
-            );
-
-            icon.setImageBitmap(bitmap);
-        }
-        // Если фото нужно для viewpager (одно фото)
-        else if (code == PHOTO_CODE) {
-            // TODO убрать костыль
-            bitmaps.add(bitmap);
-            setImages();
-        }
-        // Если много фото
-        else if (code == PHOTO_CODE * COEFFICIENT) {
-            setImages();
-        }
-    }
-
-    // Обновляем фото в viewpager
-    private void setImages() {
-        viewPagerAdapter = new ViewPagerAdapter(this, bitmaps);
-        imageSwitcher.setAdapter(viewPagerAdapter);
     }
 }

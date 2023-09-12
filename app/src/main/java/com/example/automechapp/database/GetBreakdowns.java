@@ -18,16 +18,16 @@ import static com.example.automechapp.database.DatabaseInfo.STANDARD_DESCRIPTION
 import static com.example.automechapp.database.DatabaseInfo.STANDARD_ID;
 import static com.example.automechapp.database.DatabaseInfo.STANDARD_PHOTO;
 import static com.example.automechapp.database.DatabaseInfo.WORK_PRICE;
-import static com.example.automechapp.database.DatabaseInfo.WORK_TIME;
 
 import android.content.Context;
-import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
 import android.widget.Toast;
 
+import com.example.automechapp.MainActivity;
 import com.example.automechapp.breakdown.Breakdown;
 import com.example.automechapp.camera_utils.ImageUtil;
 
@@ -70,13 +70,12 @@ public class GetBreakdowns extends Thread {
     public void run(){
         if (id > -1) {
             projection = new String[] {
-                    STANDARD_ID,
+                    BREAKDOWN_ID,
                     CAR_ID,
                     BREAKDOWN_NAME,
                     BREAKDOWN_PHOTO,
                     STANDARD_DATE,
                     EDIT_TIME,
-                    WORK_TIME,
                     WORK_PRICE,
                     STANDARD_COMMENT,
                     STANDARD_DESCRIPTION,
@@ -86,7 +85,7 @@ public class GetBreakdowns extends Thread {
         }
         else {
             projection = new String[] {
-                    STANDARD_ID,
+                    BREAKDOWN_ID,
                     CAR_ID,
                     BREAKDOWN_NAME,
                     BREAKDOWN_PHOTO,
@@ -114,7 +113,6 @@ public class GetBreakdowns extends Thread {
                     cursor.getColumnIndex(BREAKDOWN_PHOTO),
                     cursor.getColumnIndex(STANDARD_DATE),
                     cursor.getColumnIndex(EDIT_TIME),
-                    cursor.getColumnIndex(WORK_TIME),
                     cursor.getColumnIndex(WORK_PRICE),
                     cursor.getColumnIndex(STANDARD_COMMENT),
                     cursor.getColumnIndex(STANDARD_DESCRIPTION),
@@ -164,12 +162,11 @@ public class GetBreakdowns extends Thread {
                             ImageUtil.getByteArrayAsBitmap(cursor.getBlob(indexes[3])),
                             cursor.getString(indexes[4]),
                             cursor.getString(indexes[5]),
-                            cursor.getString(indexes[6]),
-                            cursor.getInt(indexes[7]),
+                            cursor.getInt(indexes[6]),
+                            cursor.getString(indexes[7]),
                             cursor.getString(indexes[8]),
-                            cursor.getString(indexes[9]),
+                            cursor.getInt(indexes[9]),
                             cursor.getInt(indexes[10]),
-                            cursor.getInt(indexes[11]),
                             photos
                     ));
                 }
@@ -237,9 +234,10 @@ public class GetBreakdowns extends Thread {
                     if (cars.size() != 0) {
                         for (Breakdown breakdown : data) {
                             int id = breakdown.getCar_id();
-
-                            breakdown.setManufacture(Objects.requireNonNull(cars.get(id))[0]);
-                            breakdown.setModel(Objects.requireNonNull(cars.get(id))[1]);
+                            if (id > 0) {
+                                breakdown.setManufacture(Objects.requireNonNull(cars.get(id))[0]);
+                                breakdown.setModel(Objects.requireNonNull(cars.get(id))[1]);
+                            }
                         }
                     }
 
