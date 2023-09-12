@@ -113,7 +113,17 @@ public abstract class PhotoWorker extends AppCompatActivity implements PhotosAdd
                         // Перебираем фотографии и добавляем их в список фотографий
                         for (int i = 0; i < count; i++) {
                             Uri uri = data.getClipData().getItemAt(i).getUri();
-                            bitmaps.add(ImageUtil.getUriAsBitmap(uri, this));
+
+                            Bitmap bitmap = ImageUtil.getUriAsBitmap(uri, this);
+                            int koef = Math.max(bitmap.getWidth(), bitmap.getHeight()) / 720;
+                            if (koef < 1) koef = 1;
+                            bitmap = ImageUtil.getScaledBitmap(
+                                    bitmap,
+                                    bitmap.getWidth() / koef,
+                                    bitmap.getHeight() / koef
+                            );
+
+                            bitmaps.add(bitmap);
                         }
 
                         // Обновляем фото в pageViewer2
@@ -190,6 +200,13 @@ public abstract class PhotoWorker extends AppCompatActivity implements PhotosAdd
         }
         // Если фото нужно для viewpager (одно фото)
         else if (code == PHOTO_CODE) {
+            int koef = Math.max(bitmap.getWidth(), bitmap.getHeight()) / 720;
+            if (koef < 1) koef = 1;
+            bitmap = ImageUtil.getScaledBitmap(
+                    bitmap,
+                    bitmap.getWidth() / koef,
+                    bitmap.getHeight() / koef
+            );
             // TODO убрать костыль
             bitmaps.add(bitmap);
             setImages();
