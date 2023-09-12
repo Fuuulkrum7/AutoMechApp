@@ -7,14 +7,11 @@ import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
-import com.example.automechapp.database.AddData;
-import com.example.automechapp.database.GetData;
-
 import java.util.Arrays;
 
 public class DatabaseInterface extends SQLiteOpenHelper {
     // Данные по бд
-    public static final int DATABASE_VERSION = 6;
+    public static final int DATABASE_VERSION = 7;
 
     // Инициализация, ничего интересного
     public DatabaseInterface(Context context){
@@ -66,7 +63,7 @@ public class DatabaseInterface extends SQLiteOpenHelper {
     }
 
     // Получение данных из бд
-    public GetData GetData(String table, String[] projection, String selection, String sortOrder) {
+    public GetData getData(String table, String[] projection, String selection, String sortOrder) {
         SQLiteDatabase db = getReadableDatabase();
         GetData getData = new GetData(db, table, projection, selection, sortOrder);
         getData.start();

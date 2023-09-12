@@ -54,6 +54,7 @@ final public class DatabaseInfo implements BaseColumns {
     public final static String BREAKDOWN_TYPE = "type";
     public final static String WORK_TIME = "work_time";
     public final static String BREAKDOWN_PHOTO = "breakdown_photo";
+    public final static String BREAKDOWN_STATE = "breakdown_state";
 
     public final static String BREAKDOWN_ID = "breakdown_id";
     public final static String DETAIL_MANUFACTURE = "detail_manufacture";
@@ -92,21 +93,22 @@ final public class DatabaseInfo implements BaseColumns {
             ENGINE_NUMBER + " TEXT," +
             ENGINE_MODEL + " TEXT," +
             STANDARD_DATE + " NUMERIC," +
-            ENGINE_VOLUME + " REALs);";
+            ENGINE_VOLUME + " REAL);";
 
     public static final String CREATE_BREAKDOWNS_TABLE =
             "CREATE TABLE " + BREAKDOWNS_TABLE + " (" +
             CAR_ID + " INTEGER," +
             STANDARD_ID + " INTEGER PRIMARY KEY," +
             BREAKDOWN_NAME + " TEXT," +
-            WORK_PRICE + " INTEGER," +
+            WORK_PRICE + " REAL," +
             STANDARD_DATE + " NUMERIC," +
             EDIT_TIME + " NUMERIC," +
             STANDARD_COMMENT + " TEXT," +
             STANDARD_DESCRIPTION + " TEXT," +
             BREAKDOWN_PHOTO + " BLOB," +
             BREAKDOWN_TYPE + " INTEGER," +
-            WORK_TIME + " INTEGER);";
+            BREAKDOWN_STATE + " INTEGER," +
+            WORK_TIME + " NUMERIC);";
 
 
     public static final String CREATE_DETAILS_TABLE =

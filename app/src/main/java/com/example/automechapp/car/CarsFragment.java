@@ -50,14 +50,6 @@ public class CarsFragment extends Fragment {
                 // Создаем класс для получения авто из бд
                 GetCars getCars = new GetCars(
                         getContext(),
-                        new String[]{
-                            DatabaseInfo.CAR_NAME,
-                            DatabaseInfo.CAR_MANUFACTURE,
-                            DatabaseInfo.CAR_MODEL,
-                            DatabaseInfo.CAR_ID,
-                            DatabaseInfo.CAR_PHOTO,
-                            DatabaseInfo.OWNER_ID
-                        },
                         null,
                         DatabaseInfo.STANDARD_DATE + " DESC"
                         );

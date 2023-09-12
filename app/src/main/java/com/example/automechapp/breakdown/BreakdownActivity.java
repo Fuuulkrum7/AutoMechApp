@@ -8,8 +8,9 @@ import android.app.DatePickerDialog;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.View;
-import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -32,8 +33,8 @@ public class BreakdownActivity extends AppCompatActivity {
     EditText details_price;
     EditText breakdowns_price;
 
-    int price = 0;
-    int sum = 0;
+    float det_price = 0;
+    float sum = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,14 +48,11 @@ public class BreakdownActivity extends AppCompatActivity {
         setSupportActionBar(toolbar);
         Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
 
-        DatePickerDialog.OnDateSetListener dateListener = new DatePickerDialog.OnDateSetListener() {
-            @Override
-            public void onDateSet(DatePicker view, int year, int month, int day) {
-                calendar.set(Calendar.YEAR, year);
-                calendar.set(Calendar.MONTH, month);
-                calendar.set(Calendar.DAY_OF_MONTH, day);
-                updateDate();
-            }
+        DatePickerDialog.OnDateSetListener dateListener = (view, year, month, day) -> {
+            calendar.set(Calendar.YEAR, year);
+            calendar.set(Calendar.MONTH, month);
+            calendar.set(Calendar.DAY_OF_MONTH, day);
+            updateDate();
         };
 
         checkDetails();
@@ -77,6 +75,31 @@ public class BreakdownActivity extends AppCompatActivity {
         breakdowns_price = findViewById(R.id.breakdown_price);
         work_price = findViewById(R.id.work_price);
         details_price = findViewById(R.id.details_price);
+
+        work_price.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @SuppressLint("SetTextI18n")
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                if (s.length() > 0) {
+                    sum = Float.parseFloat(s.toString()) + det_price;
+                }
+                else {
+                    sum = det_price;
+                }
+                
+                breakdowns_price.setText(Float.toString(sum));
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
     }
 
     private void updateDate(){
@@ -92,25 +115,6 @@ public class BreakdownActivity extends AppCompatActivity {
                 // TODO изменить на детали
                 GetCars getCars = new GetCars(
                         getApplicationContext(),
-                        new String[]{
-                                DatabaseInfo.CAR_ID,
-                                DatabaseInfo.OWNER_ID,
-                                DatabaseInfo.CAR_MODEL,
-                                DatabaseInfo.CAR_MANUFACTURE,
-                                DatabaseInfo.CAR_NAME,
-                                DatabaseInfo.CAR_PHOTO,
-                                DatabaseInfo.CAR_YEAR,
-                                DatabaseInfo.CAR_PRICE,
-                                DatabaseInfo.VIN,
-                                DatabaseInfo.ENGINE_MODEL,
-                                DatabaseInfo.ENGINE_NUMBER,
-                                DatabaseInfo.ENGINE_VOLUME,
-                                DatabaseInfo.CAR_YEAR,
-                                DatabaseInfo.STATE_CAR_NUMBER,
-                                DatabaseInfo.TAX,
-                                DatabaseInfo.COLOR,
-                                DatabaseInfo.HORSEPOWER
-                        },
                         "",
                         DatabaseInfo.STANDARD_DATE + " DESC"
                 );
@@ -119,26 +123,21 @@ public class BreakdownActivity extends AppCompatActivity {
                 try {
                     getCars.join();
                     for (Car car: getCars.getData()) {
-                        price += car.getCar_price();
+                        det_price += car.getCar_price();
                     }
                 }
                 catch (Exception e) {
                     e.printStackTrace();
-                    new Handler(Looper.getMainLooper()).post(new Runnable() {
-                        @Override
-                        public void run() {
-                            Toast.makeText(getApplicationContext(), "error", Toast.LENGTH_SHORT).show();
-                        }
-                    });
+                    new Handler(Looper.getMainLooper()).post(() -> Toast.makeText(getApplicationContext(), "error", Toast.LENGTH_SHORT).show());
                     e.printStackTrace();
                 }
                 new Handler(Looper.getMainLooper()).post(new Runnable() {
                     @SuppressLint("SetTextI18n")
                     @Override
                     public void run() {
-                        details_price.setText(Integer.toString(price));
-                        sum += price;
-                        breakdowns_price.setText(Integer.toString(sum));
+                        details_price.setText(Float.toString(det_price));
+                        sum += det_price;
+                        breakdowns_price.setText(Float.toString(sum));
                     }
                 });
             }

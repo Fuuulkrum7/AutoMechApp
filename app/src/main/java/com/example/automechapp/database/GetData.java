@@ -43,19 +43,16 @@ public class GetData extends Thread {
             );
         } catch (Exception e) {
             // Если что-то пошло не так
-            Log.d("TEST", e.toString());
+            Log.d(MainActivity.TAG, e.toString());
 
-            new Handler(Looper.getMainLooper()).post(new Runnable() {
-                @Override
-                public void run() {
-                    Context context = MainActivity.getContext();
-                    if (context == null) {
-                        context = CarActivity.getContext();
-                    }
-                    Toast toast = Toast.makeText(context,
-                            "Не удалось получить данные", Toast.LENGTH_SHORT);
-                    toast.show();
+            new Handler(Looper.getMainLooper()).post(() -> {
+                Context context = MainActivity.getContext();
+                if (context == null) {
+                    context = CarActivity.getContext();
                 }
+                Toast toast = Toast.makeText(context,
+                        "Не удалось получить данные", Toast.LENGTH_SHORT);
+                toast.show();
             });
 
         }

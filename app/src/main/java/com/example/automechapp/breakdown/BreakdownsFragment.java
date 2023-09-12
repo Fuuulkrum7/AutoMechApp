@@ -12,7 +12,10 @@ import android.widget.Toast;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.example.automechapp.MainActivity;
+import com.example.automechapp.car.CarsAdapter;
 import com.example.automechapp.database.DatabaseInfo;
+import com.example.automechapp.database.GetBreakdowns;
 import com.example.automechapp.database.GetCars;
 import com.example.automechapp.R;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -21,7 +24,7 @@ import java.util.ArrayList;
 
 public class BreakdownsFragment extends Fragment {
     // Список из поломок, кнопка для добавления новой поломки, то, где будут все поломки
-    private final ArrayList<Breakdown> breakdowns = new ArrayList<Breakdown>();
+    private ArrayList<Breakdown> breakdowns = new ArrayList<Breakdown>();
     public FloatingActionButton addButton;
     public RecyclerView breakdownsView;
 
@@ -48,16 +51,13 @@ public class BreakdownsFragment extends Fragment {
 
         // Ставим прослушку на кнопку
         addButton = getActivity().findViewById(R.id.add);
-        addButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (count > 0) {
-                    Intent intent = new Intent(getContext(), BreakdownActivity.class);
-                    getContext().startActivity(intent);
-                }
-                else {
-                    Toast.makeText(v.getContext(), "Сначала добавьте автомобиль", Toast.LENGTH_SHORT).show();
-                }
+        addButton.setOnClickListener(v -> {
+            if (count > 0) {
+                Intent intent = new Intent(getContext(), BreakdownActivity.class);
+                getContext().startActivity(intent);
+            }
+            else {
+                Toast.makeText(v.getContext(), "Сначала добавьте автомобиль", Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -66,14 +66,42 @@ public class BreakdownsFragment extends Fragment {
 
     // Задаем стартовые данные
     private void setInitialData() {
-        breakdowns.add(new Breakdown("колесо пробил", "Toyota", "Supra", null, "12.12.12", "00:00", 0, 0));
-        breakdowns.add(new Breakdown("колесо пробил", "Toyota", "Supra", null, "12.12.12", "00:00", 0, 0));
-        breakdowns.add(new Breakdown("колесо пробил", "Toyota", "Supra", null, "12.12.12", "00:00", 0, 0));
-        breakdowns.add(new Breakdown("колесо пробил", "Toyota", "Supra", null, "12.12.12", "00:00", 0, 0));
-        breakdowns.add(new Breakdown("колесо пробил", "Toyota", "Supra", null, "12.12.12", "00:00", 0, 0));
-        breakdowns.add(new Breakdown("колесо пробил", "Toyota", "Supra", null, "12.12.12", "00:00", 0, 0));
-        breakdowns.add(new Breakdown("колесо пробил", "Toyota", "Supra", null, "12.12.12", "00:00", 0, 0));
-        breakdowns.add(new Breakdown("колесо пробил", "Toyota", "Supra", null, "12.12.12", "00:00", 0, 0));
+        // запуск потока для получения данных и добавления фрагментов авто
+        Thread thread = new Thread() {
+            @Override
+            public void run() {
+                // Создаем класс для получения авто из бд
+                GetBreakdowns getBreakdowns = new GetBreakdowns(
+                        getContext(),
+                        null,
+                        DatabaseInfo.STANDARD_DATE + " DESC"
+                );
+                // запуск потока и присоединение к нему
+                getBreakdowns.start();
+                try {
+                    getBreakdowns.join();
+                    breakdowns = getBreakdowns.getData();
+                }
+                catch (Exception e) {
+                    e.printStackTrace();
+                    new Handler(Looper.getMainLooper()).post(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(getContext(), "error", Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                    e.printStackTrace();
+
+                }
+                // Создаем адаптер
+                BreakdownsAdapter adapter = new BreakdownsAdapter(MainActivity.getContext(), breakdowns);
+
+                // и добавляем его
+                getActivity().runOnUiThread(() -> breakdownsView.setAdapter(adapter));
+            }
+        };
+
+        thread.start();
     }
 
     private void checkCars() {
@@ -83,14 +111,6 @@ public class BreakdownsFragment extends Fragment {
                 // Создаем класс для получения авто из бд
                 GetCars getCars = new GetCars(
                         getContext(),
-                        new String[]{
-                                DatabaseInfo.CAR_NAME,
-                                DatabaseInfo.CAR_MANUFACTURE,
-                                DatabaseInfo.CAR_MODEL,
-                                DatabaseInfo.CAR_ID,
-                                DatabaseInfo.CAR_PHOTO,
-                                DatabaseInfo.OWNER_ID
-                        },
                         null,
                         DatabaseInfo.STANDARD_DATE + " DESC"
                 );
@@ -102,12 +122,7 @@ public class BreakdownsFragment extends Fragment {
                 }
                 catch (Exception e) {
                     e.printStackTrace();
-                    new Handler(Looper.getMainLooper()).post(new Runnable() {
-                        @Override
-                        public void run() {
-                            Toast.makeText(getContext(), "error", Toast.LENGTH_SHORT).show();
-                        }
-                    });
+                    new Handler(Looper.getMainLooper()).post(() -> Toast.makeText(getContext(), "error", Toast.LENGTH_SHORT).show());
                     e.printStackTrace();
                 }
             }

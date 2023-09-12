@@ -5,10 +5,12 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
 import android.widget.Toast;
 
 import static com.example.automechapp.database.DatabaseInfo.*;
 
+import com.example.automechapp.MainActivity;
 import com.example.automechapp.camera_utils.ImageUtil;
 import com.example.automechapp.car.Car;
 
@@ -19,42 +21,68 @@ public class GetCars extends Thread {
     String[] projection;
     String selection;
     String sortOrder;
-    ArrayList<Car> cars = new ArrayList<Car>();
+    ArrayList<Car> data = new ArrayList<Car>();
     Context context;
-    int car_id = -1;
+    int id = -1;
 
-    private GetCars(DatabaseInterface database, String[] projection, String selection, String sortOrder){
+    public GetCars(DatabaseInterface database, String selection, String sortOrder){
         this.database = database;
-        this.projection = projection;
         this.selection = selection;
         this.sortOrder = sortOrder;
     }
 
-    public GetCars(Context context, String[] projection, String selection, String sortOrder) {
-        this(new DatabaseInterface(context), projection, selection, sortOrder);
+    public GetCars(Context context, String selection, String sortOrder) {
+        this(new DatabaseInterface(context), selection, sortOrder);
         this.context = context;
     }
 
-    public GetCars(Context context, String[] projection, String selection, String sortOrder, int car_id) {
-        this(context, projection, selection, sortOrder);
-        this.car_id = car_id;
+    public GetCars(Context context, String selection, String sortOrder, int id) {
+        this(context, selection, sortOrder);
+        this.id = id;
     }
 
     @Override
     public void run(){
-        GetData getData = database.GetData(DatabaseInfo.CARS_TABLE, projection, selection, sortOrder);
+        if (id > -1) {
+            projection = new String[]{
+                    DatabaseInfo.CAR_ID,
+                    DatabaseInfo.OWNER_ID,
+                    DatabaseInfo.CAR_MODEL,
+                    DatabaseInfo.CAR_MANUFACTURE,
+                    DatabaseInfo.CAR_NAME,
+                    DatabaseInfo.CAR_PHOTO,
+                    DatabaseInfo.CAR_YEAR,
+                    DatabaseInfo.CAR_PRICE,
+                    DatabaseInfo.VIN,
+                    DatabaseInfo.ENGINE_MODEL,
+                    DatabaseInfo.ENGINE_NUMBER,
+                    DatabaseInfo.ENGINE_VOLUME,
+                    DatabaseInfo.CAR_YEAR,
+                    DatabaseInfo.STATE_CAR_NUMBER,
+                    DatabaseInfo.TAX,
+                    DatabaseInfo.COLOR,
+                    DatabaseInfo.HORSEPOWER
+            };
+        }
+        else {
+            projection = new String[]{
+                    DatabaseInfo.CAR_NAME,
+                    DatabaseInfo.CAR_MANUFACTURE,
+                    DatabaseInfo.CAR_MODEL,
+                    DatabaseInfo.CAR_ID,
+                    DatabaseInfo.CAR_PHOTO,
+                    DatabaseInfo.OWNER_ID
+            };
+        }
+
+        GetData getData = database.getData(DatabaseInfo.CARS_TABLE, projection, selection, sortOrder);
         try {
             getData.join();
             Cursor cursor = getData.getCursor();
 
 
             if (cursor == null) {
-                new Handler(Looper.getMainLooper()).post(new Runnable() {
-                    @Override
-                    public void run() {
-                        Toast.makeText(context, "ошибка", Toast.LENGTH_SHORT).show();
-                    }
-                });
+                new Handler(Looper.getMainLooper()).post(() -> Toast.makeText(context, "ошибка", Toast.LENGTH_SHORT).show());
                 return;
             }
 
@@ -78,14 +106,14 @@ public class GetCars extends Thread {
 
             };
 
-            if (car_id > -1) {
-                GetData getData1 = database.GetData(
+            if (id > -1) {
+                GetData getData1 = database.getData(
                         CAR_PHOTOS_TABLE,
                         new String[] {
                                 STANDARD_ID,
                                 STANDARD_PHOTO
                         },
-                        CAR_ID + " = '" + car_id + "'",
+                        CAR_ID + " = '" + id + "'",
                         STANDARD_DATE + " ASC"
                 );
 
@@ -115,7 +143,7 @@ public class GetCars extends Thread {
                 }
 
                 while (cursor.moveToNext()) {
-                    cars.add(new Car(
+                    data.add(new Car(
                             cursor.getString(indexes[0]),
                             cursor.getString(indexes[1]),
                             cursor.getString(indexes[2]),
@@ -137,7 +165,7 @@ public class GetCars extends Thread {
             }
             else {
                 while (cursor.moveToNext()) {
-                    cars.add(new Car(
+                    data.add(new Car(
                             cursor.getString(indexes[0]),
                             cursor.getString(indexes[1]),
                             cursor.getString(indexes[2]),
@@ -155,6 +183,6 @@ public class GetCars extends Thread {
     }
 
     public ArrayList<Car> getData() {
-        return cars;
+        return data;
     }
 }

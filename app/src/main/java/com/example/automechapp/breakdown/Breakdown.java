@@ -6,12 +6,13 @@ import java.util.ArrayList;
 
 // Класс для полломки (в т.ч. как для адаптера, так и для активности с поломкой
 public class Breakdown {
+    private String work_time;
     // Имя поломки, фирма и модель машины, дата поломки, время добавления
     private String breakdown_name;
     private String manufacture;
     private String model;
     private String date;
-    private String time;
+    private String edit_time;
     // id поломки в бд и id авто
     private int id;
     private int car_id;
@@ -20,34 +21,38 @@ public class Breakdown {
     private String comment;
     private String description;
     private int type;
+    private BreakdownStates breakdown_state;
     private Bitmap icon;
     private ArrayList<Bitmap> photos;
 
     // Конструктор. Далее - сеттеры и геттеры
     public Breakdown
-            (String breakdown_name, String manufacture, String model, Bitmap icon, String date, String time, int id, int car_id) {
+            (int id, int car_id, String breakdown_name, Bitmap icon, String date, String edit_time, String manufacture, String model) {
         this.breakdown_name = breakdown_name;
         this.manufacture = manufacture;
         this.model = model;
         this.icon = icon;
         this.date = date;
-        this.time = time;
+        this.edit_time = edit_time;
         this.id = id;
         this.car_id = car_id;
     }
 
     //
-    public Breakdown(String breakdown_name, Bitmap icon, String date, String time, int id, int car_id, int work_price, String comment, String description, int type, ArrayList<Bitmap> photos) {
+    public Breakdown(int id, int car_id, String breakdown_name, Bitmap icon, String date, String edit_time, String work_time, int work_price, String comment, String description, int type, int state, ArrayList<Bitmap> photos) {
         this.breakdown_name = breakdown_name;
         this.icon = icon;
         this.date = date;
-        this.time = time;
+        this.edit_time = edit_time;
         this.id = id;
         this.car_id = car_id;
         this.work_price = work_price;
         this.comment = comment;
         this.description = description;
         this.type = type;
+        this.work_time = work_time;
+        this.breakdown_state = BreakdownStates.values()[state];
+
         this.photos = photos;
     }
 
@@ -83,12 +88,12 @@ public class Breakdown {
         this.date = date;
     }
 
-    public String getTime() {
-        return time;
+    public String getEditTime() {
+        return edit_time;
     }
 
-    public void setTime(String time) {
-        this.time = time;
+    public void setEditTime(String edit_time) {
+        this.edit_time = edit_time;
     }
 
     public int getId() {
@@ -153,5 +158,9 @@ public class Breakdown {
 
     public void setPhotos(ArrayList<Bitmap> photos) {
         this.photos = photos;
+    }
+
+    public String getWork_time() {
+        return work_time;
     }
 }

@@ -24,25 +24,6 @@ public class GetCurrentCar extends Thread {
     public void run() {
         GetCars getCars = new GetCars(
                 context,
-                new String[]{
-                        DatabaseInfo.CAR_ID,
-                        DatabaseInfo.OWNER_ID,
-                        DatabaseInfo.CAR_MODEL,
-                        DatabaseInfo.CAR_MANUFACTURE,
-                        DatabaseInfo.CAR_NAME,
-                        DatabaseInfo.CAR_PHOTO,
-                        DatabaseInfo.CAR_YEAR,
-                        DatabaseInfo.CAR_PRICE,
-                        DatabaseInfo.VIN,
-                        DatabaseInfo.ENGINE_MODEL,
-                        DatabaseInfo.ENGINE_NUMBER,
-                        DatabaseInfo.ENGINE_VOLUME,
-                        DatabaseInfo.CAR_YEAR,
-                        DatabaseInfo.STATE_CAR_NUMBER,
-                        DatabaseInfo.TAX,
-                        DatabaseInfo.COLOR,
-                        DatabaseInfo.HORSEPOWER
-                },
                 DatabaseInfo.CAR_ID + " = '" + id + "'",
                 null,
                 id

@@ -38,7 +38,7 @@ public class GetOwners extends Thread {
     @Override
     public void run() {
         DatabaseInterface databaseInterface = new DatabaseInterface(context);
-        GetData getData = databaseInterface.GetData(
+        GetData getData = databaseInterface.getData(
                 OWNERS_TABLE,
                 projection,
                 selection,
