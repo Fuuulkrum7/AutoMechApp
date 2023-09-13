@@ -6,9 +6,11 @@ import android.os.Bundle;
 import android.os.Looper;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.PopupMenu;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -19,14 +21,43 @@ import com.example.automechapp.MainActivity;
 import com.example.automechapp.R;
 import com.example.automechapp.car.Car;
 import com.example.automechapp.car.CarActivity;
+import com.example.automechapp.database.DeleteBreakdowns;
+import com.example.automechapp.database.DeleteCars;
 
+import java.util.ArrayList;
 import java.util.List;
 
 // Адаптер для поломок
 public class BreakdownsAdapter extends RecyclerView.Adapter<BreakdownsAdapter.BreakdownHolder> {
     private final LayoutInflater inflater;
     // список поломок
-    private final List<Breakdown> breakdowns;
+    private List<Breakdown> breakdowns;
+    private int breakdown_id = -1;
+    private int item_position;
+
+    PopupMenu.OnMenuItemClickListener onMenuItemClickListener = item -> {
+        switch (item.getItemId()) {
+            // Если нажали на кнопку удалить
+            case R.id.show_dustbin:
+                if (breakdown_id == -1)
+                    return false;
+                ArrayList<Integer> arr = new ArrayList<>();
+                arr.add(breakdown_id);
+
+                DeleteBreakdowns deleteBreakdowns = new DeleteBreakdowns(MainActivity.getContext(), arr);
+                deleteBreakdowns.start();
+
+                breakdowns.remove(item_position);
+                notifyItemRemoved(item_position);
+                notifyItemRangeChanged(item_position, breakdowns.size());
+                return true;
+            case R.id.show_pencil:
+                Toast.makeText(MainActivity.getContext(), "В разработке", Toast.LENGTH_SHORT).show();
+                return true;
+            default:
+                return false;
+        }
+    };
 
     public BreakdownsAdapter(Context context, List<Breakdown> breakdowns) {
         this.breakdowns = breakdowns;
@@ -55,6 +86,8 @@ public class BreakdownsAdapter extends RecyclerView.Adapter<BreakdownsAdapter.Br
 
         holder.setId(breakdown.getId());
         holder.setCarId(breakdown.getCar_id());
+
+        holder.setPos(position);
     }
 
     // Число "поломок"
@@ -64,10 +97,11 @@ public class BreakdownsAdapter extends RecyclerView.Adapter<BreakdownsAdapter.Br
     }
 
     // Сам холдер для пломки, в нем хранится инфа о поломке
-    public static class BreakdownHolder extends RecyclerView.ViewHolder implements View.OnLongClickListener, View.OnClickListener{
+    public class BreakdownHolder extends RecyclerView.ViewHolder implements View.OnLongClickListener, View.OnClickListener{
         final ImageView breakdownImage;
         final TextView breakdownView, manufactureView, modelView, dateView;
         private int id = -1, car_id = -1;
+        private int pos;
         BreakdownHolder (View view){
             super(view);
             breakdownImage = view.findViewById(R.id.breakdown_image);
@@ -95,6 +129,14 @@ public class BreakdownsAdapter extends RecyclerView.Adapter<BreakdownsAdapter.Br
 
         @Override
         public boolean onLongClick(View v) {
+            PopupMenu popup = new PopupMenu(MainActivity.getContext(), v);
+            popup.setOnMenuItemClickListener(onMenuItemClickListener);
+            MenuInflater inflater = popup.getMenuInflater();
+            inflater.inflate(R.menu.edit_menu, popup.getMenu());
+            popup.show();
+
+            item_position = pos;
+            breakdown_id = id;
             return false;
         }
 
@@ -112,6 +154,10 @@ public class BreakdownsAdapter extends RecyclerView.Adapter<BreakdownsAdapter.Br
 
         public void setCarId(int car_id) {
             this.car_id = car_id;
+        }
+
+        public void setPos(int pos) {
+            this.pos = pos;
         }
     }
 }

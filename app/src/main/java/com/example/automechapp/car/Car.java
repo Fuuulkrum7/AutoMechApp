@@ -68,7 +68,7 @@ public class Car {
     }
 
     public String getCarText() {
-        return model + " " + manufacture + "\n" + carName;
+        return manufacture + " " + model + "\n" + carName;
     }
 
     public String getModel() {

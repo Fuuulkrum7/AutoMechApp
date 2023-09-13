@@ -116,13 +116,13 @@ public abstract class PhotoWorker extends AppCompatActivity implements PhotosAdd
 
                             Bitmap bitmap = ImageUtil.getUriAsBitmap(uri, this);
                             int koef = Math.max(bitmap.getWidth(), bitmap.getHeight()) / 720;
-                            if (koef < 1) koef = 1;
-                            bitmap = ImageUtil.getScaledBitmap(
-                                    bitmap,
-                                    bitmap.getWidth() / koef,
-                                    bitmap.getHeight() / koef
-                            );
-
+                            if (koef > 1) {
+                                bitmap = ImageUtil.getScaledBitmap(
+                                        bitmap,
+                                        bitmap.getWidth() / koef,
+                                        bitmap.getHeight() / koef
+                                );
+                            }
                             bitmaps.add(bitmap);
                         }
 
@@ -201,12 +201,13 @@ public abstract class PhotoWorker extends AppCompatActivity implements PhotosAdd
         // Если фото нужно для viewpager (одно фото)
         else if (code == PHOTO_CODE) {
             int koef = Math.max(bitmap.getWidth(), bitmap.getHeight()) / 720;
-            if (koef < 1) koef = 1;
-            bitmap = ImageUtil.getScaledBitmap(
-                    bitmap,
-                    bitmap.getWidth() / koef,
-                    bitmap.getHeight() / koef
-            );
+            if (koef > 1) {
+                bitmap = ImageUtil.getScaledBitmap(
+                        bitmap,
+                        bitmap.getWidth() / koef,
+                        bitmap.getHeight() / koef
+                );
+            }
             // TODO убрать костыль
             bitmaps.add(bitmap);
             setImages();

@@ -15,6 +15,7 @@ import android.os.Looper;
 import android.text.Editable;
 import android.text.InputFilter;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
@@ -268,7 +269,6 @@ public class CarActivity extends PhotoWorker {
     private void startDataSave() {
         ContentValues contentValues = getValues();
         if (contentValues == null) {
-            Toast.makeText(this, "Введите данные", Toast.LENGTH_SHORT).show();
             return;
         }
         // Создаем и запускаем поток для сохранения данных
@@ -314,7 +314,11 @@ public class CarActivity extends PhotoWorker {
         engine_volume.setText(Float.toString(car.getEngine_volume()));
         engine_model.setText(car.getEngine_model());
         engine_number.setText(car.getEngine_number());
+
+        // Удаляем фильтр
+        car_state_number.setFilters(new InputFilter[] {});
         car_state_number.setText(car.getCar_state_number());
+
         tax.setText(Integer.toString(car.getTax()));
         horsepower.setText(Integer.toString(car.getHorsepower()));
         icon.setImageBitmap(car.getIcon());
@@ -353,30 +357,118 @@ public class CarActivity extends PhotoWorker {
 
     // Парсим данные из текстовых перменных
     public ContentValues getValues() {
-        if (!allowed || !normal_volume)
+        if (!normal_volume) {
+            Toast.makeText(this, "Некорректный объем двигателя", Toast.LENGTH_SHORT).show();
             return null;
+        }
+        if (!allowed) {
+            Toast.makeText(this, "Некорректный год", Toast.LENGTH_SHORT).show();
+            return null;
+        }
 
         ContentValues contentValues = new ContentValues();
-
+        int idx = 0;
         try {
             contentValues.put(DatabaseInfo.CAR_NAME, name.getText().toString());
+            if (name.getText().toString().length() < 4)
+                throw new Exception("Incorrect car name");
+            ++idx;
             contentValues.put(DatabaseInfo.CAR_MANUFACTURE, manufacture.getText().toString());
+            if (manufacture.getText().toString().length() < 3)
+                throw new Exception("Incorrect car manufacture");
+            ++idx;
             contentValues.put(DatabaseInfo.CAR_MODEL, model.getText().toString());
+            if (model.getText().toString().length() < 3)
+                throw new Exception("Incorrect car model");
+            ++idx;
             contentValues.put(DatabaseInfo.CAR_YEAR, Integer.parseInt(year.getText().toString()));
+            ++idx;
             contentValues.put(DatabaseInfo.CAR_PRICE, Long.parseLong(price.getText().toString()));
+            ++idx;
             contentValues.put(DatabaseInfo.COLOR, color.getText().toString());
+            if (color.getText().toString().length() > 0)
+                contentValues.put(DatabaseInfo.COLOR, color.getText().toString());
+            else
+                contentValues.put(DatabaseInfo.COLOR, "-");
+            ++idx;
             contentValues.put(DatabaseInfo.VIN, vin.getText().toString());
+            if (vin.getText().toString().length() > 0)
+                contentValues.put(DatabaseInfo.VIN, vin.getText().toString());
+            else
+                contentValues.put(DatabaseInfo.VIN, "-");
+            ++idx;
             contentValues.put(DatabaseInfo.ENGINE_VOLUME, Float.parseFloat(engine_volume.getText().toString()));
+            ++idx;
             contentValues.put(DatabaseInfo.ENGINE_MODEL, engine_model.getText().toString());
+            if (engine_model.getText().toString().length() > 0)
+                contentValues.put(DatabaseInfo.ENGINE_MODEL, vin.getText().toString());
+            else
+                contentValues.put(DatabaseInfo.ENGINE_MODEL, "-");
+            ++idx;
             contentValues.put(DatabaseInfo.ENGINE_NUMBER, engine_number.getText().toString());
+            if (vin.getText().toString().length() > 0)
+                contentValues.put(DatabaseInfo.ENGINE_NUMBER, engine_number.getText().toString());
+            else
+                contentValues.put(DatabaseInfo.ENGINE_NUMBER, "-");
+            ++idx;
             contentValues.put(DatabaseInfo.STATE_CAR_NUMBER, car_state_number.getText().toString());
+            if (car_state_number.getText().toString().length() < 8)
+                throw new Exception("Incorrect car number");
+            ++idx;
             contentValues.put(DatabaseInfo.TAX, Integer.parseInt(tax.getText().toString()));
+            ++idx;
             contentValues.put(DatabaseInfo.CAR_PHOTO, ImageUtil.getBitmapAsByteArray((((BitmapDrawable) icon.getDrawable()).getBitmap())));
+            ++idx;
             contentValues.put(DatabaseInfo.HORSEPOWER, Integer.parseInt(horsepower.getText().toString()));
+            ++idx;
             contentValues.put(DatabaseInfo.OWNER_ID, user_id);
         }
         catch (Exception e) {
             e.printStackTrace();
+            switch (idx) {
+                case 0:
+                    Toast.makeText(this, "Некорректное прозвище для машины (длина менее 4 символов)", Toast.LENGTH_SHORT).show();
+                    break;
+                case 1:
+                    Toast.makeText(this, "Некорректная марка авто", Toast.LENGTH_SHORT).show();
+                    break;
+                case 2:
+                    Toast.makeText(this, "Некорректное название модели", Toast.LENGTH_SHORT).show();
+                    break;
+                case 3:
+                    Toast.makeText(this, "Некорректный год", Toast.LENGTH_SHORT).show();
+                    break;
+                case 4:
+                    Toast.makeText(this, "Некорректная стоимость", Toast.LENGTH_SHORT).show();
+                    break;
+                case 5:
+                    Toast.makeText(this, "Некорректный цвет", Toast.LENGTH_SHORT).show();
+                    break;
+                case 6:
+                    Toast.makeText(this, "Некорректный VIN", Toast.LENGTH_SHORT).show();
+                    break;
+                case 7:
+                    Toast.makeText(this, "Некорректный объем двигателя", Toast.LENGTH_SHORT).show();
+                    break;
+                case 8:
+                    Toast.makeText(this, "Некорректная модель двигателя", Toast.LENGTH_SHORT).show();
+                    break;
+                case 9:
+                    Toast.makeText(this, "Некорректный номер двигателя", Toast.LENGTH_SHORT).show();
+                    break;
+                case 10:
+                    Toast.makeText(this, "Некорректный номер авто", Toast.LENGTH_SHORT).show();
+                    break;
+                case 11:
+                    Toast.makeText(this, "Некорректный налог", Toast.LENGTH_SHORT).show();
+                    break;
+                case 12:
+                    Toast.makeText(this, "Нет иконки авто", Toast.LENGTH_SHORT).show();
+                    break;
+                case 13:
+                    Toast.makeText(this, "Некорректная мощность", Toast.LENGTH_SHORT).show();
+                    break;
+            }
             return null;
         }
 
@@ -388,11 +480,13 @@ public class CarActivity extends PhotoWorker {
 
         for (String s: contentValues.keySet()) {
             if (contentValues.get(s) == null) {
+                Toast.makeText(this, "Некорректные данные", Toast.LENGTH_SHORT).show();
                 return null;
             }
         }
 
         if (bitmaps.size() == 0) {
+            Toast.makeText(this, "Нет фото авто", Toast.LENGTH_SHORT).show();
             return null;
         }
 

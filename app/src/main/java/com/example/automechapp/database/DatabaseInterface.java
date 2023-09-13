@@ -16,6 +16,7 @@ public class DatabaseInterface extends SQLiteOpenHelper {
     // Инициализация, ничего интересного
     public DatabaseInterface(Context context){
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
+        SQLiteDatabase db = getWritableDatabase();
     }
 
     // Инициализируем бд
@@ -69,5 +70,11 @@ public class DatabaseInterface extends SQLiteOpenHelper {
         getData.start();
 
         return getData;
+    }
+
+    public void deleteData(String table, String[] projection, String selection) {
+        SQLiteDatabase db = getReadableDatabase();
+        DeleteData deleteData = new DeleteData(db, table, projection, selection);
+        deleteData.start();
     }
 }

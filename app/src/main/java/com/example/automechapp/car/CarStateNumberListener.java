@@ -48,14 +48,14 @@ public class CarStateNumberListener implements TextWatcher {
         // Если мы тут: "аа" или тут "аа111а", и текст вводится
         // или же мы тут "аа11" и символы убирают
         // то ставим тип вводимого текста - число
-        if (((start + 1 == 2 || start + 1 == 6) && count == 0) || (start == 4 && count == 1)) {
+        if (((start == 0 || start + 1 == 6) && count == 0) || (start == 3 && count == 1)) {
             self.setInputType(InputType.TYPE_CLASS_NUMBER);
             self.setFilters(new InputFilter[] {new InputFilter.LengthFilter(9)} );
         }
-        // Если тут "аа111" и текст пишут
-        // Или тут "а" или тут "аа111" и текст удаляют
+        // Если тут "а111" и текст пишут
+        // Или тут "а" или тут "а111" и текст удаляют
         // Меняем тип вводимого текста на буковы и ставим наш фильтр
-        else if ((start + 1 == 5 && count == 0) || ((start == 1 || start == 5) && count == 1)) {
+        else if ((start + 1 == 4 && count == 0) || ((start == 0 || start == 5) && count == 1)) {
             self.setInputType(InputType.TYPE_TEXT_VARIATION_VISIBLE_PASSWORD);
             self.setFilters(new InputFilter[] {filter} );
         }

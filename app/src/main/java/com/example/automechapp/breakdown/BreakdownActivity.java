@@ -9,7 +9,9 @@ import android.os.Handler;
 import android.os.Looper;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
@@ -17,6 +19,7 @@ import android.widget.Toast;
 
 import androidx.appcompat.widget.Toolbar;
 
+import com.example.automechapp.MainActivity;
 import com.example.automechapp.R;
 import com.example.automechapp.ViewPagerAdapter;
 import com.example.automechapp.camera_utils.ImageUtil;
@@ -26,11 +29,8 @@ import com.example.automechapp.car.CarSpinnerAdapter;
 import com.example.automechapp.database.DatabaseInfo;
 import com.example.automechapp.database.GetBreakdowns;
 import com.example.automechapp.database.GetCars;
-import com.example.automechapp.database.GetOwners;
 import com.example.automechapp.database.SaveBreakdown;
-import com.example.automechapp.database.SaveCar;
 import com.example.automechapp.detail.Detail;
-import com.example.automechapp.owner.OwnerSpinnerAdapter;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -110,6 +110,18 @@ public class BreakdownActivity extends PhotoWorker {
         breakdown_type = findViewById(R.id.breakdown_type);
         carsList = findViewById(R.id.cars_list);
 
+        carsList.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                car_id = cars.get(position).getId();
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+
+            }
+        });
+
         add_details_button = findViewById(R.id.add_details);
         save_button = findViewById(R.id.save_breakdown);
 
@@ -155,11 +167,8 @@ public class BreakdownActivity extends PhotoWorker {
         imageSwitcher.setAdapter(viewPagerAdapter);
 
         // И прослушку
-        imageSwitcher.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
+        imageSwitcher.setOnClickListener(view -> {
 
-            }
         });
 
         Bundle bundle = getIntent().getExtras();
@@ -285,10 +294,8 @@ public class BreakdownActivity extends PhotoWorker {
     // Запуск сохранени данных
     private void startDataSave() {
         ContentValues contentValues = getValues();
-        if (contentValues == null) {
-            Toast.makeText(this, "Введите данные", Toast.LENGTH_SHORT).show();
+        if (contentValues == null)
             return;
-        }
         // Создаем и запускаем поток для сохранения данных
         SaveBreakdown save = new SaveBreakdown(this, getContext(), contentValues);
         save.start();
@@ -306,30 +313,48 @@ public class BreakdownActivity extends PhotoWorker {
         Calendar c = Calendar.getInstance();
         String date = sdf.format(c.getTime());
 
+        boolean flag = true;
         try {
             contentValues.put(DatabaseInfo.BREAKDOWN_NAME, breakdown_name.getText().toString());
-            contentValues.put(DatabaseInfo.BREAKDOWN_TYPE, breakdown_type.getSelectedItemPosition());
-            contentValues.put(DatabaseInfo.BREAKDOWN_STATE, breakdown_state.getSelectedItemPosition());
-            contentValues.put(DatabaseInfo.WORK_PRICE, Float.parseFloat(work_price.getText().toString()));
+            if (breakdown_name.getText().toString().length() < 4) {
+                Toast.makeText(this, "Введите название поломки (должно быть более 4 символов)", Toast.LENGTH_SHORT).show();
+                return null;
+            }
+
+            if (work_price.getText().toString().length() == 0)
+                contentValues.put(DatabaseInfo.WORK_PRICE, 0);
+            else
+                contentValues.put(DatabaseInfo.WORK_PRICE, Float.parseFloat(work_price.getText().toString()));
             contentValues.put(DatabaseInfo.STANDARD_COMMENT, comment.getText().toString());
             contentValues.put(DatabaseInfo.STANDARD_DESCRIPTION, description.getText().toString());
             contentValues.put(DatabaseInfo.EDIT_TIME, date);
             contentValues.put(DatabaseInfo.BREAKDOWN_PHOTO, ImageUtil.getBitmapAsByteArray((((BitmapDrawable) icon.getDrawable()).getBitmap())));
+            flag = false;
             contentValues.put(DatabaseInfo.CAR_ID, car_id);
-            contentValues.put(DatabaseInfo.STANDARD_DATE, date);
+            contentValues.put(DatabaseInfo.STANDARD_DATE, breakdown_date.getText().toString());
+            if (breakdown_date.getText().toString().length() == 0) {
+                Toast.makeText(this, "Введите дату поломки", Toast.LENGTH_SHORT).show();
+                return null;
+            }
         }
         catch (Exception e) {
             e.printStackTrace();
+            if (flag)
+                Toast.makeText(this, "Добаьте иконку поломки", Toast.LENGTH_SHORT).show();
+            else
+                Toast.makeText(this, "Введите данные", Toast.LENGTH_SHORT).show();
             return null;
         }
 
         for (String s: contentValues.keySet()) {
             if (contentValues.get(s) == null) {
+                Toast.makeText(this, "Введите данные", Toast.LENGTH_SHORT).show();
                 return null;
             }
         }
 
         if (bitmaps.size() == 0) {
+            Toast.makeText(this, "Добавьте фото поломки", Toast.LENGTH_SHORT).show();
             return null;
         }
 

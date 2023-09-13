@@ -72,7 +72,7 @@ public class BreakdownsFragment extends Fragment {
             GetBreakdowns getBreakdowns = new GetBreakdowns(
                     getContext(),
                     null,
-                    DatabaseInfo.STANDARD_DATE + " DESC"
+                    DatabaseInfo.EDIT_TIME + " DESC"
             );
             // запуск потока и присоединение к нему
             getBreakdowns.start();
@@ -82,12 +82,7 @@ public class BreakdownsFragment extends Fragment {
             }
             catch (Exception e) {
                 e.printStackTrace();
-                new Handler(Looper.getMainLooper()).post(new Runnable() {
-                    @Override
-                    public void run() {
-                        Toast.makeText(getContext(), "error", Toast.LENGTH_SHORT).show();
-                    }
-                });
+                new Handler(Looper.getMainLooper()).post(() -> Toast.makeText(getContext(), "error", Toast.LENGTH_SHORT).show());
                 e.printStackTrace();
 
             }

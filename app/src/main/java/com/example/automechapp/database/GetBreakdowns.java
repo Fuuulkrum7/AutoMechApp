@@ -235,8 +235,13 @@ public class GetBreakdowns extends Thread {
                         for (Breakdown breakdown : data) {
                             int id = breakdown.getCar_id();
                             if (id > 0) {
-                                breakdown.setManufacture(Objects.requireNonNull(cars.get(id))[0]);
-                                breakdown.setModel(Objects.requireNonNull(cars.get(id))[1]);
+                                try {
+                                    breakdown.setManufacture(Objects.requireNonNull(cars.get(id))[0]);
+                                    breakdown.setModel(Objects.requireNonNull(cars.get(id))[1]);
+                                }
+                                catch (Exception e) {
+                                    Log.d(MainActivity.TAG, e.toString());
+                                }
                             }
                         }
                     }
