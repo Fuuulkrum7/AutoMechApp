@@ -1,12 +1,15 @@
 package com.example.automechapp.car;
 
-import androidx.appcompat.widget.Toolbar;
+import static com.example.automechapp.database.DatabaseInfo.CARS_TABLE;
+import static com.example.automechapp.database.DatabaseInfo.CAR_ID;
 
 import android.annotation.SuppressLint;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.Configuration;
+import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Bundle;
@@ -15,7 +18,6 @@ import android.os.Looper;
 import android.text.Editable;
 import android.text.InputFilter;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
@@ -23,17 +25,23 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import androidx.appcompat.widget.Toolbar;
+
+import com.example.automechapp.MainActivity;
+import com.example.automechapp.R;
+import com.example.automechapp.ViewPagerAdapter;
+import com.example.automechapp.camera_utils.ImageUtil;
 import com.example.automechapp.camera_utils.PhotoWorker;
 import com.example.automechapp.database.DatabaseInfo;
+import com.example.automechapp.database.DatabaseInterface;
+import com.example.automechapp.database.DeleteCars;
 import com.example.automechapp.database.GetCurrentCar;
 import com.example.automechapp.database.GetOwners;
-import com.example.automechapp.camera_utils.ImageUtil;
-import com.example.automechapp.MainActivity;
+import com.example.automechapp.database.SaveCar;
 import com.example.automechapp.owner.Owner;
 import com.example.automechapp.owner.OwnerSpinnerAdapter;
-import com.example.automechapp.R;
-import com.example.automechapp.database.SaveCar;
-import com.example.automechapp.ViewPagerAdapter;
+import com.google.android.material.appbar.AppBarLayout;
+import com.google.android.material.appbar.CollapsingToolbarLayout;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -81,11 +89,23 @@ public class CarActivity extends PhotoWorker {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_car);
 
+        CollapsingToolbarLayout collapsingToolbarLayout = findViewById(R.id.collapsing_layout);
+        switch (nightModeFlags) {
+            case Configuration.UI_MODE_NIGHT_NO:
+            case Configuration.UI_MODE_NIGHT_UNDEFINED:
+                collapsingToolbarLayout.setExpandedTitleColor(Color.WHITE);
+                break;
+        }
+
+        AppBarLayout appBarLayout = findViewById(R.id.appbar);
+        appBarLayout.addOnOffsetChangedListener(listener);
+
         // тулбар, без него никуда
         Toolbar toolbar = findViewById(R.id.toolbar);
         toolbar.setTitle("Автомобиль");
         setSupportActionBar(toolbar);
         Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
+        Objects.requireNonNull(getSupportActionBar()).setHomeAsUpIndicator(R.drawable.arrow_back);
 
         // сохраняем на всякий контекст
         context = this;
@@ -191,11 +211,8 @@ public class CarActivity extends PhotoWorker {
         imageSwitcher.setAdapter(viewPagerAdapter);
 
         // И прослушку
-        imageSwitcher.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
+        imageSwitcher.setOnClickListener(view -> {
 
-            }
         });
 
         Bundle bundle = getIntent().getExtras();
@@ -204,11 +221,13 @@ public class CarActivity extends PhotoWorker {
         if (bundle != null) {
             id = bundle.getInt("id");
             user_id = bundle.getInt("user_id");
+            edit = bundle.getBoolean("edit", false);
 
             saveData.setVisibility(View.INVISIBLE);
             GetCurrentCar getCurrentCar = new GetCurrentCar(this, id);
             getCurrentCar.start();
-            disableText();
+
+            changeState(edit);
         }
         else
             getOwnersList();
@@ -265,40 +284,65 @@ public class CarActivity extends PhotoWorker {
         thread.start();
     }
 
+    private void startUpdate() {
+        if (id <= 0) {
+            Toast.makeText(this, "В текущий момент id машины для обновления не получен", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        ContentValues values = getValues();
+
+        DatabaseInterface database = new DatabaseInterface(this);
+        database.UpdateData(CARS_TABLE, values, null, CAR_ID + " = " + id);
+    }
+
     // Запуск сохранени данных
     private void startDataSave() {
         ContentValues contentValues = getValues();
         if (contentValues == null) {
             return;
         }
-        // Создаем и запускаем поток для сохранения данных
-        SaveCar save = new SaveCar(this, getContext(), contentValues);
-        save.start();
-        // Прячем кнопку
-        saveData.setVisibility(View.INVISIBLE);
+
+        if (edit) {
+            startUpdate();
+            edit = false;
+        }
+        else {
+            // Создаем и запускаем поток для сохранения данных
+            SaveCar save = new SaveCar(this, getContext(), contentValues);
+            save.start();
+        }
         // Убираем возможность для пользователя редактировать текст
-        disableText();
+        changeState(false);
     }
 
-    private void disableText() {
+    protected void changeState(boolean state) {
+        super.changeState(state);
+
         // Ставим имя как заголовок
         Objects.requireNonNull(getSupportActionBar()).setTitle(name.getText().toString());
 
         // Вырубаем текст
-        manufacture.setEnabled(false);
-        model.setEnabled(false);
-        year.setEnabled(false);
-        car_state_number.setEnabled(false);
-        name.setEnabled(false);
-        vin.setEnabled(false);
-        engine_number.setEnabled(false);
-        engine_model.setEnabled(false);
-        engine_volume.setEnabled(false);
-        tax.setEnabled(false);
-        price.setEnabled(false);
-        color.setEnabled(false);
-        horsepower.setEnabled(false);
-        ownersSpinner.setEnabled(false);
+        manufacture.setEnabled(state);
+        model.setEnabled(state);
+        year.setEnabled(state);
+        car_state_number.setEnabled(state);
+        name.setEnabled(state);
+        vin.setEnabled(state);
+        engine_number.setEnabled(state);
+        engine_model.setEnabled(state);
+        engine_volume.setEnabled(state);
+        tax.setEnabled(state);
+        price.setEnabled(state);
+        color.setEnabled(state);
+        horsepower.setEnabled(state);
+        ownersSpinner.setEnabled(state);
+
+        // Прячем кнопку
+        if (state)
+            saveData.setVisibility(View.VISIBLE);
+        else
+            saveData.setVisibility(View.INVISIBLE);
     }
 
     // Парсим данные из экземпляра машины
@@ -353,6 +397,16 @@ public class CarActivity extends PhotoWorker {
         });
 
         thread.start();
+    }
+
+    @Override
+    protected void deleteData() {
+        ArrayList<Integer> arr = new ArrayList<>();
+        arr.add(id);
+
+        DeleteCars deleteCars = new DeleteCars(MainActivity.getContext(), arr);
+        deleteCars.start();
+        super.finish();
     }
 
     // Парсим данные из текстовых перменных

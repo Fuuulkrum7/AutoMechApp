@@ -77,4 +77,11 @@ public class DatabaseInterface extends SQLiteOpenHelper {
         DeleteData deleteData = new DeleteData(db, table, projection, selection);
         deleteData.start();
     }
+
+    public void UpdateData(String table, ContentValues values, String[] whereArgs, String whereClause) {
+        SQLiteDatabase db = getReadableDatabase();
+        UpdateData updateData = new UpdateData(db, table, values, whereArgs, whereClause);
+
+        updateData.start();
+    }
 }

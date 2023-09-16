@@ -59,6 +59,7 @@ final public class DatabaseInfo implements BaseColumns {
     public final static String DETAIL_MANUFACTURE = "detail_manufacture";
     public final static String DETAIL_MODEL = "detail_model";
     public final static String DETAIL_NUMBER = "detail_number";
+    public final static String DETAIL_PRICE = "detail_price";
 
     public static final String CREATE_OWNERS_TABLE =
             "CREATE TABLE " + OWNERS_TABLE + " (" +
@@ -113,6 +114,7 @@ final public class DatabaseInfo implements BaseColumns {
             "CREATE TABLE " + DETAILS_TABLE + " (" +
             BREAKDOWN_ID + " INTEGER," +
             STANDARD_ID + " INTEGER PRIMARY KEY," +
+            DETAIL_PRICE + " REAL," +
             STANDARD_COMMENT + " TEXT," +
             STANDARD_DESCRIPTION + " TEXT," +
             STANDARD_DATE + " NUMERIC," +

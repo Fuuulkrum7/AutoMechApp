@@ -33,6 +33,7 @@ public class BreakdownsAdapter extends RecyclerView.Adapter<BreakdownsAdapter.Br
     // список поломок
     private List<Breakdown> breakdowns;
     private int breakdown_id = -1;
+    private int main_car_id = -1;
     private int item_position;
 
     PopupMenu.OnMenuItemClickListener onMenuItemClickListener = item -> {
@@ -52,7 +53,18 @@ public class BreakdownsAdapter extends RecyclerView.Adapter<BreakdownsAdapter.Br
                 notifyItemRangeChanged(item_position, breakdowns.size());
                 return true;
             case R.id.show_pencil:
-                Toast.makeText(MainActivity.getContext(), "В разработке", Toast.LENGTH_SHORT).show();
+                if (breakdown_id == -1)
+                    return false;
+
+                Bundle bundle = new Bundle();
+                bundle.putInt("id", breakdown_id);
+                bundle.putInt("car_id", main_car_id);
+                bundle.putBoolean("edit", true);
+
+                Intent intent = new Intent(MainActivity.getContext(), BreakdownActivity.class);
+
+                intent.putExtras(bundle);
+                MainActivity.getContext().startActivity(intent);
                 return true;
             default:
                 return false;
@@ -137,6 +149,7 @@ public class BreakdownsAdapter extends RecyclerView.Adapter<BreakdownsAdapter.Br
 
             item_position = pos;
             breakdown_id = id;
+            main_car_id = this.car_id;
             return false;
         }
 

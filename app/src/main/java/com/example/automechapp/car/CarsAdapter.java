@@ -31,6 +31,7 @@ public class CarsAdapter extends RecyclerView.Adapter<CarsAdapter.CarViewHolder>
     // список авто
     private List<Car> cars;
     private int car_id = -1;
+    private int main_user_id = -1;
     private int item_position;
 
     public CarsAdapter(Context context, List<Car> cars) {
@@ -77,6 +78,18 @@ public class CarsAdapter extends RecyclerView.Adapter<CarsAdapter.CarViewHolder>
                 notifyItemRangeChanged(item_position, cars.size());
                 return true;
             case R.id.show_pencil:
+                if (car_id == -1)
+                    return false;
+
+                Bundle bundle = new Bundle();
+                bundle.putInt("id", car_id);
+                bundle.putInt("user_id", main_user_id);
+                bundle.putBoolean("edit", true);
+
+                Intent intent = new Intent(MainActivity.getContext(), CarActivity.class);
+
+                intent.putExtras(bundle);
+                MainActivity.getContext().startActivity(intent);
                 Toast.makeText(MainActivity.getContext(), "В разработке", Toast.LENGTH_SHORT).show();
                 return true;
             default:
@@ -130,6 +143,8 @@ public class CarsAdapter extends RecyclerView.Adapter<CarsAdapter.CarViewHolder>
 
             item_position = pos;
             car_id = id;
+            main_user_id = user_id;
+
             return false;
         }
 

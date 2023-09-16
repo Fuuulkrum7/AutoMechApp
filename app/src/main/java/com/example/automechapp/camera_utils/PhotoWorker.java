@@ -1,30 +1,35 @@
 package com.example.automechapp.camera_utils;
 
-import static com.example.automechapp.camera_utils.PhotosAdder.COEFFICIENT;
-import static com.example.automechapp.camera_utils.PhotosAdder.ICON_CODE;
-import static com.example.automechapp.camera_utils.PhotosAdder.PHOTO_CODE;
-
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.graphics.Bitmap;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
+import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.example.automechapp.R;
 import com.example.automechapp.ViewPagerAdapter;
+import com.google.android.material.appbar.AppBarLayout;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Objects;
 
 import id.zelory.compressor.Compressor;
 
@@ -42,6 +47,93 @@ public abstract class PhotoWorker extends AppCompatActivity implements PhotosAdd
     protected ViewPager2 imageSwitcher;
     // уникальный id поломки для обращения к бд
     protected int id = -1;
+
+    protected MenuItem delete_data_item;
+    protected MenuItem edit_data_item;
+    protected MenuItem add_photo_item;
+    protected int nightModeFlags;
+    protected boolean isEditable = true;
+    protected boolean edit = false;
+    AppBarStateChangeListener.State prev_state;
+    protected AppBarStateChangeListener listener = new AppBarStateChangeListener() {
+        @Override
+        public void onStateChanged(AppBarLayout appBarLayout, AppBarStateChangeListener.State
+        state) {
+            prev_state = state;
+
+            if (state == AppBarStateChangeListener.State.EXPANDED)
+                return;
+
+            for (MenuItem item : new MenuItem[] {add_photo_item, delete_data_item, edit_data_item}) {
+                Drawable drawable = item.getIcon();
+                float alpha = (item == add_photo_item) == isEditable ? 1 : 0.5f;
+                if (nightModeFlags == Configuration.UI_MODE_NIGHT_NO && state == AppBarStateChangeListener.State.COLLAPSED) {
+                    drawable.mutate();
+                    drawable.setColorFilter(adjustAlpha(Color.BLACK, alpha), PorterDuff.Mode.SRC_ATOP);
+                }
+                else {
+                    drawable.mutate();
+                    drawable.setColorFilter(adjustAlpha(alpha == 0.5f ? Color.GRAY : Color.WHITE, alpha), PorterDuff.Mode.SRC_ATOP);
+                }
+            }
+
+            if (nightModeFlags == Configuration.UI_MODE_NIGHT_NO && state == AppBarStateChangeListener.State.COLLAPSED) {
+                Objects.requireNonNull(getSupportActionBar()).setHomeAsUpIndicator(R.drawable.arrow_back_black);
+            }
+            else {
+                Objects.requireNonNull(getSupportActionBar()).setHomeAsUpIndicator(R.drawable.arrow_back);
+            }
+        }
+    };
+
+    @Override
+    protected void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        nightModeFlags = getResources().getConfiguration().uiMode &
+                Configuration.UI_MODE_NIGHT_MASK;
+    }
+
+    // Обработка нажатия на кнопку в меню
+    @SuppressLint("NonConstantResourceId")
+    @Override
+    public boolean onOptionsItemSelected (MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.add_photo:
+                if (id < 0)
+                    getUserImage(PHOTO_CODE);
+                return true;
+            case R.id.delete_data:
+                if (id > 0) {
+                    deleteData();
+                }
+                break;
+            case R.id.edit_data:
+                if (id > 0) {
+                    updateData();
+                }
+                break;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    protected void deleteData() {
+
+    }
+
+    protected void updateData() {
+        changeState(true);
+        edit = true;
+    }
+
+    @ColorInt
+    public static int adjustAlpha(@ColorInt int color, float factor) {
+        int alpha = Math.round(Color.alpha(color) * factor);
+        int red = Color.red(color);
+        int green = Color.green(color);
+        int blue = Color.blue(color);
+        return Color.argb(alpha, red, green, blue);
+    }
 
     // Показываем диалоговое окно для выбора, откуда брать изображение - камера или галерея
     protected void getUserImage(int code) {
@@ -77,17 +169,54 @@ public abstract class PhotoWorker extends AppCompatActivity implements PhotosAdd
         return true;
     }
 
-    // Обработка нажатия на кнопку в меню
-    @SuppressLint("NonConstantResourceId")
-    @Override
-    public boolean onOptionsItemSelected (MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.add_photo:
-                if (id < 0)
-                    getUserImage(PHOTO_CODE);
-                return true;
+    private void updateColors() {
+        for (MenuItem item : new MenuItem[] {add_photo_item, delete_data_item, edit_data_item}) {
+            Drawable drawable = item.getIcon();
+
+            float alpha = (item == add_photo_item) == isEditable ? 1 : 0.5f;
+            if (nightModeFlags == Configuration.UI_MODE_NIGHT_NO) {
+                drawable.mutate();
+                drawable.setColorFilter(adjustAlpha(Color.BLACK, alpha), PorterDuff.Mode.SRC_ATOP);
+            }
+            else {
+                drawable.mutate();
+                drawable.setColorFilter(adjustAlpha(alpha == 0.5f ? Color.GRAY : Color.WHITE, alpha), PorterDuff.Mode.SRC_ATOP);
+            }
         }
-        return super.onOptionsItemSelected(item);
+
+        if (nightModeFlags == Configuration.UI_MODE_NIGHT_NO) {
+            Objects.requireNonNull(getSupportActionBar()).setHomeAsUpIndicator(R.drawable.arrow_back_black);
+        }
+        else {
+            Objects.requireNonNull(getSupportActionBar()).setHomeAsUpIndicator(R.drawable.arrow_back);
+        }
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu (Menu menu) {
+        delete_data_item = menu.findItem(R.id.delete_data);
+        edit_data_item = menu.findItem(R.id.edit_data);
+        add_photo_item = menu.findItem(R.id.add_photo);
+
+        delete_data_item.setEnabled(!isEditable);
+        edit_data_item.setEnabled(!isEditable);
+        add_photo_item.setEnabled(isEditable);
+
+        updateColors();
+
+        return true;
+    }
+
+    protected void changeState(boolean state) {
+        isEditable = state;
+
+        if (delete_data_item != null) {
+            delete_data_item.setEnabled(!state);
+            edit_data_item.setEnabled(!state);
+            add_photo_item.setEnabled(state);
+
+            updateColors();
+        }
     }
 
     // Метод обработки получения фото

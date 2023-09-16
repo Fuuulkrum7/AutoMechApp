@@ -1,15 +1,19 @@
 package com.example.automechapp.breakdown;
 
+import static com.example.automechapp.database.DatabaseInfo.BREAKDOWNS_TABLE;
+import static com.example.automechapp.database.DatabaseInfo.BREAKDOWN_ID;
+
 import android.annotation.SuppressLint;
 import android.app.DatePickerDialog;
 import android.content.ContentValues;
+import android.content.res.Configuration;
+import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
@@ -27,10 +31,14 @@ import com.example.automechapp.camera_utils.PhotoWorker;
 import com.example.automechapp.car.Car;
 import com.example.automechapp.car.CarSpinnerAdapter;
 import com.example.automechapp.database.DatabaseInfo;
+import com.example.automechapp.database.DatabaseInterface;
+import com.example.automechapp.database.DeleteBreakdowns;
 import com.example.automechapp.database.GetBreakdowns;
 import com.example.automechapp.database.GetCars;
 import com.example.automechapp.database.SaveBreakdown;
 import com.example.automechapp.detail.Detail;
+import com.google.android.material.appbar.AppBarLayout;
+import com.google.android.material.appbar.CollapsingToolbarLayout;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -67,6 +75,17 @@ public class BreakdownActivity extends PhotoWorker {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_breakdown);
 
+        CollapsingToolbarLayout collapsingToolbarLayout = findViewById(R.id.collapsing_layout);
+        switch (nightModeFlags) {
+            case Configuration.UI_MODE_NIGHT_NO:
+            case Configuration.UI_MODE_NIGHT_UNDEFINED:
+                collapsingToolbarLayout.setExpandedTitleColor(Color.WHITE);
+                break;
+        }
+
+        AppBarLayout appBarLayout = findViewById(R.id.appbar);
+        appBarLayout.addOnOffsetChangedListener(listener);
+
         // сохраняем на всякий контекст
         context = this;
 
@@ -75,6 +94,8 @@ public class BreakdownActivity extends PhotoWorker {
         toolbar.setTitle("Поломка");
         setSupportActionBar(toolbar);
         Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
+
+        Objects.requireNonNull(getSupportActionBar()).setHomeAsUpIndicator(R.drawable.arrow_back);
 
         DatePickerDialog.OnDateSetListener dateListener = (view, year, month, day) -> {
             calendar.set(Calendar.YEAR, year);
@@ -124,7 +145,6 @@ public class BreakdownActivity extends PhotoWorker {
 
         add_details_button = findViewById(R.id.add_details);
         save_button = findViewById(R.id.save_breakdown);
-
 
         save_button.setOnClickListener(view -> startDataSave());
 
@@ -177,6 +197,7 @@ public class BreakdownActivity extends PhotoWorker {
         if (bundle != null) {
             id = bundle.getInt("id");
             car_id = bundle.getInt("car_id");
+            edit = bundle.getBoolean("edit", false);
 
             // TODO add data load
             save_button.setVisibility(View.INVISIBLE);
@@ -202,11 +223,33 @@ public class BreakdownActivity extends PhotoWorker {
             );
 
             thread.start();
-            disableText();
+            changeState(edit);
         }
         else {
             getCarsList();
         }
+    }
+
+    @Override
+    protected void deleteData() {
+        ArrayList<Integer> arr = new ArrayList<>();
+        arr.add(id);
+
+        DeleteBreakdowns deleteBreakdowns = new DeleteBreakdowns(MainActivity.getContext(), arr);
+        deleteBreakdowns.start();
+        super.finish();
+    }
+
+    private void startUpdate() {
+        if (id <= 0) {
+            Toast.makeText(this, "В текущий момент id поломки для обновления не получен", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        ContentValues values = getValues();
+
+        DatabaseInterface database = new DatabaseInterface(this);
+        database.UpdateData(BREAKDOWNS_TABLE, values, null, BREAKDOWN_ID + " = " + id);
     }
 
     private void updateDate(){
@@ -275,20 +318,28 @@ public class BreakdownActivity extends PhotoWorker {
         thread.start();
     }
 
-    private void disableText() {
+    protected void changeState(boolean state) {
+        super.changeState(state);
+
         Objects.requireNonNull(getSupportActionBar()).setTitle(breakdown_name.getText().toString());
 
-        breakdown_name.setEnabled(false);
-        breakdown_type.setEnabled(false);
-        breakdown_state.setEnabled(false);
-        breakdown_date.setEnabled(false);
-        breakdowns_price.setEnabled(false);
-        work_price.setEnabled(false);
-        details_price.setEnabled(false);
-        add_details_button.setEnabled(false);
-        comment.setEnabled(false);
-        description.setEnabled(false);
-        carsList.setEnabled(false);
+        breakdown_name.setEnabled(state);
+        breakdown_type.setEnabled(state);
+        breakdown_state.setEnabled(state);
+        breakdown_date.setEnabled(state);
+        breakdowns_price.setEnabled(state);
+        work_price.setEnabled(state);
+        details_price.setEnabled(state);
+        add_details_button.setEnabled(state);
+        comment.setEnabled(state);
+        description.setEnabled(state);
+        carsList.setEnabled(state);
+
+        // Прячем кнопку
+        if (state)
+            save_button.setVisibility(View.VISIBLE);
+        else
+            save_button.setVisibility(View.INVISIBLE);
     }
 
     // Запуск сохранени данных
@@ -296,13 +347,19 @@ public class BreakdownActivity extends PhotoWorker {
         ContentValues contentValues = getValues();
         if (contentValues == null)
             return;
-        // Создаем и запускаем поток для сохранения данных
-        SaveBreakdown save = new SaveBreakdown(this, getContext(), contentValues);
-        save.start();
-        // Прячем кнопку
-        save_button.setVisibility(View.INVISIBLE);
+
+        if (edit) {
+            startUpdate();
+            edit = false;
+        }
+        else {
+            // Создаем и запускаем поток для сохранения данных
+            SaveBreakdown save = new SaveBreakdown(this, getContext(), contentValues);
+            save.start();
+        }
+
         // Убираем возможность для пользователя редактировать текст
-        disableText();
+        changeState(false);
     }
 
     // Парсим данные из текстовых перменных
@@ -337,6 +394,7 @@ public class BreakdownActivity extends PhotoWorker {
                 return null;
             }
         }
+
         catch (Exception e) {
             e.printStackTrace();
             if (flag)
