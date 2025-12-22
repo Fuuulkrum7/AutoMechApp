@@ -61,4 +61,9 @@ public class GetData extends Thread {
     public Cursor getCursor() {
         return cursor;
     }
+
+    public void close() {
+        if (db != null)
+            db.close();
+    }
 }

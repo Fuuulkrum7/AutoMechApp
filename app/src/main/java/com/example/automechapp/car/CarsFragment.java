@@ -23,100 +23,102 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
 
-// Фрагмент авто
 public class CarsFragment extends Fragment {
-    // Список авто и тд
+
     private ArrayList<Car> cars = new ArrayList<>();
     public FloatingActionButton addButton;
     public RecyclerView carsView;
 
-    int count = 0;
+    private View loadingView;
 
-    // Инициализация фрагмента
+    private int ownersCount = 0;
+
     @Nullable
     @Override
-    public View onCreateView
-            (@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_recycler,
-                container, false);
+    public View onCreateView(@NonNull LayoutInflater inflater,
+                             @Nullable ViewGroup container,
+                             @Nullable Bundle savedInstanceState) {
 
-        // поучаем контейнер для хранения в нем авто и тп
+        View view = inflater.inflate(R.layout.fragment_recycler, container, false);
+
         carsView = view.findViewById(R.id.main_recycler);
+        loadingView = view.findViewById(R.id.main_loading);
 
-        // запуск потока для получения данных и добавления фрагментов авто
-        Thread thread = new Thread() {
-            @Override
-            public void run() {
-                // Создаем класс для получения авто из бд
-                GetCars getCars = new GetCars(
-                        getContext(),
-                        null,
-                        DatabaseInfo.STANDARD_DATE + " DESC"
-                        );
-                // запуск потока и присоединение к нему
-                getCars.start();
-                try {
-                    getCars.join();
-                    cars = getCars.getData();
-                }
-                catch (Exception e) {
-                    e.printStackTrace();
-                    new Handler(Looper.getMainLooper()).post(new Runnable() {
-                        @Override
-                        public void run() {
-                            Toast.makeText(getContext(), "error", Toast.LENGTH_SHORT).show();
-                        }
-                    });
-                    e.printStackTrace();
+        showLoading(true);
 
-                }
-                // Создаем адаптер
-                CarsAdapter adapter = new CarsAdapter(MainActivity.getContext(), cars);
+        // пустой адаптер сразу
+        carsView.setAdapter(new CarsAdapter(getContext(), cars));
 
-                // и добавляем его
-                getActivity().runOnUiThread(() -> carsView.setAdapter(adapter));
-            }
-        };
+        loadCarsAsync();
+        loadOwnersCountAsync();
 
-        thread.start();
-
-        checkOwners();
-
-        // Добавляем прослушку на кнопку
         addButton = getActivity().findViewById(R.id.add);
-        addButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (count > 0) {
-                    Intent intent = new Intent(getContext(), CarActivity.class);
-                    getContext().startActivity(intent);
-                }
-                else {
-                    Toast.makeText(getContext(), "Сначала добавьте хотя бы одного автовладельца", Toast.LENGTH_SHORT).show();
-                }
+        addButton.setOnClickListener(v -> {
+            if (ownersCount > 0) {
+                Intent intent = new Intent(getContext(), CarActivity.class);
+                startActivity(intent);
+            } else {
+                Toast.makeText(getContext(), "Сначала добавьте хотя бы одного автовладельца", Toast.LENGTH_SHORT).show();
             }
         });
 
         return view;
     }
 
-    private void checkOwners() {
-        Thread thread = new Thread() {
-            @Override
-            public void run() {
-                GetOwners getOwners = new GetOwners(getContext(), null);
-                getOwners.start();
+    private void showLoading(boolean show) {
+        if (loadingView == null || carsView == null) return;
+        loadingView.setVisibility(show ? View.VISIBLE : View.GONE);
+        carsView.setVisibility(show ? View.INVISIBLE : View.VISIBLE);
+    }
 
-                try {
-                    getOwners.join();
-                    count = getOwners.getOwnersList().size();
-                }
-                catch (Exception e) {
-                    e.printStackTrace();
-                }
+    private void loadCarsAsync() {
+        new Thread(() -> {
+            try {
+                GetCars getCars = new GetCars(
+                        getContext(),
+                        null,
+                        DatabaseInfo.STANDARD_DATE + " DESC"
+                );
+
+                // не плодим потоки: выполняем запрос в этом фоне
+                getCars.run();
+                ArrayList<Car> data = getCars.getData();
+
+                new Handler(Looper.getMainLooper()).post(() -> {
+                    if (!isAdded() || carsView == null) return;
+
+                    cars = (data != null) ? data : new ArrayList<>();
+
+                    CarsAdapter adapter = new CarsAdapter(requireContext(), cars);
+
+                    // на следующий кадр, меньше микрофризов
+                    carsView.post(() -> {
+                        if (!isAdded() || carsView == null) return;
+                        carsView.setAdapter(adapter);
+                        showLoading(false);
+                    });
+                });
+
+            } catch (Exception e) {
+                e.printStackTrace();
+                new Handler(Looper.getMainLooper()).post(() -> {
+                    if (!isAdded()) return;
+                    showLoading(false);
+                    Toast.makeText(getContext(), "Не удалось загрузить автомобили", Toast.LENGTH_SHORT).show();
+                });
             }
-        };
+        }).start();
+    }
 
-        thread.start();
+    private void loadOwnersCountAsync() {
+        new Thread(() -> {
+            try {
+                GetOwners getOwners = new GetOwners(getContext(), null);
+                getOwners.run();
+                ownersCount = getOwners.getOwnersList().size();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }).start();
     }
 }

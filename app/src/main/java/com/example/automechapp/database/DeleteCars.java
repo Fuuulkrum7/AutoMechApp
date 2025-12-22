@@ -23,7 +23,7 @@ public class DeleteCars extends Thread {
 
     @Override
     public void run(){
-        if (cars_id.size() == 0)
+        if (cars_id.isEmpty())
             return;
         String[] sarr = Arrays.stream(cars_id.toArray()).map(String::valueOf).toArray(String[]::new);
         database.deleteData(DatabaseInfo.CARS_TABLE, null, DatabaseInfo.CAR_ID + " in (" + String.join(", ", sarr) + ")");

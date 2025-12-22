@@ -8,9 +8,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.view.View;
 import android.widget.Button;
-import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.Toast;
 
@@ -51,37 +49,26 @@ public class OwnerActivity extends AppCompatActivity {
         Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
 
         saveButton = findViewById(R.id.save_owner);
-        saveButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                saveData();
-            }
-        });
+        saveButton.setOnClickListener(view -> saveData());
 
-        DatePickerDialog.OnDateSetListener dateListener = new DatePickerDialog.OnDateSetListener() {
-            @Override
-            public void onDateSet(DatePicker view, int year, int month, int day) {
-                calendar.set(Calendar.YEAR, year);
-                calendar.set(Calendar.MONTH, month);
-                calendar.set(Calendar.DAY_OF_MONTH, day);
-                updateLabel();
-            }
+        DatePickerDialog.OnDateSetListener dateListener = (view, year, month, day) -> {
+            calendar.set(Calendar.YEAR, year);
+            calendar.set(Calendar.MONTH, month);
+            calendar.set(Calendar.DAY_OF_MONTH, day);
+            updateLabel();
         };
 
         birthdate = findViewById(R.id.date_of_birth);
-        birthdate.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                DatePickerDialog date = new DatePickerDialog(OwnerActivity.this,
-                        dateListener,
-                        calendar.get(Calendar.YEAR),
-                        calendar.get(Calendar.MONTH),
-                        calendar.get(Calendar.DAY_OF_MONTH));
-                Calendar c = Calendar.getInstance();
-                c.set(c.get(Calendar.YEAR) - 18, c.get(Calendar.MONTH), c.get(Calendar.DATE));
-                date.getDatePicker().setMaxDate(c.getTimeInMillis());
-                date.show();
-            }
+        birthdate.setOnClickListener(view -> {
+            DatePickerDialog date = new DatePickerDialog(OwnerActivity.this,
+                    dateListener,
+                    calendar.get(Calendar.YEAR),
+                    calendar.get(Calendar.MONTH),
+                    calendar.get(Calendar.DAY_OF_MONTH));
+            Calendar c = Calendar.getInstance();
+            c.set(c.get(Calendar.YEAR) - 18, c.get(Calendar.MONTH), c.get(Calendar.DATE));
+            date.getDatePicker().setMaxDate(c.getTimeInMillis());
+            date.show();
         });
 
         name = findViewById(R.id.username);

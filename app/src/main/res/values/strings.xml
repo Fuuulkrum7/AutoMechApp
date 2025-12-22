@@ -4,8 +4,11 @@
     <string name="more">Прочее</string>
     <string name="todo">TODO</string>
     <string name="owners">Владельцы</string>
+    <string name="stats">Статистика</string>
     <string name="cars">Автомобили</string>
     <string name="breakdowns">Поломки</string>
     <string name="add_photo">добавить фото</string>
     <string name="owner_name">Владелец</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>

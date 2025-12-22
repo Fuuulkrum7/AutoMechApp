@@ -12,6 +12,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -19,6 +20,9 @@ import android.view.MenuItem;
 import com.example.automechapp.breakdown.BreakdownsFragment;
 import com.example.automechapp.car.CarsFragment;
 import com.example.automechapp.owner.OwnersFragment;
+import com.example.automechapp.stats.Stats;
+import com.example.automechapp.stats.StatsFragment;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.navigation.NavigationView;
 
 import java.util.Objects;
@@ -28,6 +32,16 @@ public class MainActivity extends AppCompatActivity {
     public static final String TAG = "Mechanic";
     @SuppressLint("StaticFieldLeak")
     private static Context context;
+    FloatingActionButton fab;
+
+    private long currentTimeMs;
+    private long prevFragmentTimeMs;
+    private long breakdownsTimeMs;
+    private long carsTimeMs;
+    private long ownersTimeMs;
+    Stats stats;
+
+    boolean statsReread = false;
 
     int code;
     public static String APP_PREFERENCES_CODE = "code";
@@ -46,15 +60,63 @@ public class MainActivity extends AppCompatActivity {
         Objects.requireNonNull(getSupportActionBar()).setHomeAsUpIndicator(R.drawable.ic_baseline_menu_24);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+        drawerLayout = findViewById(R.id.drawer_layout);
 
         NavigationView navigationView = findViewById(R.id.navigation);
         setupDrawerContent(navigationView);
 
         SharedPreferences settings = getSharedPreferences(APP_PREFERENCES, Context.MODE_PRIVATE);
 
+        fab = findViewById(R.id.add);
         checkItem(settings.getInt(APP_PREFERENCES_CODE, R.id.nav_breakdowns));
         navigationView.setCheckedItem(code);
+
+        currentTimeMs = SystemClock.elapsedRealtime();
+        prevFragmentTimeMs = currentTimeMs;
+
+        stats = Stats.loadTimeStats(this);
+        stats.addLaunch();
+        stats.saveTimeStats(this);
+    }
+
+    private void saveStats() {
+        long nowElapsed = SystemClock.elapsedRealtime();
+        long delta = nowElapsed - currentTimeMs;
+        if (delta <= 0) return;
+
+        long nowMs = System.currentTimeMillis();
+        stats.setSessionTimeMs(stats.getSessionTimeMs() + delta);
+        stats.updateTotal(delta);
+        stats.setLastUpdatedMs(nowMs);
+        stats.saveTimeStats(this);
+
+        currentTimeMs = nowElapsed;
+    }
+
+    @SuppressLint("NonConstantResourceId")
+    @Override
+    protected void onPause() {
+        super.onPause();
+
+        long nowElapsed = SystemClock.elapsedRealtime();
+        long delta = nowElapsed - prevFragmentTimeMs;
+
+        switch (code) {
+            case R.id.nav_breakdowns: breakdownsTimeMs += delta; break;
+            case R.id.nav_cars: carsTimeMs += delta; break;
+            case R.id.nav_owners: ownersTimeMs += delta; break;
+        }
+        prevFragmentTimeMs = nowElapsed;
+
+        saveStats();
+    }
+
+    private void applyFabState(Fragment f) {
+        if (fab == null) return;
+
+        // сброс "спрятанного" состояния после HideBottomViewOnScrollBehavior
+        fab.clearAnimation();
+        fab.setTranslationY(0f);
     }
 
     @Override
@@ -93,13 +155,34 @@ public class MainActivity extends AppCompatActivity {
     private void loadFragment(Fragment fragment) {
         FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
         ft.replace(R.id.fragment_layout, fragment);
-        ft.addToBackStack("Main");
+        ft.runOnCommit(() -> applyFabState(fragment));
         ft.commit();
     }
 
     @SuppressLint("NonConstantResourceId")
     public void checkItem(int code) {
+        if (statsReread) {
+            stats = Stats.loadTimeStats(this);
+        } else {
+            long nowElapsed = SystemClock.elapsedRealtime();
+            long delta = nowElapsed - prevFragmentTimeMs;
+            switch (this.code) {
+                case R.id.nav_breakdowns:
+                    breakdownsTimeMs += delta;
+                    break;
+                case R.id.nav_cars:
+                    carsTimeMs += delta;
+                    break;
+                case R.id.nav_owners:
+                    ownersTimeMs += delta;
+                    break;
+                // in any other cases skip
+            }
+            prevFragmentTimeMs = nowElapsed;
+        }
         this.code = code;
+
+        statsReread = false;
         switch (code){
             case R.id.nav_breakdowns:
                 loadFragment(new BreakdownsFragment());
@@ -109,6 +192,19 @@ public class MainActivity extends AppCompatActivity {
                 break;
             case R.id.nav_owners:
                 loadFragment(new OwnersFragment());
+                break;
+            case R.id.nav_stats:
+                statsReread = true;
+                stats.setBreakdownsTimeMs(stats.getBreakdownsTimeMs() + breakdownsTimeMs);
+                stats.setCarsTimeMs(stats.getCarsTimeMs() + carsTimeMs);
+                stats.setOwnersTimeMs(stats.getOwnersTimeMs() + ownersTimeMs);
+
+                breakdownsTimeMs = 0L;
+                carsTimeMs = 0L;
+                ownersTimeMs = 0L;
+
+                saveStats();
+                loadFragment(StatsFragment.newInstance(stats));
                 break;
         }
     }

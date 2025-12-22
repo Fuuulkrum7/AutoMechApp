@@ -1,249 +1,321 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="match_parent"
+    android:fillViewport="true"
+    android:overScrollMode="ifContentScrolls">
 
-    <View
-        android:id="@+id/view"
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="@color/black"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <TextView
-        android:id="@+id/head_view"
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center"
-        android:text="ФИО, дата рождения"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:padding="16dp">
 
-    <EditText
-        android:id="@+id/surname"
-        android:layout_width="201dp"
-        android:layout_height="48dp"
-        android:gravity="center"
-        android:hint="Фамилия"
-        android:inputType="textPersonName|textCapWords"
-        android:textSize="20sp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/head_view"
-        tools:ignore="RtlHardcoded,SpeakableTextPresentCheck" />
+        <!-- ===== Раздел: ФИО + дата рождения ===== -->
+        <TextView
+            android:id="@+id/head_view"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="ФИО и дата рождения"
+            android:textStyle="bold"
+            android:textSize="16sp"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            tools:ignore="HardcodedText" />
 
-    <EditText
-        android:id="@+id/username"
-        android:layout_width="209dp"
-        android:layout_height="48dp"
-        android:gravity="center"
-        android:hint="Имя"
-        android:textSize="20sp"
-        android:inputType="textPersonName|textCapWords"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toEndOf="@+id/surname"
-        app:layout_constraintTop_toBottomOf="@+id/head_view"
-        tools:ignore="RtlHardcoded,SpeakableTextPresentCheck" />
+        <View
+            android:id="@+id/view"
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_marginTop="8dp"
+            android:background="@android:color/darker_gray"
+            app:layout_constraintTop_toBottomOf="@id/head_view"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
 
-    <EditText
-        android:id="@+id/patronymic"
-        android:layout_width="238dp"
-        android:layout_height="48dp"
-        android:gravity="center"
-        android:hint="Отчество"
-        android:textSize="20sp"
-        android:inputType="textPersonName|textCapWords"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/surname"
-        tools:ignore="RtlHardcoded,SpeakableTextPresentCheck" />
+        <!-- Фамилия / Имя -->
+        <EditText
+            android:id="@+id/surname"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_marginTop="12dp"
+            android:hint="Фамилия"
+            android:inputType="textPersonName|textCapWords"
+            android:imeOptions="actionNext"
+            android:singleLine="true"
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp"
+            app:layout_constraintTop_toBottomOf="@id/view"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/username"
+            app:layout_constraintHorizontal_weight="1"
+            tools:ignore="RtlHardcoded,SpeakableTextPresentCheck" />
 
-    <EditText
-        android:id="@+id/date_of_birth"
-        android:layout_width="173dp"
-        android:layout_height="48dp"
-        android:gravity="center"
-        android:hint="Дата рождения"
-        android:inputType="date"
-        android:textSize="20sp"
-        android:clickable="false"
-        android:cursorVisible="false"
-        android:focusable="false"
-        android:focusableInTouchMode="false"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/patronymic"
-        app:layout_constraintTop_toBottomOf="@+id/username"
-        tools:ignore="RtlHardcoded,SpeakableTextPresentCheck" />
+        <EditText
+            android:id="@+id/username"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_marginTop="12dp"
+            android:layout_marginStart="12dp"
+            android:hint="Имя"
+            android:inputType="textPersonName|textCapWords"
+            android:imeOptions="actionNext"
+            android:singleLine="true"
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp"
+            app:layout_constraintTop_toBottomOf="@id/view"
+            app:layout_constraintStart_toEndOf="@id/surname"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_weight="1"
+            tools:ignore="RtlHardcoded,SpeakableTextPresentCheck" />
 
-    <View
-        android:id="@+id/view4"
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="@color/black"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/sep2" />
+        <!-- Отчество / Дата рождения -->
+        <EditText
+            android:id="@+id/patronymic"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_marginTop="12dp"
+            android:hint="Отчество"
+            android:inputType="textPersonName|textCapWords"
+            android:imeOptions="actionNext"
+            android:singleLine="true"
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp"
+            app:layout_constraintTop_toBottomOf="@id/surname"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/date_of_birth"
+            app:layout_constraintHorizontal_weight="1"
+            tools:ignore="RtlHardcoded,SpeakableTextPresentCheck" />
 
-    <TextView
-        android:id="@+id/sep2"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:text="Регион рождения"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/patronymic" />
+        <EditText
+            android:id="@+id/date_of_birth"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_marginTop="12dp"
+            android:layout_marginStart="12dp"
+            android:hint="Дата рождения"
+            android:inputType="none"
+            android:focusable="false"
+            android:clickable="true"
+            android:cursorVisible="false"
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp"
+            android:imeOptions="actionNext"
+            android:singleLine="true"
+            app:layout_constraintTop_toBottomOf="@id/username"
+            app:layout_constraintStart_toEndOf="@id/patronymic"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_weight="1"
+            tools:ignore="RtlHardcoded,SpeakableTextPresentCheck" />
 
-    <EditText
-        android:id="@+id/region"
-        android:layout_width="match_parent"
-        android:layout_height="48dp"
-        android:gravity="center"
-        android:textSize="20sp"
-        android:inputType="textPersonName|textCapWords"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/sep2"
-        tools:ignore="SpeakableTextPresentCheck" />
+        <!-- ===== Раздел: Регион рождения ===== -->
+        <TextView
+            android:id="@+id/sep2"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="18dp"
+            android:text="Регион рождения"
+            android:textStyle="bold"
+            android:textSize="16sp"
+            app:layout_constraintTop_toBottomOf="@id/patronymic"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            tools:ignore="HardcodedText" />
 
-    <View
-        android:id="@+id/view3"
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="@color/black"
-        app:layout_constraintBottom_toTopOf="@+id/sep1"
-        app:layout_constraintStart_toStartOf="parent" />
+        <View
+            android:id="@+id/view4"
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_marginTop="8dp"
+            android:background="@android:color/darker_gray"
+            app:layout_constraintTop_toBottomOf="@id/sep2"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
 
-    <TextView
-        android:id="@+id/sep1"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:text="Номер водительского удостоверения:"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/region" />
+        <EditText
+            android:id="@+id/region"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_marginTop="12dp"
+            android:hint="Например: Москва"
+            android:inputType="textCapWords"
+            android:imeOptions="actionNext"
+            android:singleLine="true"
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp"
+            app:layout_constraintTop_toBottomOf="@id/view4"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            tools:ignore="SpeakableTextPresentCheck" />
 
-    <EditText
-        android:id="@+id/driver_license"
-        android:layout_width="match_parent"
-        android:layout_height="48dp"
-        android:gravity="center"
-        android:inputType="number"
-        android:maxLength="10"
-        android:textSize="20sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/sep1"
-        tools:ignore="SpeakableTextPresentCheck" />
+        <!-- ===== Раздел: Водительское удостоверение ===== -->
+        <TextView
+            android:id="@+id/sep1"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="18dp"
+            android:text="Водительское удостоверение"
+            android:textStyle="bold"
+            android:textSize="16sp"
+            app:layout_constraintTop_toBottomOf="@id/region"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            tools:ignore="HardcodedText" />
 
-    <View
-        android:id="@+id/view5"
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="@color/black"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/driver_license" />
+        <View
+            android:id="@+id/view3"
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_marginTop="8dp"
+            android:background="@android:color/darker_gray"
+            app:layout_constraintTop_toBottomOf="@id/sep1"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
 
-    <TextView
-        android:id="@+id/sep3"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:text="Регион выдачи водительских прав"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/driver_license" />
+        <EditText
+            android:id="@+id/driver_license"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_marginTop="12dp"
+            android:hint="Номер ВУ (10 цифр)"
+            android:inputType="number"
+            android:maxLength="10"
+            android:imeOptions="actionNext"
+            android:singleLine="true"
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp"
+            app:layout_constraintTop_toBottomOf="@id/view3"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            tools:ignore="SpeakableTextPresentCheck" />
 
-    <EditText
-        android:id="@+id/issung_region"
-        android:layout_width="match_parent"
-        android:layout_height="48dp"
-        android:gravity="center"
-        android:textSize="20sp"
-        android:inputType="textPersonName|textCapWords"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/sep3"
-        tools:ignore="SpeakableTextPresentCheck" />
+        <TextView
+            android:id="@+id/sep3"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="14dp"
+            android:text="Регион выдачи ВУ"
+            android:textStyle="bold"
+            android:textSize="16sp"
+            app:layout_constraintTop_toBottomOf="@id/driver_license"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            tools:ignore="HardcodedText" />
 
-    <View
-        android:id="@+id/view7"
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="@color/black"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/issung_region" />
+        <EditText
+            android:id="@+id/issung_region"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_marginTop="10dp"
+            android:hint="Например: Санкт-Петербург"
+            android:inputType="textCapWords"
+            android:imeOptions="actionNext"
+            android:singleLine="true"
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp"
+            app:layout_constraintTop_toBottomOf="@id/sep3"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            tools:ignore="SpeakableTextPresentCheck" />
 
-    <TextView
-        android:id="@+id/sep4"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:text="Категории"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/view7" />
+        <TextView
+            android:id="@+id/sep4"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="14dp"
+            android:text="Категории"
+            android:textStyle="bold"
+            android:textSize="16sp"
+            app:layout_constraintTop_toBottomOf="@id/issung_region"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            tools:ignore="HardcodedText" />
 
-    <EditText
-        android:id="@+id/categories"
-        android:layout_width="match_parent"
-        android:layout_height="48dp"
-        android:gravity="center"
-        android:textSize="20sp"
-        android:inputType="textPersonName|textCapWords"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/sep4"
-        tools:ignore="SpeakableTextPresentCheck" />
+        <EditText
+            android:id="@+id/categories"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_marginTop="10dp"
+            android:hint="Например: B, C"
+            android:inputType="textCapCharacters"
+            android:imeOptions="actionNext"
+            android:singleLine="true"
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp"
+            app:layout_constraintTop_toBottomOf="@id/sep4"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            tools:ignore="SpeakableTextPresentCheck" />
 
-    <View
-        android:id="@+id/view9"
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="@color/black"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/categories" />
+        <!-- ===== Раздел: Паспорт ===== -->
+        <TextView
+            android:id="@+id/textView"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="18dp"
+            android:text="Паспорт"
+            android:textStyle="bold"
+            android:textSize="16sp"
+            app:layout_constraintTop_toBottomOf="@id/categories"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            tools:ignore="HardcodedText" />
 
-    <TextView
-        android:id="@+id/textView"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:text="Серия и номер паспорта"
-        app:layout_constraintTop_toBottomOf="@+id/categories"
-        tools:layout_editor_absoluteX="165dp" />
+        <View
+            android:id="@+id/view9"
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:layout_marginTop="8dp"
+            android:background="@android:color/darker_gray"
+            app:layout_constraintTop_toBottomOf="@id/textView"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
 
-    <EditText
-        android:id="@+id/passport_series"
-        android:layout_width="175dp"
-        android:layout_height="48dp"
-        android:gravity="center"
-        android:hint="Серия"
-        android:inputType="number"
-        android:maxLength="4"
-        android:textSize="20sp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView"
-        tools:ignore="SpeakableTextPresentCheck" />
+        <EditText
+            android:id="@+id/passport_series"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_marginTop="12dp"
+            android:hint="Серия (4 цифры)"
+            android:inputType="number"
+            android:maxLength="4"
+            android:imeOptions="actionNext"
+            android:singleLine="true"
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp"
+            app:layout_constraintTop_toBottomOf="@id/view9"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/passport_number"
+            app:layout_constraintHorizontal_weight="1"
+            tools:ignore="SpeakableTextPresentCheck" />
 
-    <EditText
-        android:id="@+id/passport_number"
-        android:layout_width="236dp"
-        android:layout_height="48dp"
-        android:layout_marginStart="1dp"
-        android:gravity="center"
-        android:hint="Номер"
-        android:inputType="number"
-        android:maxLength="6"
-        android:textSize="20sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toEndOf="@+id/passport_series"
-        app:layout_constraintTop_toBottomOf="@+id/textView"
-        tools:ignore="SpeakableTextPresentCheck" />
+        <EditText
+            android:id="@+id/passport_number"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_marginTop="12dp"
+            android:layout_marginStart="12dp"
+            android:hint="Номер (6 цифр)"
+            android:inputType="number"
+            android:maxLength="6"
+            android:imeOptions="actionDone"
+            android:singleLine="true"
+            android:paddingStart="12dp"
+            android:paddingEnd="12dp"
+            app:layout_constraintTop_toBottomOf="@id/view9"
+            app:layout_constraintStart_toEndOf="@id/passport_series"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_weight="1"
+            tools:ignore="SpeakableTextPresentCheck" />
 
-    <View
-        android:id="@+id/view10"
-        android:layout_width="match_parent"
-        android:layout_height="5dp"
-        android:background="@color/primaryColor"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/passport_number" />
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="5dp"
+            android:background="?attr/colorOnBackground"
+            app:layout_constraintTop_toBottomOf="@id/passport_number"
+            app:layout_constraintStart_toStartOf="parent"/>
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.core.widget.NestedScrollView>

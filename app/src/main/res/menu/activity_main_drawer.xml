@@ -13,5 +13,9 @@
             android:id="@+id/nav_owners"
             android:icon="@drawable/ic_human_24"
             android:title="@string/owners" />
+        <item
+            android:id="@+id/nav_stats"
+            android:icon="@drawable/ic_query_stats_24"
+            android:title="@string/stats" />
     </group>
 </menu>

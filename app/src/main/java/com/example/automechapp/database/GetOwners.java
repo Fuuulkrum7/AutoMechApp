@@ -90,8 +90,12 @@ public class GetOwners extends Thread {
                 }
 
             }
+            cursor.close();
+            getData.close();
         }
         catch (Exception e) {
+            if (getData != null)
+                getData.close();
             e.printStackTrace();
         }
     }

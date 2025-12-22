@@ -1,0 +1,520 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="?android:colorBackground"
+    tools:context=".StatsFragment">
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true">
+
+        <LinearLayout
+            android:id="@+id/stats_root"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <!-- header -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingBottom="12dp">
+
+                <TextView
+                    android:id="@+id/stats_title"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Статистика"
+                    android:textSize="22sp"
+                    android:textStyle="bold"
+                    android:textColor="?attr/colorOnBackground" />
+
+                <TextView
+                    android:id="@+id/stats_last_updated"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Обновлено: —"
+                    android:textSize="13sp"
+                    android:paddingTop="4dp"
+                    android:textColor="?attr/colorOnSurfaceVariant" />
+            </LinearLayout>
+
+            <!-- card: usage -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="14dp"
+                android:layout_marginBottom="12dp"
+                android:background="?attr/colorSurfaceVariant">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Использование приложения"
+                    android:textStyle="bold"
+                    android:textSize="16sp"
+                    android:paddingBottom="10dp"
+                    android:textColor="?attr/colorOnSurface" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="За всё время"
+                            android:textSize="12sp"
+                            android:textColor="?attr/colorOnSurfaceVariant" />
+
+                        <TextView
+                            android:id="@+id/stats_total_time"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="—"
+                            android:textSize="18sp"
+                            android:textStyle="bold"
+                            android:textColor="?attr/colorOnSurface" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="Запусков"
+                            android:textSize="12sp"
+                            android:textColor="?attr/colorOnSurfaceVariant" />
+
+                        <TextView
+                            android:id="@+id/stats_launch_count"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="—"
+                            android:textSize="18sp"
+                            android:textStyle="bold"
+                            android:textColor="?attr/colorOnSurface" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="12dp" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="Поломки"
+                            android:textSize="12sp"
+                            android:textColor="?attr/colorOnSurfaceVariant" />
+
+                        <TextView
+                            android:id="@+id/stats_time_breakdowns"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="—"
+                            android:textSize="16sp"
+                            android:textStyle="bold"
+                            android:textColor="?attr/colorOnSurface" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="Авто"
+                            android:textSize="12sp"
+                            android:textColor="?attr/colorOnSurfaceVariant" />
+
+                        <TextView
+                            android:id="@+id/stats_time_cars"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="—"
+                            android:textSize="16sp"
+                            android:textStyle="bold"
+                            android:textColor="?attr/colorOnSurface" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="Владельцы"
+                            android:textSize="12sp"
+                            android:textColor="?attr/colorOnSurfaceVariant" />
+
+                        <TextView
+                            android:id="@+id/stats_time_owners"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="—"
+                            android:textSize="16sp"
+                            android:textStyle="bold"
+                            android:textColor="?attr/colorOnSurface" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="12dp" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <Button
+                        android:id="@+id/stats_btn_save"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Сохранить"
+                        android:backgroundTint="?attr/colorPrimary"
+                        android:textColor="?attr/colorOnPrimary" />
+
+                    <View
+                        android:layout_width="10dp"
+                        android:layout_height="1dp" />
+
+                    <Button
+                        android:id="@+id/stats_btn_reset"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Сбросить"
+                        android:backgroundTint="?attr/colorSecondaryContainer"
+                        android:textColor="?attr/colorOnSecondaryContainer" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- card: workshop now -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="14dp"
+                android:layout_marginBottom="12dp"
+                android:background="?attr/colorSurfaceVariant">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Сейчас в мастерской"
+                    android:textStyle="bold"
+                    android:textSize="16sp"
+                    android:paddingBottom="10dp"
+                    android:textColor="?attr/colorOnSurface" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="В ремонте"
+                            android:textSize="12sp"
+                            android:textColor="?attr/colorOnSurfaceVariant" />
+
+                        <TextView
+                            android:id="@+id/stats_cars_in_repair"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="—"
+                            android:textSize="18sp"
+                            android:textStyle="bold"
+                            android:textColor="?attr/colorOnSurface" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="Создано"
+                            android:textSize="12sp"
+                            android:textColor="?attr/colorOnSurfaceVariant" />
+
+                        <TextView
+                            android:id="@+id/stats_cars_created"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="—"
+                            android:textSize="18sp"
+                            android:textStyle="bold"
+                            android:textColor="?attr/colorOnSurface" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="Активно"
+                            android:textSize="12sp"
+                            android:textColor="?attr/colorOnSurfaceVariant" />
+
+                        <TextView
+                            android:id="@+id/stats_cars_active"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="—"
+                            android:textSize="18sp"
+                            android:textStyle="bold"
+                            android:textColor="?attr/colorOnSurface" />
+                    </LinearLayout>
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- card: totals -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="14dp"
+                android:layout_marginBottom="12dp"
+                android:background="?attr/colorSurfaceVariant">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="База данных"
+                    android:textStyle="bold"
+                    android:textSize="16sp"
+                    android:paddingBottom="10dp"
+                    android:textColor="?attr/colorOnSurface" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="Владельцы"
+                            android:textSize="12sp"
+                            android:textColor="?attr/colorOnSurfaceVariant" />
+
+                        <TextView
+                            android:id="@+id/stats_owners_total"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="—"
+                            android:textSize="18sp"
+                            android:textStyle="bold"
+                            android:textColor="?attr/colorOnSurface" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="Машины"
+                            android:textSize="12sp"
+                            android:textColor="?attr/colorOnSurfaceVariant" />
+
+                        <TextView
+                            android:id="@+id/stats_cars_total"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="—"
+                            android:textSize="18sp"
+                            android:textStyle="bold"
+                            android:textColor="?attr/colorOnSurface" />
+                    </LinearLayout>
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- card: month -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="14dp"
+                android:background="?attr/colorSurfaceVariant">
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Текущий месяц"
+                    android:textStyle="bold"
+                    android:textSize="16sp"
+                    android:paddingBottom="10dp"
+                    android:textColor="?attr/colorOnSurface" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="Создано"
+                            android:textSize="12sp"
+                            android:textColor="?attr/colorOnSurfaceVariant" />
+
+                        <TextView
+                            android:id="@+id/stats_month_created"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="—"
+                            android:textSize="18sp"
+                            android:textStyle="bold"
+                            android:textColor="?attr/colorOnSurface" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="В ремонте"
+                            android:textSize="12sp"
+                            android:textColor="?attr/colorOnSurfaceVariant" />
+
+                        <TextView
+                            android:id="@+id/stats_month_repairing"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="—"
+                            android:textSize="18sp"
+                            android:textStyle="bold"
+                            android:textColor="?attr/colorOnSurface" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="Готово"
+                            android:textSize="12sp"
+                            android:textColor="?attr/colorOnSurfaceVariant" />
+
+                        <TextView
+                            android:id="@+id/stats_month_done"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:text="—"
+                            android:textSize="18sp"
+                            android:textStyle="bold"
+                            android:textColor="?attr/colorOnSurface" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="10dp" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Обслужено в мастерской"
+                        android:textSize="12sp"
+                        android:textColor="?attr/colorOnSurfaceVariant" />
+
+                    <TextView
+                        android:id="@+id/stats_month_serviced"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="—"
+                        android:textSize="18sp"
+                        android:textStyle="bold"
+                        android:textColor="?attr/colorOnSurface" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="24dp" />
+
+        </LinearLayout>
+    </ScrollView>
+
+</FrameLayout>

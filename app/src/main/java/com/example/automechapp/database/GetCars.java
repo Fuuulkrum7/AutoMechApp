@@ -176,9 +176,11 @@ public class GetCars extends Thread {
                 }
             }
             cursor.close();
-
-        } catch (InterruptedException e) {
-            e.printStackTrace();
+            getData.close();
+        }
+        catch (Exception e) {
+            if (getData != null)
+                getData.close();
         }
     }
 

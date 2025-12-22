@@ -249,8 +249,9 @@ public class GetBreakdowns extends Thread {
                 }
             }
             cursor.close();
-
+            getData.close();
         } catch (InterruptedException e) {
+            getData.close();
             e.printStackTrace();
         }
     }
