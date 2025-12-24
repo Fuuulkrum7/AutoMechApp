@@ -266,7 +266,7 @@ public class CarActivity extends PhotoWorker {
 
             try {
                 getOwners.join();
-                owners = getOwners.getOwnersList();
+                owners = getOwners.getData();
 
                 new Handler(Looper.getMainLooper()).post(() -> ownersSpinner.setAdapter(
                         new OwnerSpinnerAdapter(getContext(),
@@ -380,7 +380,7 @@ public class CarActivity extends PhotoWorker {
 
             try {
                 getOwners.join();
-                owners = getOwners.getOwnersList();
+                owners = getOwners.getData();
 
                 new Handler(Looper.getMainLooper()).post(() ->
                         ownersSpinner.setAdapter(

@@ -34,12 +34,7 @@ public class GetCurrentCar extends Thread {
             getCars.join();
             if (getCars.getData() != null) {
                 Car car = getCars.getData().get(0);
-                new Handler(Looper.getMainLooper()).post(new Runnable() {
-                    @Override
-                    public void run() {
-                        carActivity.setData(car);
-                    }
-                });
+                new Handler(Looper.getMainLooper()).post(() -> carActivity.setData(car));
             }
         } catch (Exception e) {
             e.printStackTrace();

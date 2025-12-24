@@ -9,16 +9,13 @@ import com.example.automechapp.owner.Owner;
 
 import java.util.ArrayList;
 
-public class GetOwners extends Thread {
-    private final ArrayList<Owner> owners = new ArrayList<>();
-    Context context;
-    String[] projection;
-    String selection;
-    String sortOrder;
+public class GetOwners extends GetData<Owner> {
 
     public GetOwners(Context context, String selection) {
-        this.context = context;
-        this.projection = new String[] {
+        super(
+            context,
+            OWNERS_TABLE,
+            new String[] {
                 OWNER_ID,
                 USERNAME,
                 SURNAME,
@@ -30,41 +27,36 @@ public class GetOwners extends Thread {
                 CATEGORIES,
                 PASSPORT_SERIES,
                 PASSPORT_NUMBER
-        };
-        this.selection = selection;
-        this.sortOrder = USERNAME + ", " + SURNAME + " DESC";
+            },
+            selection,
+            USERNAME + ", " + SURNAME + " DESC"
+        );
     }
 
     @Override
     public void run() {
         DatabaseInterface databaseInterface = new DatabaseInterface(context);
-        GetData getData = databaseInterface.getData(
-                OWNERS_TABLE,
-                projection,
-                selection,
-                sortOrder
-        );
+        databaseInterface.getData(this);
 
         try {
-            getData.join();
-            Cursor cursor =  getData.getCursor();
+            Cursor cursor = getCursor();
             int[] indexes = new int[] {
-                    cursor.getColumnIndex(projection[0]),
-                    cursor.getColumnIndex(projection[1]),
-                    cursor.getColumnIndex(projection[2]),
-                    cursor.getColumnIndex(projection[3]),
-                    cursor.getColumnIndex(projection[4]),
-                    cursor.getColumnIndex(projection[5]),
-                    cursor.getColumnIndex(projection[6]),
-                    cursor.getColumnIndex(projection[7]),
-                    cursor.getColumnIndex(projection[8]),
-                    cursor.getColumnIndex(projection[9]),
-                    cursor.getColumnIndex(projection[10])
+                cursor.getColumnIndex(projection[0]),
+                cursor.getColumnIndex(projection[1]),
+                cursor.getColumnIndex(projection[2]),
+                cursor.getColumnIndex(projection[3]),
+                cursor.getColumnIndex(projection[4]),
+                cursor.getColumnIndex(projection[5]),
+                cursor.getColumnIndex(projection[6]),
+                cursor.getColumnIndex(projection[7]),
+                cursor.getColumnIndex(projection[8]),
+                cursor.getColumnIndex(projection[9]),
+                cursor.getColumnIndex(projection[10])
             };
 
             if (selection != null) {
                 while (cursor.moveToNext()) {
-                    owners.add(new Owner(
+                    data.add(new Owner(
                             cursor.getInt(indexes[0]),
                             cursor.getString(indexes[1]),
                             cursor.getString(indexes[2]),
@@ -74,7 +66,7 @@ public class GetOwners extends Thread {
             }
             else {
                 while (cursor.moveToNext()) {
-                    owners.add(new Owner(
+                    data.add(new Owner(
                             cursor.getInt(indexes[0]),
                             cursor.getString(indexes[1]),
                             cursor.getString(indexes[2]),
@@ -91,16 +83,11 @@ public class GetOwners extends Thread {
 
             }
             cursor.close();
-            getData.close();
+            close();
         }
         catch (Exception e) {
-            if (getData != null)
-                getData.close();
+            close();
             e.printStackTrace();
         }
-    }
-
-    public ArrayList<Owner> getOwnersList() {
-        return owners;
     }
 }

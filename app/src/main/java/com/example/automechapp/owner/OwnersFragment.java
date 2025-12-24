@@ -64,7 +64,7 @@ public class OwnersFragment extends Fragment {
             try {
                 GetOwners getOwners = new GetOwners(getContext(), null);
                 getOwners.run();
-                ArrayList<Owner> data = getOwners.getOwnersList();
+                ArrayList<Owner> data = getOwners.getData();
 
                 new Handler(Looper.getMainLooper()).post(() -> {
                     if (!isAdded() || ownersView == null) return;

@@ -1,23 +1,6 @@
 package com.example.automechapp.database;
 
-import static com.example.automechapp.database.DatabaseInfo.BREAKDOWNS_PHOTOS_TABLE;
-import static com.example.automechapp.database.DatabaseInfo.BREAKDOWNS_TABLE;
-import static com.example.automechapp.database.DatabaseInfo.BREAKDOWN_ID;
-import static com.example.automechapp.database.DatabaseInfo.BREAKDOWN_NAME;
-import static com.example.automechapp.database.DatabaseInfo.BREAKDOWN_PHOTO;
-import static com.example.automechapp.database.DatabaseInfo.BREAKDOWN_STATE;
-import static com.example.automechapp.database.DatabaseInfo.BREAKDOWN_TYPE;
-import static com.example.automechapp.database.DatabaseInfo.CARS_TABLE;
-import static com.example.automechapp.database.DatabaseInfo.CAR_ID;
-import static com.example.automechapp.database.DatabaseInfo.CAR_MANUFACTURE;
-import static com.example.automechapp.database.DatabaseInfo.CAR_MODEL;
-import static com.example.automechapp.database.DatabaseInfo.EDIT_TIME;
-import static com.example.automechapp.database.DatabaseInfo.STANDARD_COMMENT;
-import static com.example.automechapp.database.DatabaseInfo.STANDARD_DATE;
-import static com.example.automechapp.database.DatabaseInfo.STANDARD_DESCRIPTION;
-import static com.example.automechapp.database.DatabaseInfo.STANDARD_ID;
-import static com.example.automechapp.database.DatabaseInfo.STANDARD_PHOTO;
-import static com.example.automechapp.database.DatabaseInfo.WORK_PRICE;
+import static com.example.automechapp.database.DatabaseInfo.*;
 
 import android.content.Context;
 import android.database.Cursor;
@@ -36,40 +19,30 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Objects;
 
-public class GetBreakdowns extends Thread {
-    String table;
-    DatabaseInterface database;
-    String[] projection;
-    String selection;
-    String sortOrder;
-    Context context;
-    int id = -1;
+public class GetBreakdowns extends GetData<Breakdown> {
 
-    ArrayList<Breakdown> data = new ArrayList<>();
-
-    private GetBreakdowns(DatabaseInterface database, String selection, String sortOrder){
-        this.database = database;
-        this.selection = selection;
-        this.sortOrder = sortOrder;
-
-        this.table = BREAKDOWNS_TABLE;
-    }
+    private final DatabaseInterface database;
+    private final int id; // breakdown_id (если > -1 -> детальный режим)
 
     public GetBreakdowns(Context context, String selection, String sortOrder) {
-        this(new DatabaseInterface(context), selection, sortOrder);
-        this.context = context;
+        this(context, selection, sortOrder, -1);
     }
 
     public GetBreakdowns(Context context, String selection, String sortOrder, int id) {
-        this(context, selection, sortOrder);
+        super(
+                context,
+                BREAKDOWNS_TABLE,
+                buildBreakdownProjection(id > -1),
+                selection,
+                sortOrder
+        );
+        this.database = new DatabaseInterface(context);
         this.id = id;
     }
 
-
-    @Override
-    public void run(){
-        if (id > -1) {
-            projection = new String[] {
+    private static String[] buildBreakdownProjection(boolean full) {
+        if (full) {
+            return new String[]{
                     BREAKDOWN_ID,
                     CAR_ID,
                     BREAKDOWN_NAME,
@@ -83,180 +56,176 @@ public class GetBreakdowns extends Thread {
                     BREAKDOWN_STATE
             };
         }
-        else {
-            projection = new String[] {
-                    BREAKDOWN_ID,
-                    CAR_ID,
-                    BREAKDOWN_NAME,
-                    BREAKDOWN_PHOTO,
-                    STANDARD_DATE,
-                    EDIT_TIME
-            };
-        }
+        return new String[]{
+                BREAKDOWN_ID,
+                CAR_ID,
+                BREAKDOWN_NAME,
+                BREAKDOWN_PHOTO,
+                STANDARD_DATE,
+                EDIT_TIME
+        };
+    }
 
-        GetData getData = database.getData(DatabaseInfo.BREAKDOWNS_TABLE, projection, selection, sortOrder);
+    @Override
+    public void run() {
+        database.getData(this);
 
+        Cursor cursor = null;
         try {
-            getData.join();
-            Cursor cursor = getData.getCursor();
-
-
+            cursor = getCursor();
             if (cursor == null) {
-                new Handler(Looper.getMainLooper()).post(() -> Toast.makeText(context, "ошибка", Toast.LENGTH_SHORT).show());
+                toastOnUi("ошибка");
                 return;
             }
 
-            int[] indexes = new int[] {
-                    cursor.getColumnIndex(BREAKDOWN_ID),
-                    cursor.getColumnIndex(CAR_ID),
-                    cursor.getColumnIndex(BREAKDOWN_NAME),
-                    cursor.getColumnIndex(BREAKDOWN_PHOTO),
-                    cursor.getColumnIndex(STANDARD_DATE),
-                    cursor.getColumnIndex(EDIT_TIME),
-                    cursor.getColumnIndex(WORK_PRICE),
-                    cursor.getColumnIndex(STANDARD_COMMENT),
-                    cursor.getColumnIndex(STANDARD_DESCRIPTION),
-                    cursor.getColumnIndex(BREAKDOWN_TYPE),
-                    cursor.getColumnIndex(BREAKDOWN_STATE)
+            // индексы
+            final int idxBreakdownId = cursor.getColumnIndex(BREAKDOWN_ID);
+            final int idxCarId = cursor.getColumnIndex(CAR_ID);
+            final int idxName = cursor.getColumnIndex(BREAKDOWN_NAME);
+            final int idxPhoto = cursor.getColumnIndex(BREAKDOWN_PHOTO);
+            final int idxDate = cursor.getColumnIndex(STANDARD_DATE);
+            final int idxEditTime = cursor.getColumnIndex(EDIT_TIME);
 
-            };
+            final int idxWorkPrice = cursor.getColumnIndex(WORK_PRICE);
+            final int idxComment = cursor.getColumnIndex(STANDARD_COMMENT);
+            final int idxDesc = cursor.getColumnIndex(STANDARD_DESCRIPTION);
+            final int idxType = cursor.getColumnIndex(BREAKDOWN_TYPE);
+            final int idxState = cursor.getColumnIndex(BREAKDOWN_STATE);
 
+            // ===== Детальный режим: одна поломка + фото =====
             if (id > -1) {
-                GetData getData1 = database.getData(
-                        BREAKDOWNS_PHOTOS_TABLE,
-                        new String[] {
-                                STANDARD_ID,
-                                STANDARD_PHOTO
-                        },
-                        BREAKDOWN_ID + " = '" + id + "'",
-                        STANDARD_DATE + " ASC"
-                );
-
-                Cursor photos_cursor;
-                ArrayList<Bitmap> photos = new ArrayList<Bitmap>();
-
-                try {
-                    getData1.join();
-                    photos_cursor = getData1.getCursor();
-                    int photoIndex = photos_cursor.getColumnIndex(STANDARD_PHOTO);
-
-                    while (photos_cursor.moveToNext()) {
-                        photos.add(ImageUtil.getByteArrayAsBitmap(
-                                photos_cursor.getBlob(photoIndex)
-                        ));
-                    }
-                }
-                catch (Exception e) {
-                    new Handler(Looper.getMainLooper()).post(() -> {
-                        e.printStackTrace();
-                        Toast.makeText(context, "Не удалось загрузить фото", Toast.LENGTH_SHORT).show();
-                    });
-                    return;
-                }
-
+                // Сначала читаем строку(и) из breakdowns
                 while (cursor.moveToNext()) {
+                    // ФОТО через общий класс (как в GetCars)
+                    GetAnyPhotos task = new GetAnyPhotos(context, id, BREAKDOWNS_PHOTOS_TABLE, BREAKDOWN_ID);
+                    task.run();
+                    ArrayList<Bitmap> photos = task.getPhotos();
+
                     data.add(new Breakdown(
-                            cursor.getInt(indexes[0]),
-                            cursor.getInt(indexes[1]),
-                            cursor.getString(indexes[2]),
-                            ImageUtil.getByteArrayAsBitmap(cursor.getBlob(indexes[3])),
-                            cursor.getString(indexes[4]),
-                            cursor.getString(indexes[5]),
-                            cursor.getInt(indexes[6]),
-                            cursor.getString(indexes[7]),
-                            cursor.getString(indexes[8]),
-                            cursor.getInt(indexes[9]),
-                            cursor.getInt(indexes[10]),
+                            cursor.getInt(idxBreakdownId),
+                            cursor.getInt(idxCarId),
+                            cursor.getString(idxName),
+                            ImageUtil.getByteArrayAsBitmap(cursor.getBlob(idxPhoto)),
+                            cursor.getString(idxDate),
+                            cursor.getString(idxEditTime),
+                            cursor.getInt(idxWorkPrice),
+                            cursor.getString(idxComment),
+                            cursor.getString(idxDesc),
+                            cursor.getInt(idxType),
+                            cursor.getInt(idxState),
                             photos
                     ));
                 }
+
+                return;
             }
-            else {
-                HashSet<String> ids = new HashSet<>();
 
-                while (cursor.moveToNext()) {
-                    data.add(new Breakdown(
-                            cursor.getInt(indexes[0]),
-                            cursor.getInt(indexes[1]),
-                            cursor.getString(indexes[2]),
-                            ImageUtil.getByteArrayAsBitmap(cursor.getBlob(indexes[3])),
-                            cursor.getString(indexes[4]),
-                            cursor.getString(indexes[5]),
-                            "",
-                            ""
-                    ));
+            // ===== Списочный режим: поломки + дозагрузка марки/модели авто =====
+            HashSet<Integer> carIds = new HashSet<>();
 
-                    ids.add(cursor.getString(indexes[1]));
-                }
+            while (cursor.moveToNext()) {
+                int carId = cursor.getInt(idxCarId);
 
-                if (ids.size() > 0) {
-                    // Закрываем курсор, которым мы тянули поломки.
-                    cursor.close();
+                data.add(new Breakdown(
+                        cursor.getInt(idxBreakdownId),
+                        carId,
+                        cursor.getString(idxName),
+                        ImageUtil.getByteArrayAsBitmap(cursor.getBlob(idxPhoto)),
+                        cursor.getString(idxDate),
+                        cursor.getString(idxEditTime),
+                        "",
+                        ""
+                ));
 
-                    String selection = CAR_ID + " in (" + String.join(", ", ids) + ")";
-                    GetData getCars = database.getData(
-                            CARS_TABLE,
-                            new String[] {
-                                CAR_ID,
-                                CAR_MANUFACTURE,
-                                CAR_MODEL
-                            },
-                            selection,
-                            CAR_ID + " DESC"
-                    );
+                if (carId > 0) carIds.add(carId);
+            }
 
-                    getCars.join();
+            // закрываем cursor с поломками до второго запроса
+            cursor.close();
+            cursor = null;
 
-                    cursor = getCars.getCursor();
+            if (!carIds.isEmpty()) {
+                HashMap<Integer, String[]> carsMap = loadCarsManufactureModel(carIds);
 
-                    if (cursor == null) {
-                        new Handler(Looper.getMainLooper()).post(() -> Toast.makeText(context, "ошибка при дозагрузке авто", Toast.LENGTH_SHORT).show());
-                        return;
-                    }
-
-                    HashMap<Integer, String[]> cars = new HashMap<>();
-                    int[] car_indexes = new int[] {
-                        cursor.getColumnIndex(CAR_ID),
-                        cursor.getColumnIndex(CAR_MANUFACTURE),
-                        cursor.getColumnIndex(CAR_MODEL)
-                    };
-
-                    while (cursor.moveToNext()) {
-                        cars.put(
-                            cursor.getInt(car_indexes[0]),
-                            new String[]{
-                                cursor.getString(car_indexes[1]),
-                                cursor.getString(car_indexes[2])
-                            }
-                        );
-                    }
-
-                    if (cars.size() != 0) {
-                        for (Breakdown breakdown : data) {
-                            int id = breakdown.getCar_id();
-                            if (id > 0) {
-                                try {
-                                    breakdown.setManufacture(Objects.requireNonNull(cars.get(id))[0]);
-                                    breakdown.setModel(Objects.requireNonNull(cars.get(id))[1]);
-                                }
-                                catch (Exception e) {
-                                    Log.d(MainActivity.TAG, e.toString());
-                                }
+                if (!carsMap.isEmpty()) {
+                    for (Breakdown b : data) {
+                        int carId = b.getCar_id();
+                        if (carId > 0) {
+                            try {
+                                b.setManufacture(Objects.requireNonNull(carsMap.get(carId))[0]);
+                                b.setModel(Objects.requireNonNull(carsMap.get(carId))[1]);
+                            } catch (Exception e) {
+                                Log.d(MainActivity.TAG, e.toString());
                             }
                         }
                     }
-
                 }
             }
-            cursor.close();
-            getData.close();
-        } catch (InterruptedException e) {
-            getData.close();
+
+        } catch (Exception e) {
             e.printStackTrace();
+        } finally {
+            if (cursor != null) cursor.close();
+            close();
         }
     }
 
-    public ArrayList<Breakdown> getData() {
-        return data;
+    private HashMap<Integer, String[]> loadCarsManufactureModel(HashSet<Integer> ids) {
+        HashMap<Integer, String[]> cars = new HashMap<>();
+
+        GetData<Void> getCars = new GetData<>(
+                context,
+                CARS_TABLE,
+                new String[]{CAR_ID, CAR_MANUFACTURE, CAR_MODEL},
+                CAR_ID + " in (" + joinInts(ids) + ")",
+                CAR_ID + " DESC"
+        );
+
+        database.getData(getCars);
+
+        Cursor c = null;
+        try {
+            c = getCars.getCursor();
+            if (c == null) {
+                toastOnUi("ошибка при дозагрузке авто");
+                return cars;
+            }
+
+            int idxId = c.getColumnIndex(CAR_ID);
+            int idxMan = c.getColumnIndex(CAR_MANUFACTURE);
+            int idxModel = c.getColumnIndex(CAR_MODEL);
+
+            while (c.moveToNext()) {
+                cars.put(
+                        c.getInt(idxId),
+                        new String[]{c.getString(idxMan), c.getString(idxModel)}
+                );
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (c != null) c.close();
+            getCars.close();
+        }
+
+        return cars;
+    }
+
+    private static String joinInts(HashSet<Integer> ids) {
+        StringBuilder sb = new StringBuilder();
+        boolean first = true;
+        for (Integer id : ids) {
+            if (id == null) continue;
+            if (!first) sb.append(", ");
+            sb.append(id);
+            first = false;
+        }
+        return sb.toString();
+    }
+
+    private void toastOnUi(String msg) {
+        new Handler(Looper.getMainLooper()).post(
+                () -> Toast.makeText(context, msg, Toast.LENGTH_SHORT).show()
+        );
     }
 }

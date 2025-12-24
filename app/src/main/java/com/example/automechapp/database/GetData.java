@@ -11,28 +11,34 @@ import android.widget.Toast;
 
 import com.example.automechapp.MainActivity;
 import com.example.automechapp.car.CarActivity;
+import com.example.automechapp.owner.Owner;
 
-public class GetData extends Thread {
+import java.util.ArrayList;
+
+public class GetData<T> extends Thread {
     String table;
     SQLiteDatabase db;
     String[] projection;
     String selection;
     String sortOrder;
-    private Cursor cursor = null;
+    Context context;
+    final ArrayList<T> data = new ArrayList<>();
 
-    public GetData(SQLiteDatabase db, String table, String[] projection, String selection, String sortOrder) {
-        this.db = db;
+    public GetData(Context ctx, String table, String[] projection, String selection, String sortOrder) {
+        this.context = ctx;
         this.table = table;
         this.projection = projection;
         this.selection = selection;
         this.sortOrder = sortOrder;
     }
 
-    @SuppressLint("Recycle")
-    @Override
-    public void run() {
+    public void moveDb(SQLiteDatabase db) {
+        this.db = db;
+    }
+
+    public Cursor getCursor() {
         try {
-            cursor = db.query(
+            return db.query(
                     table,
                     projection,
                     selection,
@@ -54,16 +60,16 @@ public class GetData extends Thread {
                         "Не удалось получить данные", Toast.LENGTH_SHORT);
                 toast.show();
             });
-
         }
-    }
-
-    public Cursor getCursor() {
-        return cursor;
+        return null;
     }
 
     public void close() {
         if (db != null)
             db.close();
+    }
+
+    public ArrayList<T> getData() {
+        return data;
     }
 }

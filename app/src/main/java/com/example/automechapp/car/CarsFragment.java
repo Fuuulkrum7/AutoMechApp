@@ -115,7 +115,7 @@ public class CarsFragment extends Fragment {
             try {
                 GetOwners getOwners = new GetOwners(getContext(), null);
                 getOwners.run();
-                ownersCount = getOwners.getOwnersList().size();
+                ownersCount = getOwners.getData().size();
             } catch (Exception e) {
                 e.printStackTrace();
             }

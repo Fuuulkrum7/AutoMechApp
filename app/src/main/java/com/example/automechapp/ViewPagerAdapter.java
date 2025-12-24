@@ -42,6 +42,9 @@ public class ViewPagerAdapter extends RecyclerView.Adapter<ViewPagerAdapter.View
     }
 
     public void setImages(ArrayList<Bitmap> images) {
+        if (images == null) {
+            return;
+        }
         this.images = new ArrayList<SliderItem>();
         for (Bitmap b: images) {
             this.images.add(new SliderItem(b));

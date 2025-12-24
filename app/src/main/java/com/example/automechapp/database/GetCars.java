@@ -16,35 +16,29 @@ import com.example.automechapp.car.Car;
 
 import java.util.ArrayList;
 
-public class GetCars extends Thread {
+public class GetCars extends GetData<Car> {
     DatabaseInterface database;
-    String[] projection;
-    String selection;
-    String sortOrder;
-    ArrayList<Car> data = new ArrayList<Car>();
-    Context context;
     int id = -1;
 
-    public GetCars(DatabaseInterface database, String selection, String sortOrder){
-        this.database = database;
-        this.selection = selection;
-        this.sortOrder = sortOrder;
-    }
-
-    public GetCars(Context context, String selection, String sortOrder) {
-        this(new DatabaseInterface(context), selection, sortOrder);
-        this.context = context;
-    }
-
-    public GetCars(Context context, String selection, String sortOrder, int id) {
-        this(context, selection, sortOrder);
+    public GetCars(Context context, String selection, String sortOrder, int id){
+        super(
+                context,
+                DatabaseInfo.CARS_TABLE,
+                buildCarProjection(id > -1),
+                selection,
+                sortOrder
+        );
+        this.database = new DatabaseInterface(context);
         this.id = id;
     }
 
-    @Override
-    public void run(){
-        if (id > -1) {
-            projection = new String[]{
+    public GetCars(Context context, String selection, String sortOrder) {
+        this(context, selection, sortOrder, -1);
+    }
+
+    private static String[] buildCarProjection(boolean full) {
+        if (full) {
+            return new String[]{
                     DatabaseInfo.CAR_ID,
                     DatabaseInfo.OWNER_ID,
                     DatabaseInfo.CAR_MODEL,
@@ -64,25 +58,26 @@ public class GetCars extends Thread {
                     DatabaseInfo.HORSEPOWER
             };
         }
-        else {
-            projection = new String[]{
-                    DatabaseInfo.CAR_NAME,
-                    DatabaseInfo.CAR_MANUFACTURE,
-                    DatabaseInfo.CAR_MODEL,
-                    DatabaseInfo.CAR_ID,
-                    DatabaseInfo.CAR_PHOTO,
-                    DatabaseInfo.OWNER_ID
-            };
-        }
 
-        GetData getData = database.getData(DatabaseInfo.CARS_TABLE, projection, selection, sortOrder);
+        return new String[]{
+                DatabaseInfo.CAR_NAME,
+                DatabaseInfo.CAR_MANUFACTURE,
+                DatabaseInfo.CAR_MODEL,
+                DatabaseInfo.CAR_ID,
+                DatabaseInfo.CAR_PHOTO,
+                DatabaseInfo.OWNER_ID
+        };
+    }
+
+
+    @Override
+    public void run(){
+        database.getData(this);
         try {
-            getData.join();
-            Cursor cursor = getData.getCursor();
-
-
+            Cursor cursor = getCursor();
             if (cursor == null) {
-                new Handler(Looper.getMainLooper()).post(() -> Toast.makeText(context, "ошибка", Toast.LENGTH_SHORT).show());
+                new Handler(Looper.getMainLooper()).post(
+                        () -> Toast.makeText(context, "ошибка", Toast.LENGTH_SHORT).show());
                 return;
             }
 
@@ -107,40 +102,9 @@ public class GetCars extends Thread {
             };
 
             if (id > -1) {
-                GetData getData1 = database.getData(
-                        CAR_PHOTOS_TABLE,
-                        new String[] {
-                                STANDARD_ID,
-                                STANDARD_PHOTO
-                        },
-                        CAR_ID + " = '" + id + "'",
-                        STANDARD_DATE + " ASC"
-                );
-
-                Cursor photos_cursor;
-                ArrayList<Bitmap> photos = new ArrayList<Bitmap>();
-
-                try {
-                    getData1.join();
-                    photos_cursor = getData1.getCursor();
-                    int photoIndex = photos_cursor.getColumnIndex(STANDARD_PHOTO);
-
-                    while (photos_cursor.moveToNext()) {
-                        photos.add(ImageUtil.getByteArrayAsBitmap(
-                                photos_cursor.getBlob(photoIndex)
-                        ));
-                    }
-                }
-                catch (Exception e) {
-                    new Handler(Looper.getMainLooper()).post(new Runnable() {
-                        @Override
-                        public void run() {
-                            e.printStackTrace();
-                            Toast.makeText(context, "Не удалось загрузить фото", Toast.LENGTH_SHORT).show();
-                        }
-                    });
-                    return;
-                }
+                GetAnyPhotos task = new GetAnyPhotos(context, id, CAR_PHOTOS_TABLE, CAR_ID);
+                task.run();
+                ArrayList<Bitmap> photos = task.getPhotos();
 
                 while (cursor.moveToNext()) {
                     data.add(new Car(
@@ -176,15 +140,10 @@ public class GetCars extends Thread {
                 }
             }
             cursor.close();
-            getData.close();
+            close();
         }
         catch (Exception e) {
-            if (getData != null)
-                getData.close();
+            close();
         }
-    }
-
-    public ArrayList<Car> getData() {
-        return data;
     }
 }

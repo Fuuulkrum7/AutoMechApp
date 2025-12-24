@@ -64,12 +64,8 @@ public class DatabaseInterface extends SQLiteOpenHelper {
     }
 
     // Получение данных из бд
-    public GetData getData(String table, String[] projection, String selection, String sortOrder) {
-        SQLiteDatabase db = getReadableDatabase();
-        GetData getData = new GetData(db, table, projection, selection, sortOrder);
-        getData.start();
-
-        return getData;
+    public void getData(GetData<?> conn) {
+        conn.moveDb(getReadableDatabase());
     }
 
     public void deleteData(String table, String[] projection, String selection) {
