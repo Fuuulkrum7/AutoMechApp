@@ -1,0 +1,122 @@
+@startuml
+title AutoMechApp.db — ERD (SQLite)
+
+hide circle
+skinparam linetype ortho
+skinparam shadowing false
+skinparam packageStyle rectangle
+
+' ===== Tables =====
+entity "owner" as owner {
+  * owner_id : INTEGER <<PK>>
+  --
+  username : TEXT
+  surname : TEXT
+  patronymic : TEXT
+  DOB : NUMERIC
+  driver_license : INTEGER
+  region : TEXT
+  issuing_region : TEXT
+  categories : TEXT
+  passport_series : INTEGER
+  passport_number : INTEGER
+}
+
+entity "cars" as cars {
+  * car_id : INTEGER <<PK>>
+  --
+  owner_id : INTEGER <<FK>>
+  car_name : TEXT
+  car_year : INTEGER
+  car_manufacture : TEXT
+  car_model : TEXT
+  car_price : INTEGER
+  car_photo : BLOB
+  tax : INTEGER
+  color : TEXT
+  VIN : TEXT
+  state_car_number : INTEGER
+  horsepower : INTEGER
+  engine_number : TEXT
+  engine_model : TEXT
+  date : NUMERIC
+  engine_volume : REAL
+}
+
+entity "breakdowns" as breakdowns {
+  * breakdown_id : INTEGER <<PK>>
+  --
+  car_id : INTEGER <<FK>>
+  breakdown_name : TEXT
+  work_price : REAL
+  date : NUMERIC
+  edit_time : NUMERIC
+  comment : TEXT
+  description : TEXT
+  breakdown_photo : BLOB
+  type : INTEGER
+  breakdown_state : INTEGER
+}
+
+entity "details" as details {
+  * ID : INTEGER <<PK>>
+  --
+  breakdown_id : INTEGER <<FK>>
+  detail_price : REAL
+  comment : TEXT
+  description : TEXT
+  date : NUMERIC
+  detail_manufacture : TEXT
+  detail_model : TEXT
+  detail_number : TEXT
+}
+
+entity "car_photos" as car_photos {
+  * ID : INTEGER <<PK>>
+  --
+  car_id : INTEGER <<FK>>
+  photo : BLOB
+  date : NUMERIC
+}
+
+entity "breakdowns_photos" as breakdowns_photos {
+  * ID : INTEGER <<PK>>
+  --
+  breakdown_id : INTEGER <<FK>>
+  photo : BLOB
+  description : STRING
+  date : NUMERIC
+}
+
+entity "details_photos" as details_photos {
+  * ID : INTEGER <<PK>>
+  --
+  car_id : INTEGER <<FK>>
+  photo : BLOB
+  date : NUMERIC
+}
+
+entity "documents" as documents {
+  * ID : INTEGER <<PK>>
+  --
+  car_id : INTEGER <<FK>>
+  photo : BLOB
+  date : NUMERIC
+}
+
+' ===== Relationships (inferred) =====
+owner ||--o{ cars : owner_id
+cars  ||--o{ breakdowns : car_id
+breakdowns ||--o{ details : breakdown_id
+
+cars ||--o{ car_photos : car_id
+breakdowns ||--o{ breakdowns_photos : breakdown_id
+
+cars ||--o{ details_photos : car_id
+cars ||--o{ documents : car_id
+
+note right of details_photos
+В доработке
+end note
+
+@enduml

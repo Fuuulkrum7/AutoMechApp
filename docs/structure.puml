@@ -1,0 +1,68 @@
+@startuml
+title AutoMechApp — Structural layers
+
+skinparam shadowing false
+skinparam linetype ortho
+skinparam packageStyle rectangle
+top to bottom direction
+
+package "UI Root" {
+  [MainActivity]
+}
+
+package "UI Fragments" {
+  [OwnersFragment]
+  [CarsFragment]
+  [BreakdownsFragment]
+  [StatsFragment]
+}
+
+package "Domain Objects" {
+  [Owner]
+  [Car]
+  [Breakdown]
+  [Stats]
+}
+
+package "DB Operations" {
+  component "CRUD operations\n(create / read / update / delete)" as CRUD
+}
+
+package "Database Access" {
+  [DatabaseInterface]
+}
+
+database "SQLite DB\nAutoMechApp.db" as DB
+
+' --- UI navigation ---
+[MainActivity] --> [OwnersFragment]
+[MainActivity] --> [CarsFragment]
+[MainActivity] --> [BreakdownsFragment]
+[MainActivity] --> [StatsFragment]
+
+' --- Fragments → objects ---
+[OwnersFragment] --> [Owner]
+[CarsFragment] --> [Car]
+[BreakdownsFragment] --> [Breakdown]
+[StatsFragment] --> [Stats]
+
+' --- Business hierarchy ---
+[Owner] --> [Car] : 1..n
+[Car] --> [Breakdown] : 1..m
+
+note right of [Owner]
+Порядок создания:
+Owner → Car → Breakdown
+end note
+
+' --- Objects → DB operations ---
+[Owner] --> CRUD
+[Car] --> CRUD
+[Breakdown] --> CRUD
+[Stats] --> CRUD
+
+' --- DB flow ---
+CRUD --> [DatabaseInterface]
+[DatabaseInterface] --> DB
+
+@enduml
