@@ -1,6 +1,7 @@
 package com.example.automechapp.breakdown;
 
 import android.graphics.Bitmap;
+import android.util.Log;
 
 import java.util.ArrayList;
 

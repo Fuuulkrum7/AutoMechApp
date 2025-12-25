@@ -72,53 +72,43 @@ public class CarsFragment extends Fragment {
     }
 
     private void loadCarsAsync() {
-        new Thread(() -> {
-            try {
-                GetCars getCars = new GetCars(
-                        getContext(),
-                        null,
-                        DatabaseInfo.STANDARD_DATE + " DESC"
-                );
-
-                // не плодим потоки: выполняем запрос в этом фоне
-                getCars.run();
+        try {
+            GetCars getCars = new GetCars(
+                    getContext(),
+                    null,
+                    DatabaseInfo.STANDARD_DATE + " DESC"
+            );
+            getCars.setRunnable(() -> {
                 ArrayList<Car> data = getCars.getData();
+                if (!isAdded() || carsView == null) return;
 
-                new Handler(Looper.getMainLooper()).post(() -> {
+                cars = (data != null) ? data : new ArrayList<>();
+
+                CarsAdapter adapter = new CarsAdapter(requireContext(), cars);
+
+                // на следующий кадр, меньше микрофризов
+                carsView.post(() -> {
                     if (!isAdded() || carsView == null) return;
-
-                    cars = (data != null) ? data : new ArrayList<>();
-
-                    CarsAdapter adapter = new CarsAdapter(requireContext(), cars);
-
-                    // на следующий кадр, меньше микрофризов
-                    carsView.post(() -> {
-                        if (!isAdded() || carsView == null) return;
-                        carsView.setAdapter(adapter);
-                        showLoading(false);
-                    });
-                });
-
-            } catch (Exception e) {
-                e.printStackTrace();
-                new Handler(Looper.getMainLooper()).post(() -> {
-                    if (!isAdded()) return;
+                    carsView.setAdapter(adapter);
                     showLoading(false);
-                    Toast.makeText(getContext(), "Не удалось загрузить автомобили", Toast.LENGTH_SHORT).show();
                 });
-            }
-        }).start();
+            });
+            // не плодим потоки: выполняем запрос в этом фоне
+            getCars.start();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            new Handler(Looper.getMainLooper()).post(() -> {
+                if (!isAdded()) return;
+                showLoading(false);
+                Toast.makeText(getContext(), "Не удалось загрузить автомобили", Toast.LENGTH_SHORT).show();
+            });
+        }
     }
 
     private void loadOwnersCountAsync() {
-        new Thread(() -> {
-            try {
-                GetOwners getOwners = new GetOwners(getContext(), null);
-                getOwners.run();
-                ownersCount = getOwners.getData().size();
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }).start();
+        GetOwners getOwners = new GetOwners(getContext(), null);
+        getOwners.setRunnable(() -> {ownersCount = getOwners.getData().size();});
+        getOwners.start();
     }
 }

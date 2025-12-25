@@ -6,6 +6,13 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.os.Handler;
+import android.os.Looper;
+import android.util.Log;
+import android.widget.Toast;
+
+import com.example.automechapp.MainActivity;
+import com.example.automechapp.car.CarActivity;
 
 import java.util.Arrays;
 
@@ -55,12 +62,21 @@ public class DatabaseInterface extends SQLiteOpenHelper {
     }
 
     // Метод добавления данных в бд
-    public AddData addData(ContentValues values, String table){
-        SQLiteDatabase database = getWritableDatabase();
-        AddData add_data = new AddData(values, database, table);
-        add_data.start();
+    public long addData(ContentValues values, String table){
+        SQLiteDatabase db = getWritableDatabase();
+        // Добавляем в бд
+        try {
+            return db.insert(table, null, values);
+        }
+        // Если что-то пошло не так, то вот
+        catch (Exception e) {
+            Log.d("TEST", e.toString());
+            Toast toast = Toast.makeText(MainActivity.getContext(),
+                    "Не удалось добавить данные", Toast.LENGTH_SHORT);
 
-        return add_data;
+            toast.show();
+        }
+        return 0;
     }
 
     // Получение данных из бд
@@ -70,14 +86,50 @@ public class DatabaseInterface extends SQLiteOpenHelper {
 
     public void deleteData(String table, String[] projection, String selection) {
         SQLiteDatabase db = getReadableDatabase();
-        DeleteData deleteData = new DeleteData(db, table, projection, selection);
-        deleteData.start();
+        try {
+            db.delete(
+                    table,
+                    selection,
+                    projection
+            );
+        } catch (Exception e) {
+            // Если что-то пошло не так
+            Log.d(MainActivity.TAG, e.toString());
+
+            new Handler(Looper.getMainLooper()).post(() -> {
+                Context context = MainActivity.getContext();
+                if (context == null) {
+                    context = CarActivity.getContext();
+                }
+                Toast toast = Toast.makeText(context,
+                        "Не удалось удалить данные", Toast.LENGTH_SHORT);
+                toast.show();
+            });
+        }
     }
 
     public void UpdateData(String table, ContentValues values, String[] whereArgs, String whereClause) {
         SQLiteDatabase db = getReadableDatabase();
-        UpdateData updateData = new UpdateData(db, table, values, whereArgs, whereClause);
+        try {
+            db.update(
+                    table,
+                    values,
+                    whereClause,
+                    whereArgs
+            );
+        } catch (Exception e) {
+            // Если что-то пошло не так
+            Log.d(MainActivity.TAG, e.toString());
 
-        updateData.start();
+            new Handler(Looper.getMainLooper()).post(() -> {
+                Context context = MainActivity.getContext();
+                if (context == null) {
+                    context = CarActivity.getContext();
+                }
+                Toast toast = Toast.makeText(context,
+                        "Не удалось обновить данные", Toast.LENGTH_SHORT);
+                toast.show();
+            });
+        }
     }
 }

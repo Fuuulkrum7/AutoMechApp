@@ -41,7 +41,7 @@ public class CarSpinnerAdapter extends ArrayAdapter<Car> {
 
         LayoutInflater inflater = LayoutInflater.from(getContext());
         View row = inflater.inflate(R.layout.spinner_dropdown_item, parent, false);
-        TextView label = (TextView) row.findViewById(R.id.username_spinner);
+        TextView label = row.findViewById(R.id.username_spinner);
         label.setText(s.get(position).getCarText());
 
         return row;

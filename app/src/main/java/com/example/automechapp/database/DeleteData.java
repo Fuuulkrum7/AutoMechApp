@@ -47,7 +47,6 @@ public class DeleteData extends Thread {
                         "Не удалось удалить данные", Toast.LENGTH_SHORT);
                 toast.show();
             });
-
         }
     }
 }

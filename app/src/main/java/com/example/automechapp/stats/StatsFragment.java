@@ -119,16 +119,8 @@ public class StatsFragment extends Fragment {
     private void loadDbStatsAsync() {
         if (getContext() == null) return;
 
-        Thread t = new Thread(() -> {
-            GetStats gs = new GetStats(getContext());
-            gs.start();
-            try {
-                gs.join();
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                return;
-            }
-
+        GetStats gs = new GetStats(getContext());
+        gs.setRunnable(() -> {
             Stats dbStats = gs.getStats();
             if (dbStats == null) return;
 
@@ -150,7 +142,7 @@ public class StatsFragment extends Fragment {
                 requireActivity().runOnUiThread(this::renderAll);
             }
         });
-        t.start();
+        gs.start();
     }
 
     private void renderAll() {

@@ -152,11 +152,20 @@ public class OwnerActivity extends AppCompatActivity {
             Toast.makeText(this, "Введите данные", Toast.LENGTH_SHORT).show();
             return;
         }
-        DatabaseInterface databaseInterface = new DatabaseInterface(this);
-        databaseInterface.addData(
-                contentValues,
-                DatabaseInfo.OWNERS_TABLE
-        );
+
+        Context ctx = getApplicationContext();
+        Thread thread = new Thread(() -> {
+            try {
+                DatabaseInterface databaseInterface = new DatabaseInterface(ctx);
+                databaseInterface.addData(
+                        contentValues,
+                        DatabaseInfo.OWNERS_TABLE
+                );
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+        thread.start();
         disableText();
     }
 }

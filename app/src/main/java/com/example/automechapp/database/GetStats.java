@@ -5,6 +5,8 @@ import static com.example.automechapp.database.DatabaseInfo.*;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.os.Handler;
+import android.os.Looper;
 
 import com.example.automechapp.breakdown.BreakdownStates;
 import com.example.automechapp.stats.Stats;
@@ -14,9 +16,22 @@ import java.util.Calendar;
 public class GetStats extends Thread {
     private final Context context;
     private Stats stats;
+    private Runnable onDone;
 
     public GetStats(Context context) {
         this.context = context;
+    }
+
+    public void setRunnable(Runnable onDone) {
+        this.onDone = onDone;
+    }
+
+    void onFinish() {
+        if (onDone == null) {
+            return;
+        }
+        Handler handler = new Handler(Looper.getMainLooper());
+        handler.post(onDone);
     }
 
     @Override

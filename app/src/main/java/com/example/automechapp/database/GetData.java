@@ -23,6 +23,7 @@ public class GetData<T> extends Thread {
     String sortOrder;
     Context context;
     final ArrayList<T> data = new ArrayList<>();
+    Runnable onDone = null;
 
     public GetData(Context ctx, String table, String[] projection, String selection, String sortOrder) {
         this.context = ctx;
@@ -34,6 +35,18 @@ public class GetData<T> extends Thread {
 
     public void moveDb(SQLiteDatabase db) {
         this.db = db;
+    }
+
+    public void setRunnable(Runnable onDone) {
+        this.onDone = onDone;
+    }
+
+    void onFinish() {
+        if (onDone == null) {
+            return;
+        }
+        Handler handler = new Handler(Looper.getMainLooper());
+        handler.post(onDone);
     }
 
     public Cursor getCursor() {

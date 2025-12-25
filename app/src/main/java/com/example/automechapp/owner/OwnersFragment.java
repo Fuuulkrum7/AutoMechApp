@@ -59,33 +59,27 @@ public class OwnersFragment extends Fragment {
 
     private void setInitialData() {
         showLoading(true);
-
-        new Thread(() -> {
-            try {
-                GetOwners getOwners = new GetOwners(getContext(), null);
-                getOwners.run();
+        try {
+            GetOwners getOwners = new GetOwners(getContext(), null);
+            getOwners.setRunnable(() -> {
                 ArrayList<Owner> data = getOwners.getData();
+                if (!isAdded() || ownersView == null) return;
 
-                new Handler(Looper.getMainLooper()).post(() -> {
+                owners = (data != null) ? data : new ArrayList<>();
+                OwnersAdapter adapter = new OwnersAdapter(requireContext(), owners);
+                ownersView.post(() -> {
                     if (!isAdded() || ownersView == null) return;
-
-                    owners = (data != null) ? data : new ArrayList<>();
-
-                    OwnersAdapter adapter = new OwnersAdapter(requireContext(), owners);
-
-                    ownersView.post(() -> {
-                        if (!isAdded() || ownersView == null) return;
-                        ownersView.setAdapter(adapter);
-                        showLoading(false);
-                    });
-                });
-            } catch (Exception e) {
-                e.printStackTrace();
-                new Handler(Looper.getMainLooper()).post(() -> {
-                    if (!isAdded()) return;
+                    ownersView.setAdapter(adapter);
                     showLoading(false);
                 });
-            }
-        }).start();
+            });
+            getOwners.start();
+        } catch (Exception e) {
+            e.printStackTrace();
+            new Handler(Looper.getMainLooper()).post(() -> {
+                if (!isAdded()) return;
+                showLoading(false);
+            });
+        }
     }
 }

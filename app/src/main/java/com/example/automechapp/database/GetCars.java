@@ -141,6 +141,7 @@ public class GetCars extends GetData<Car> {
             }
             cursor.close();
             close();
+            onFinish();
         }
         catch (Exception e) {
             close();

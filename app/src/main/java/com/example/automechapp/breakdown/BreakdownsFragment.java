@@ -68,62 +68,56 @@ public class BreakdownsFragment extends Fragment {
     }
 
     private void loadBreakdownsAsync() {
-        new Thread(() -> {
-            try {
-                GetBreakdowns getBreakdowns = new GetBreakdowns(
-                        getContext(),
-                        null,
-                        DatabaseInfo.EDIT_TIME + " DESC"
-                );
-
-                getBreakdowns.run();
+        try {
+            GetBreakdowns getBreakdowns = new GetBreakdowns(
+                    getContext(),
+                    null,
+                    DatabaseInfo.EDIT_TIME + " DESC"
+            );
+            getBreakdowns.setRunnable(() -> {
                 ArrayList<Breakdown> data = getBreakdowns.getData();
+                if (!isAdded() || breakdownsView == null) return;
 
-                new Handler(Looper.getMainLooper()).post(() -> {
+                breakdowns = (data != null) ? data : new ArrayList<>();
+
+                BreakdownsAdapter adapter = new BreakdownsAdapter(requireContext(), breakdowns);
+
+                breakdownsView.post(() -> {
                     if (!isAdded() || breakdownsView == null) return;
-
-                    breakdowns = (data != null) ? data : new ArrayList<>();
-
-                    BreakdownsAdapter adapter = new BreakdownsAdapter(requireContext(), breakdowns);
-
-                    breakdownsView.post(() -> {
-                        if (!isAdded() || breakdownsView == null) return;
-                        breakdownsView.setAdapter(adapter);
-                        showLoading(false);
-                    });
-                });
-
-            } catch (Exception e) {
-                e.printStackTrace();
-                new Handler(Looper.getMainLooper()).post(() -> {
-                    if (!isAdded()) return;
+                    breakdownsView.setAdapter(adapter);
                     showLoading(false);
-                    Toast.makeText(getContext(), "Не удалось загрузить поломки", Toast.LENGTH_SHORT).show();
                 });
-            }
-        }).start();
+            });
+            getBreakdowns.start();
+        } catch (Exception e) {
+            e.printStackTrace();
+            new Handler(Looper.getMainLooper()).post(() -> {
+                if (!isAdded()) return;
+                showLoading(false);
+                Toast.makeText(getContext(), "Не удалось загрузить поломки", Toast.LENGTH_SHORT).show();
+            });
+        }
     }
 
     private void loadCarsCountAsync() {
-        new Thread(() -> {
-            try {
-                GetCars getCars = new GetCars(
-                        getContext(),
-                        null,
-                        DatabaseInfo.STANDARD_DATE + " DESC"
-                );
-
-                getCars.run();
+        try {
+            GetCars getCars = new GetCars(
+                    getContext(),
+                    null,
+                    DatabaseInfo.STANDARD_DATE + " DESC"
+            );
+            getCars.setRunnable(() -> {
                 ArrayList<Car> cars = getCars.getData();
                 carsCount = (cars == null) ? 0 : cars.size();
+            });
+            getCars.start();
 
-            } catch (Exception e) {
-                e.printStackTrace();
-                new Handler(Looper.getMainLooper()).post(() -> {
-                    if (!isAdded()) return;
-                    Toast.makeText(getContext(), "Не удалось проверить авто", Toast.LENGTH_SHORT).show();
-                });
-            }
-        }).start();
+        } catch (Exception e) {
+            e.printStackTrace();
+            new Handler(Looper.getMainLooper()).post(() -> {
+                if (!isAdded()) return;
+                Toast.makeText(getContext(), "Не удалось проверить авто", Toast.LENGTH_SHORT).show();
+            });
+        }
     }
 }

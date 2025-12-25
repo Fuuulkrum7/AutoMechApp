@@ -116,7 +116,7 @@ public class GetBreakdowns extends GetData<Breakdown> {
                             photos
                     ));
                 }
-
+                onFinish();
                 return;
             }
 
@@ -161,7 +161,7 @@ public class GetBreakdowns extends GetData<Breakdown> {
                     }
                 }
             }
-
+            onFinish();
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
@@ -183,9 +183,7 @@ public class GetBreakdowns extends GetData<Breakdown> {
 
         database.getData(getCars);
 
-        Cursor c = null;
-        try {
-            c = getCars.getCursor();
+        try (Cursor c = getCars.getCursor()) {
             if (c == null) {
                 toastOnUi("ошибка при дозагрузке авто");
                 return cars;
@@ -204,7 +202,6 @@ public class GetBreakdowns extends GetData<Breakdown> {
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-            if (c != null) c.close();
             getCars.close();
         }
 

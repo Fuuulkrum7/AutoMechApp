@@ -117,6 +117,11 @@ public class MainActivity extends AppCompatActivity {
         // сброс "спрятанного" состояния после HideBottomViewOnScrollBehavior
         fab.clearAnimation();
         fab.setTranslationY(0f);
+        if (code == R.id.nav_stats) {
+            fab.hide();
+        } else {
+            fab.show();
+        }
     }
 
     @Override

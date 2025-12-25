@@ -4,6 +4,7 @@ import static com.example.automechapp.database.DatabaseInfo.*;
 
 import android.content.Context;
 import android.database.Cursor;
+import android.util.Log;
 
 import com.example.automechapp.owner.Owner;
 
@@ -38,20 +39,19 @@ public class GetOwners extends GetData<Owner> {
         DatabaseInterface databaseInterface = new DatabaseInterface(context);
         databaseInterface.getData(this);
 
-        try {
-            Cursor cursor = getCursor();
-            int[] indexes = new int[] {
-                cursor.getColumnIndex(projection[0]),
-                cursor.getColumnIndex(projection[1]),
-                cursor.getColumnIndex(projection[2]),
-                cursor.getColumnIndex(projection[3]),
-                cursor.getColumnIndex(projection[4]),
-                cursor.getColumnIndex(projection[5]),
-                cursor.getColumnIndex(projection[6]),
-                cursor.getColumnIndex(projection[7]),
-                cursor.getColumnIndex(projection[8]),
-                cursor.getColumnIndex(projection[9]),
-                cursor.getColumnIndex(projection[10])
+        try (Cursor cursor = getCursor()) {
+            int[] indexes = new int[]{
+                    cursor.getColumnIndex(projection[0]),
+                    cursor.getColumnIndex(projection[1]),
+                    cursor.getColumnIndex(projection[2]),
+                    cursor.getColumnIndex(projection[3]),
+                    cursor.getColumnIndex(projection[4]),
+                    cursor.getColumnIndex(projection[5]),
+                    cursor.getColumnIndex(projection[6]),
+                    cursor.getColumnIndex(projection[7]),
+                    cursor.getColumnIndex(projection[8]),
+                    cursor.getColumnIndex(projection[9]),
+                    cursor.getColumnIndex(projection[10])
             };
 
             if (selection != null) {
@@ -63,8 +63,7 @@ public class GetOwners extends GetData<Owner> {
                             cursor.getInt(indexes[3])
                     ));
                 }
-            }
-            else {
+            } else {
                 while (cursor.moveToNext()) {
                     data.add(new Owner(
                             cursor.getInt(indexes[0]),
@@ -80,14 +79,14 @@ public class GetOwners extends GetData<Owner> {
                             cursor.getInt(indexes[10])
                     ));
                 }
-
             }
             cursor.close();
-            close();
-        }
-        catch (Exception e) {
-            close();
+            onFinish();
+        } catch (Exception e) {
+            Log.e("GET_OWNERS", "Get owners failed");
             e.printStackTrace();
+        } finally {
+            close();
         }
     }
 }

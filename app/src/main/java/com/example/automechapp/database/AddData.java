@@ -1,47 +1,64 @@
 package com.example.automechapp.database;
 
+import android.annotation.SuppressLint;
 import android.content.ContentValues;
+import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
-import android.util.Log;
-import android.widget.Toast;
+import android.graphics.Bitmap;
 
-import com.example.automechapp.MainActivity;
+import com.example.automechapp.camera_utils.ImageUtil;
+import com.example.automechapp.camera_utils.PhotoWorker;
+
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 
 public class AddData extends Thread {
+    private final PhotoWorker activity;
+    DatabaseInterface databaseInterface;
+    ContentValues contentValues;
+    String photoTable, tableID;
     // Данные, которые мы добавим в бд
     ContentValues values;
     // База данных
     SQLiteDatabase db;
     // Имя таблицы
     String tableName;
-    // Индекс полученного элемента
-    private long index;
 
-    // Сохраняем данные
-    AddData(ContentValues values, SQLiteDatabase db, String tableName) {
-        this.db = db;
+    AddData(PhotoWorker activity, Context context,
+             ContentValues values, String tableName,
+             String photoTable, String tableID) {
         this.values = values;
         this.tableName = tableName;
+        this.activity = activity;
+        this.databaseInterface = new DatabaseInterface(context);
+        this.photoTable = photoTable;
+        this.tableID = tableID;
     }
 
     @Override
     public void run() {
-        // Добавляем в бд
+        long index = databaseInterface.addData(values, tableName);
         try {
-            index = db.insert(tableName, null, values);
-        }
-        // Если что-то пошло не так, то вот
-        catch (Exception e) {
-            Log.d("TEST", e.toString());
-            Toast toast = Toast.makeText(MainActivity.getContext(),
-                    "Не удалось добавить данные", Toast.LENGTH_SHORT);
+            activity.setId((int) index);
 
-            toast.show();
-        }
-    }
+            for (Bitmap b : activity.bitmaps) {
+                byte[] photo = ImageUtil.getBitmapAsByteArray(b);
 
-    // Получаем индекс
-    public long getIndex () {
-        return index;
+                ContentValues contentValues = new ContentValues();
+
+                @SuppressLint("SimpleDateFormat") SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                Calendar c = Calendar.getInstance();
+                String date = sdf.format(c.getTime());
+
+                contentValues.put(DatabaseInfo.STANDARD_DATE, date);
+                contentValues.put(tableID, activity.getId());
+                contentValues.put(DatabaseInfo.STANDARD_PHOTO, photo);
+
+                databaseInterface.addData(contentValues, photoTable);
+            }
+            db.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

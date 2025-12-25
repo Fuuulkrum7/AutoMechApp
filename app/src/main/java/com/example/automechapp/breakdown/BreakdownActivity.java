@@ -14,6 +14,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
@@ -201,28 +202,19 @@ public class BreakdownActivity extends PhotoWorker {
 
             // TODO add data load
             save_button.setVisibility(View.INVISIBLE);
-            Thread thread = new Thread(() -> {
-                GetBreakdowns getBreakdowns = new GetBreakdowns(
-                        context,
-                        DatabaseInfo.BREAKDOWN_ID + " = '" + id + "'",
-                        null,
-                        id
-                );
-                getBreakdowns.start();
-
-                try {
-                    getBreakdowns.join();
-                    if (getBreakdowns.getData() != null) {
-                        Breakdown breakdown = getBreakdowns.getData().get(0);
-                        new Handler(Looper.getMainLooper()).post(() -> setData(breakdown));
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-                }
+            GetBreakdowns getBreakdowns = new GetBreakdowns(
+                    context,
+                    DatabaseInfo.BREAKDOWN_ID + " = '" + id + "'",
+                    null,
+                    id
             );
-
-            thread.start();
+            getBreakdowns.setRunnable(() -> {
+                if (getBreakdowns.getData() != null) {
+                    Breakdown breakdown = getBreakdowns.getData().get(0);
+                    setData(breakdown);
+                }
+            });
+            getBreakdowns.start();
             changeState(edit);
         }
         else {
@@ -259,63 +251,35 @@ public class BreakdownActivity extends PhotoWorker {
     }
 
     public void getCarsList() {
-        Thread thread = new Thread(() -> {
-            GetCars getCars = new GetCars(getContext(), "", "");
-            getCars.start();
-
-            try {
-                getCars.join();
-                cars = getCars.getData();
-
-                new Handler(Looper.getMainLooper()).post(() -> carsList.setAdapter(
-                        new CarSpinnerAdapter(getContext(),
-                                R.layout.spinner_dropdown_item, cars
-                        )
-                ));
-
-                car_id = cars.get(0).getId();
-            }
-            catch (Exception e) {
-                e.printStackTrace();
-            }
+        GetCars getCars = new GetCars(getContext(), "", "");
+        getCars.setRunnable(() -> {
+            cars = getCars.getData();
+            new CarSpinnerAdapter(getContext(),
+                    R.layout.spinner_dropdown_item, cars
+            );
+            car_id = cars.get(0).getId();
         });
-
-        thread.start();
+        getCars.start();
     }
 
+    @SuppressLint("SetTextI18n")
     private void checkDetails() {
-        Thread thread = new Thread(() -> {
-            // TODO изменить на детали
-            GetCars getCars = new GetCars(
-                    getApplicationContext(),
-                    "",
-                    DatabaseInfo.STANDARD_DATE + " DESC"
-            );
-            // запуск потока и присоединение к нему
-            getCars.start();
-            try {
-                getCars.join();
-                for (Car car: getCars.getData()) {
-                    det_price += car.getCar_price();
-                }
+        // TODO изменить на детали
+        GetCars getCars = new GetCars(
+                getApplicationContext(),
+                "",
+                DatabaseInfo.STANDARD_DATE + " DESC"
+        );
+        getCars.setRunnable(() -> {
+            for (Car car: getCars.getData()) {
+                det_price += car.getCar_price();
             }
-            catch (Exception e) {
-                e.printStackTrace();
-                new Handler(Looper.getMainLooper()).post(() -> Toast.makeText(getApplicationContext(), "error", Toast.LENGTH_SHORT).show());
-                e.printStackTrace();
-            }
-            new Handler(Looper.getMainLooper()).post(new Runnable() {
-                @SuppressLint("SetTextI18n")
-                @Override
-                public void run() {
-                    details_price.setText(Float.toString(det_price));
-                    sum += det_price;
-                    breakdowns_price.setText(Float.toString(sum));
-                }
-            });
+            details_price.setText(Float.toString(det_price));
+            sum += det_price;
+            breakdowns_price.setText(Float.toString(sum));
         });
-
-        thread.start();
+        // запуск потока и присоединение к нему
+        getCars.start();
     }
 
     protected void changeState(boolean state) {
@@ -378,7 +342,7 @@ public class BreakdownActivity extends PhotoWorker {
                 return null;
             }
 
-            if (work_price.getText().toString().length() == 0)
+            if (work_price.getText().toString().isEmpty())
                 contentValues.put(DatabaseInfo.WORK_PRICE, 0);
             else
                 contentValues.put(DatabaseInfo.WORK_PRICE, Float.parseFloat(work_price.getText().toString()));
@@ -389,7 +353,7 @@ public class BreakdownActivity extends PhotoWorker {
             flag = false;
             contentValues.put(DatabaseInfo.CAR_ID, car_id);
             contentValues.put(DatabaseInfo.STANDARD_DATE, breakdown_date.getText().toString());
-            if (breakdown_date.getText().toString().length() == 0) {
+            if (breakdown_date.getText().toString().isEmpty()) {
                 Toast.makeText(this, "Введите дату поломки", Toast.LENGTH_SHORT).show();
                 return null;
             }
@@ -411,7 +375,7 @@ public class BreakdownActivity extends PhotoWorker {
             }
         }
 
-        if (bitmaps.size() == 0) {
+        if (bitmaps.isEmpty()) {
             Toast.makeText(this, "Добавьте фото поломки", Toast.LENGTH_SHORT).show();
             return null;
         }
@@ -441,32 +405,22 @@ public class BreakdownActivity extends PhotoWorker {
 
         car_id = breakdown.getCar_id();
 
-
         bitmaps = breakdown.getPhotos();
         setImages();
 
-        Thread thread = new Thread(() -> {
-            GetCars getCars = new GetCars(getContext(), DatabaseInfo.CAR_ID + " = " + car_id, "");
-            getCars.start();
-
-            try {
-                getCars.join();
-                cars = getCars.getData();
-
-                new Handler(Looper.getMainLooper()).post(() ->
-                        carsList.setAdapter(
-                                new CarSpinnerAdapter(
-                                        getContext(),
-                                        R.layout.spinner_dropdown_item, cars
-                                )
-                        )
-                );
+        GetCars getCars = new GetCars(getContext(), DatabaseInfo.CAR_ID + " = " + car_id, "");
+        getCars.setRunnable(() -> {
+            cars = getCars.getData();
+            if (cars == null || cars.isEmpty()) {
+                return;
             }
-            catch (Exception e) {
-                e.printStackTrace();
-            }
+            carsList.setAdapter(
+                    new CarSpinnerAdapter(
+                            getContext(),
+                            R.layout.spinner_dropdown_item, cars
+                    )
+            );
         });
-
-        thread.start();
+        getCars.start();
     }
 }

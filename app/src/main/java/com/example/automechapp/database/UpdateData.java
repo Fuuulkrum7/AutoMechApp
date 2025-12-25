@@ -30,27 +30,6 @@ public class UpdateData extends Thread {
     @SuppressLint("Recycle")
     @Override
     public void run() {
-        try {
-            db.update(
-                    table,
-                    values,
-                    whereClause,
-                    whereArgs
-            );
-        } catch (Exception e) {
-            // Если что-то пошло не так
-            Log.d(MainActivity.TAG, e.toString());
 
-            new Handler(Looper.getMainLooper()).post(() -> {
-                Context context = MainActivity.getContext();
-                if (context == null) {
-                    context = CarActivity.getContext();
-                }
-                Toast toast = Toast.makeText(context,
-                        "Не удалось обновить данные", Toast.LENGTH_SHORT);
-                toast.show();
-            });
-
-        }
     }
 }

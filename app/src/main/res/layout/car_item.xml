@@ -1,76 +1,95 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="vertical">
-
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="@color/black"/>
+    android:layout_marginHorizontal="12dp"
+    android:layout_marginVertical="8dp"
+    app:cardCornerRadius="16dp"
+    app:cardElevation="2dp"
+    app:cardUseCompatPadding="true">
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="horizontal">
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:padding="12dp">
 
+        <!-- Круглая фотка через CardView -->
         <androidx.cardview.widget.CardView
-            android:layout_width="120dp"
-            android:layout_height="120dp"
-            android:layout_gravity="center"
-            android:layout_marginLeft="4dp"
-            android:layout_marginTop="4dp"
-            android:layout_marginRight="4dp"
-            android:layout_marginBottom="4dp"
-            app:cardCornerRadius="250dp">
+            android:layout_width="88dp"
+            android:layout_height="88dp"
+            android:layout_gravity="center_vertical"
+            app:cardCornerRadius="44dp"
+            app:cardElevation="0dp"
+            app:cardUseCompatPadding="false"
+            app:cardPreventCornerOverlap="false">
 
             <ImageView
                 android:id="@+id/car_photo"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                app:srcCompat="@drawable/ic_baseline_no_photography_24" />
-
+                android:contentDescription="@string/app_name"
+                android:scaleType="centerCrop"
+                app:srcCompat="@drawable/ic_baseline_no_photography_24"
+                tools:src="@drawable/ic_baseline_no_photography_24" />
         </androidx.cardview.widget.CardView>
 
         <LinearLayout
-            android:layout_width="match_parent"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="4dp"
+            android:layout_weight="1"
+            android:layout_marginStart="12dp"
             android:orientation="vertical"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/car_photo"
-            app:layout_constraintTop_toTopOf="parent">
+            android:layout_gravity="center_vertical">
 
+            <!-- Название: 1-2 строки, многоточие + автоуменьшение -->
             <TextView
                 android:id="@+id/car_name"
                 android:layout_width="match_parent"
-                android:layout_height="64dp"
+                android:layout_height="wrap_content"
                 android:fontFamily="@font/lato_regular_family"
-                android:gravity="left|center_vertical"
-                android:textSize="34sp"
-                tools:ignore="RtlHardcoded" />
+                android:textStyle="bold"
+                android:textSize="20sp"
+                android:maxLines="2"
+                android:ellipsize="end"
+                android:includeFontPadding="false"
+                android:gravity="start"
+                android:autoSizeTextType="uniform"
+                android:autoSizeMinTextSize="14sp"
+                android:autoSizeMaxTextSize="20sp"
+                android:autoSizeStepGranularity="1sp"
+                tools:text="Очень длинное название машины, которое должно красиво влезать" />
 
             <TextView
                 android:id="@+id/car_manufacture"
                 android:layout_width="match_parent"
-                android:layout_height="32dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
                 android:fontFamily="@font/lato_light_family"
-                android:textSize="16sp" />
+                android:textSize="14sp"
+                android:alpha="0.85"
+                android:maxLines="1"
+                android:ellipsize="end"
+                android:gravity="start"
+                tools:text="Toyota" />
 
             <TextView
                 android:id="@+id/car_model"
                 android:layout_width="match_parent"
-                android:layout_height="32dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
                 android:fontFamily="@font/lato_light_family"
-                android:textSize="16sp" />
+                android:textSize="14sp"
+                android:alpha="0.85"
+                android:maxLines="1"
+                android:ellipsize="end"
+                android:gravity="start"
+                tools:text="Camry XV70" />
+
         </LinearLayout>
+
     </LinearLayout>
 
-    <View
-        android:layout_width="match_parent"
-        android:layout_height="1dp"
-        android:background="@color/black"/>
-
-</LinearLayout>
+</androidx.cardview.widget.CardView>

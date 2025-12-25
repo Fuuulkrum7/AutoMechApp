@@ -18,6 +18,7 @@ import android.os.Looper;
 import android.text.Editable;
 import android.text.InputFilter;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.Button;
@@ -25,6 +26,7 @@ import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.widget.Toolbar;
 
 import com.example.automechapp.MainActivity;
@@ -260,28 +262,25 @@ public class CarActivity extends PhotoWorker {
     }
 
     public void getOwnersList() {
-        Thread thread = new Thread(() -> {
+        try {
             GetOwners getOwners = new GetOwners(getContext(), "");
-            getOwners.start();
-
-            try {
-                getOwners.join();
+            getOwners.setRunnable(() -> {
                 owners = getOwners.getData();
-
-                new Handler(Looper.getMainLooper()).post(() -> ownersSpinner.setAdapter(
-                        new OwnerSpinnerAdapter(getContext(),
-                                R.layout.spinner_dropdown_item, owners
-                        )
-                ));
-
+                if (owners == null || owners.isEmpty()) {
+                    return;
+                }
+                ownersSpinner.setAdapter(
+                    new OwnerSpinnerAdapter(getContext(),
+                        R.layout.spinner_dropdown_item, owners
+                    )
+                );
                 user_id = owners.get(0).getId();
-            }
-            catch (Exception e) {
-                e.printStackTrace();
-            }
-        });
-
-        thread.start();
+            });
+            getOwners.start();
+        }
+        catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private void startUpdate() {
@@ -369,34 +368,29 @@ public class CarActivity extends PhotoWorker {
 
         user_id = car.getUser_id();
 
-        getSupportActionBar().setTitle(car.getCarName());
+        Objects.requireNonNull(getSupportActionBar()).setTitle(car.getCarName());
 
         bitmaps = car.getCar_photos();
         setImages();
+        getOwners().start();
+    }
 
-        Thread thread = new Thread(() -> {
-            GetOwners getOwners = new GetOwners(getContext(), DatabaseInfo.OWNER_ID + " = " + user_id);
-            getOwners.start();
-
-            try {
-                getOwners.join();
-                owners = getOwners.getData();
-
-                new Handler(Looper.getMainLooper()).post(() ->
-                        ownersSpinner.setAdapter(
-                                new OwnerSpinnerAdapter(
-                                        getContext(),
-                                        R.layout.spinner_dropdown_item, owners
-                                )
-                        )
-                );
+    @NonNull
+    private GetOwners getOwners() {
+        GetOwners getOwners = new GetOwners(getContext(), DatabaseInfo.OWNER_ID + " = " + user_id);
+        getOwners.setRunnable(() -> {
+            owners = getOwners.getData();
+            if (owners == null || owners.isEmpty()) {
+                return;
             }
-            catch (Exception e) {
-                e.printStackTrace();
-            }
+            ownersSpinner.setAdapter(
+                new OwnerSpinnerAdapter(
+                        getContext(),
+                        R.layout.spinner_dropdown_item, owners
+                )
+            );
         });
-
-        thread.start();
+        return getOwners;
     }
 
     @Override
@@ -440,13 +434,13 @@ public class CarActivity extends PhotoWorker {
             contentValues.put(DatabaseInfo.CAR_PRICE, Long.parseLong(price.getText().toString()));
             ++idx;
             contentValues.put(DatabaseInfo.COLOR, color.getText().toString());
-            if (color.getText().toString().length() > 0)
+            if (!color.getText().toString().isEmpty())
                 contentValues.put(DatabaseInfo.COLOR, color.getText().toString());
             else
                 contentValues.put(DatabaseInfo.COLOR, "-");
             ++idx;
             contentValues.put(DatabaseInfo.VIN, vin.getText().toString());
-            if (vin.getText().toString().length() > 0)
+            if (!vin.getText().toString().isEmpty())
                 contentValues.put(DatabaseInfo.VIN, vin.getText().toString());
             else
                 contentValues.put(DatabaseInfo.VIN, "-");
@@ -454,13 +448,13 @@ public class CarActivity extends PhotoWorker {
             contentValues.put(DatabaseInfo.ENGINE_VOLUME, Float.parseFloat(engine_volume.getText().toString()));
             ++idx;
             contentValues.put(DatabaseInfo.ENGINE_MODEL, engine_model.getText().toString());
-            if (engine_model.getText().toString().length() > 0)
+            if (!engine_model.getText().toString().isEmpty())
                 contentValues.put(DatabaseInfo.ENGINE_MODEL, vin.getText().toString());
             else
                 contentValues.put(DatabaseInfo.ENGINE_MODEL, "-");
             ++idx;
             contentValues.put(DatabaseInfo.ENGINE_NUMBER, engine_number.getText().toString());
-            if (vin.getText().toString().length() > 0)
+            if (!vin.getText().toString().isEmpty())
                 contentValues.put(DatabaseInfo.ENGINE_NUMBER, engine_number.getText().toString());
             else
                 contentValues.put(DatabaseInfo.ENGINE_NUMBER, "-");
@@ -539,7 +533,7 @@ public class CarActivity extends PhotoWorker {
             }
         }
 
-        if (bitmaps.size() == 0) {
+        if (bitmaps.isEmpty()) {
             Toast.makeText(this, "Нет фото авто", Toast.LENGTH_SHORT).show();
             return null;
         }
