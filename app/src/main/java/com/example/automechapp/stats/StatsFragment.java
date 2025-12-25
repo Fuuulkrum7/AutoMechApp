@@ -1,17 +1,20 @@
 package com.example.automechapp.stats;
 
+import android.app.AlertDialog;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.text.format.DateFormat;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.RatingBar;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
-import com.example.automechapp.MainActivity;
 import com.example.automechapp.R;
 import com.example.automechapp.database.GetStats;
 
@@ -22,6 +25,12 @@ import java.util.concurrent.TimeUnit;
 public class StatsFragment extends Fragment {
 
     private Stats stats;
+
+    // ===== SharedPreferences keys (оценка качества) =====
+    private static final String PREFS_QUALITY = "automechapp_quality";
+    private static final String K_STATS_OPEN_COUNT = "stats_open_count";
+    private static final String K_RATING_CURRENT = "rating_current"; // последняя сохранённая оценка
+    private static final String K_RATING_PREV = "rating_prev";       // предыдущая (на шаг старее)
 
     // time
     private TextView tvTotalTime;
@@ -41,6 +50,9 @@ public class StatsFragment extends Fragment {
     private TextView tvMonthRepairing;
     private TextView tvMonthDone;
     private TextView tvMonthServiced;
+
+    private AlertDialog ratingDialog;
+    private boolean countedThisVisibility = false;
 
     public StatsFragment() {}
 
@@ -77,7 +89,7 @@ public class StatsFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_stats, container, false);
 
@@ -89,7 +101,7 @@ public class StatsFragment extends Fragment {
         tvTimeOwners = v.findViewById(R.id.stats_time_owners);
         tvLastUpdated = v.findViewById(R.id.stats_last_updated);
 
-        // db / derived (если этих view нет в layout — будут null, код не упадёт)
+        // db / derived
         tvCarsInRepair = v.findViewById(R.id.stats_cars_in_repair);
         tvCarsCreated = v.findViewById(R.id.stats_cars_created);
         tvCarsActive = v.findViewById(R.id.stats_cars_active);
@@ -101,6 +113,7 @@ public class StatsFragment extends Fragment {
         tvMonthServiced = v.findViewById(R.id.stats_month_serviced);
 
         Button btnReset = v.findViewById(R.id.stats_btn_reset);
+        Button btnRate = v.findViewById(R.id.stats_btn_rate);
 
         renderAll();
 
@@ -110,10 +123,113 @@ public class StatsFragment extends Fragment {
             renderAll();
         });
 
+        btnRate.setOnClickListener(view -> showRatingDialog(false));
+
         // загрузка DB-статистики
         loadDbStatsAsync();
 
         return v;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        maybeCountOpenAndPrompt();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        countedThisVisibility = false;
+    }
+
+    private void maybeCountOpenAndPrompt() {
+        if (!isAdded() || getContext() == null) return;
+        if (countedThisVisibility) return;
+        countedThisVisibility = true;
+
+        SharedPreferences sp = getContext().getSharedPreferences(PREFS_QUALITY, Context.MODE_PRIVATE);
+        int opens = sp.getInt(K_STATS_OPEN_COUNT, 0);
+        opens += 1;
+        sp.edit().putInt(K_STATS_OPEN_COUNT, opens).apply();
+
+        // Каждое 4 открытие
+        if (opens % 4 == 0) {
+            showRatingDialog(true);
+        }
+    }
+
+    private void showRatingDialog(boolean periodicPrompt) {
+        if (!isAdded() || getContext() == null) return;
+        if (ratingDialog != null && ratingDialog.isShowing()) return;
+
+        SharedPreferences sp = getContext().getSharedPreferences(PREFS_QUALITY, Context.MODE_PRIVATE);
+        int savedCurrent = sp.getInt(K_RATING_CURRENT, 0); // последняя сохранённая оценка (0 если нет)
+
+        View dialogView = LayoutInflater.from(getContext()).inflate(R.layout.dialog_app_rating, null, false);
+        TextView tvTitle = dialogView.findViewById(R.id.rate_title);
+        TextView tvSubtitle = dialogView.findViewById(R.id.rate_subtitle);
+        RatingBar rbCurrent = dialogView.findViewById(R.id.rating_current);
+        RatingBar rbPrev = dialogView.findViewById(R.id.rating_prev);
+
+        tvTitle.setText("Оценка приложения");
+
+        if (savedCurrent > 0) {
+            tvSubtitle.setText("Как вам приложение на текущий момент?");
+        } else {
+            tvSubtitle.setText(periodicPrompt
+                    ? "Как вам наше приложение?"
+                    : "Поставьте оценку нашему приложению");
+        }
+
+        // Верхняя — новая оценка (ввод)
+        rbCurrent.setNumStars(5);
+        rbCurrent.setStepSize(1.0f);
+        rbCurrent.setRating(0f);
+
+        // Нижняя — предыдущая оценка (показ)
+        rbPrev.setNumStars(5);
+        rbPrev.setStepSize(1.0f);
+        rbPrev.setIsIndicator(true);
+        rbPrev.setRating(savedCurrent > 0 ? (float) savedCurrent : 0f);
+
+        AlertDialog.Builder b = new AlertDialog.Builder(getContext());
+        b.setView(dialogView);
+
+        b.setNegativeButton("Позже", (d, which) -> d.dismiss());
+
+        b.setPositiveButton("Отправить", null); // перехватим, чтобы валидировать рейтинг
+
+        ratingDialog = b.create();
+        ratingDialog.setOnShowListener(dlg -> {
+            Button pos = ratingDialog.getButton(AlertDialog.BUTTON_POSITIVE);
+            pos.setOnClickListener(v -> {
+                int newRating = Math.round(rbCurrent.getRating());
+
+                if (newRating < 1 || newRating > 5) {
+                    tvSubtitle.setText("Выберите оценку от 1 до 5 ⭐");
+                    return;
+                }
+
+                // Сдвиг: prev <- current, current <- new
+                int oldCurrent = sp.getInt(K_RATING_CURRENT, 0);
+                if (oldCurrent > 0) {
+                    sp.edit()
+                            .putInt(K_RATING_PREV, oldCurrent)
+                            .putInt(K_RATING_CURRENT, newRating)
+                            .apply();
+                } else {
+                    sp.edit()
+                            .putInt(K_RATING_PREV, 0)
+                            .putInt(K_RATING_CURRENT, newRating)
+                            .apply();
+                }
+
+                ratingDialog.dismiss();
+            });
+        });
+
+        ratingDialog.show();
     }
 
     private void loadDbStatsAsync() {
@@ -195,6 +311,7 @@ public class StatsFragment extends Fragment {
         return String.format(Locale.getDefault(), "%d ч %d мин", hours, minutes);
     }
 
+    @Override
     public void onStop() {
         super.onStop();
 

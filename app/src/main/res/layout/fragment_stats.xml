@@ -224,6 +224,18 @@
                         android:backgroundTint="?attr/colorSecondaryContainer"
                         android:textColor="?attr/colorOnSecondaryContainer" />
                 </LinearLayout>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="10dp" />
+
+                <Button
+                    android:id="@+id/stats_btn_rate"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Оценить приложение"
+                    android:backgroundTint="?attr/colorTertiaryContainer"
+                    android:textColor="?attr/colorOnTertiaryContainer" />
             </LinearLayout>
 
             <!-- card: workshop now -->

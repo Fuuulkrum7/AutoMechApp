@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="18dp">
+
+    <TextView
+        android:id="@+id/rate_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Оценка приложения"
+        android:textStyle="bold"
+        android:textSize="18sp"
+        android:paddingBottom="6dp" />
+
+    <TextView
+        android:id="@+id/rate_subtitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Как вам наше приложение?"
+        android:textSize="14sp"
+        android:paddingBottom="12dp" />
+
+    <!-- Текущая (новая) оценка -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Текущая оценка"
+        android:textSize="13sp"
+        android:paddingBottom="6dp" />
+
+    <RatingBar
+        android:id="@+id/rating_current"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:numStars="5"
+        android:stepSize="1.0"
+        android:isIndicator="false" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="14dp" />
+
+    <!-- Предыдущая оценка (если её не было — будет 0 и звезды пустые) -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Предыдущая оценка"
+        android:textSize="13sp"
+        android:paddingBottom="6dp" />
+
+    <RatingBar
+        android:id="@+id/rating_prev"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:numStars="5"
+        android:stepSize="1.0"
+        android:isIndicator="true"
+        android:rating="0" />
+
+</LinearLayout>
